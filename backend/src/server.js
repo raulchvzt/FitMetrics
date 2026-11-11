@@ -4,6 +4,12 @@ import cors from 'cors';
 
 import healthRoutes from './routes/health.routes.js';
 import ejerciciosRoutes from './routes/ejercicios.routes.js';
+import authRoutes from './routes/auth.routes.js';
+
+if (!process.env.JWT_SECRET) {
+  console.error('❌ Falta JWT_SECRET en el archivo .env');
+  process.exit(1);
+}
 
 const app = express();
 
@@ -12,16 +18,22 @@ app.use(express.json());
 
 app.use('/api/health', healthRoutes);
 app.use('/api/ejercicios', ejerciciosRoutes);
+app.use('/api/auth', authRoutes);
 
-// Ruta no encontrada
 app.use((req, res) => {
   res.status(404).json({ error: 'Ruta no encontrada' });
 });
 
-// Manejador central de errores
 app.use((err, req, res, next) => {
-  console.error('❌', err.message);
-  res.status(500).json({ error: 'Error interno del servidor' });
+  const status = err.status || 500;
+
+  if (status === 500) {
+    console.error('❌', err);
+  }
+
+  res.status(status).json({
+    error: status === 500 ? 'Error interno del servidor' : err.message
+  });
 });
 
 const PORT = process.env.PORT || 3000;
