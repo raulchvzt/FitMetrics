@@ -5,6 +5,7 @@ import cors from 'cors';
 import healthRoutes from './routes/health.routes.js';
 import ejerciciosRoutes from './routes/ejercicios.routes.js';
 import authRoutes from './routes/auth.routes.js';
+import rutinasRoutes from './routes/rutinas.routes.js';
 
 if (!process.env.JWT_SECRET) {
   console.error('❌ Falta JWT_SECRET en el archivo .env');
@@ -19,6 +20,7 @@ app.use(express.json());
 app.use('/api/health', healthRoutes);
 app.use('/api/ejercicios', ejerciciosRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/rutinas', rutinasRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Ruta no encontrada' });
