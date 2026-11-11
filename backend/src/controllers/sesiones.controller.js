@@ -1,5 +1,6 @@
 import * as sesionesService from '../services/sesiones.service.js';
 import { HttpError } from '../utils/httpError.js';
+import { UNIDADES } from '../utils/unidades.js';
 
 function leerEntero(valor, nombre) {
   const n = Number(valor);
@@ -10,13 +11,16 @@ function leerEntero(valor, nombre) {
 }
 
 function validarSerie(body) {
-  const { ejercicioId, pesoKg, reps, rir = null, esCalentamiento = false } = body ?? {};
+  const { ejercicioId, peso, unidad, reps, rir = null, esCalentamiento = false } = body ?? {};
 
   if (!Number.isInteger(ejercicioId) || ejercicioId <= 0) {
     throw new HttpError(400, 'ejercicioId inválido');
   }
-  if (typeof pesoKg !== 'number' || !Number.isFinite(pesoKg) || pesoKg < 0 || pesoKg > 999) {
-    throw new HttpError(400, 'El peso debe ser un número entre 0 y 999 kg');
+  if (typeof peso !== 'number' || !Number.isFinite(peso) || peso < 0) {
+    throw new HttpError(400, 'El peso debe ser un número mayor o igual a 0');
+  }
+  if (unidad !== undefined && !UNIDADES.includes(unidad)) {
+    throw new HttpError(400, 'La unidad debe ser "kg" o "lb"');
   }
   if (!Number.isInteger(reps) || reps < 1 || reps > 100) {
     throw new HttpError(400, 'Las repeticiones deben ser un entero entre 1 y 100');
@@ -30,7 +34,8 @@ function validarSerie(body) {
 
   return {
     ejercicioId,
-    pesoKg: Math.round(pesoKg * 100) / 100,
+    peso,
+    unidad,
     reps,
     rir: esCalentamiento ? null : rir,
     esCalentamiento
