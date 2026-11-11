@@ -1,5 +1,7 @@
 import { getPool, sql } from '../config/db.js';
 import { HttpError } from '../utils/httpError.js';
+import { aKg, desdeKg } from '../utils/unidades.js';
+import { obtenerUnidad } from './auth.service.js';
 
 // ---------- Ayudantes ----------
 
@@ -27,7 +29,7 @@ async function buscarSesion(usuarioId, sesionId, { debeEstarAbierta = false } = 
   return sesion;
 }
 
-function agruparSeriesPorEjercicio(filas) {
+function agruparSeriesPorEjercicio(filas, unidad) {
   const ejercicios = [];
   const indice = new Map();
 
@@ -39,13 +41,13 @@ function agruparSeriesPorEjercicio(filas) {
     ejercicios[indice.get(f.ejercicioId)].series.push({
       id: f.id,
       numero: f.numero,
-      pesoKg: f.pesoKg,
+      peso: desdeKg(f.pesoKg, unidad),
       reps: f.reps,
       rir: f.rir,
       rpe: f.rpe,
       esCalentamiento: f.esCalentamiento,
       esEfectiva: f.esEfectiva,
-      e1rm: f.e1rm
+      e1rm: desdeKg(f.e1rm, unidad)
     });
   }
   return ejercicios;
@@ -86,11 +88,14 @@ export async function obtenerDetalle(usuarioId, sesionId) {
     plan = result.recordset;
   }
 
+  const unidad = await obtenerUnidad(usuarioId);
+
   return {
     ...sesion,
     enCurso: !sesion.fechaFin,
+    unidad,
     plan,
-    ejercicios: agruparSeriesPorEjercicio(series.recordset)
+    ejercicios: agruparSeriesPorEjercicio(series.recordset, unidad)
   };
 }
 
@@ -131,7 +136,14 @@ export async function listarHistorial(usuarioId, { pagina, limite }) {
       ORDER BY s.FechaInicio DESC
       OFFSET @offset ROWS FETCH NEXT @limite ROWS ONLY
     `);
-  return result.recordset;
+
+  const unidad = await obtenerUnidad(usuarioId);
+
+  return result.recordset.map(({ volumenKg, ...sesion }) => ({
+    ...sesion,
+    volumen: desdeKg(volumenKg, unidad),
+    unidad
+  }));
 }
 
 // ---------- Escritura ----------
@@ -178,13 +190,21 @@ export async function iniciarSesion(usuarioId, { rutinaId }) {
 
 export async function registrarSerie(usuarioId, sesionId, serie) {
   await buscarSesion(usuarioId, sesionId, { debeEstarAbierta: true });
-  const pool = await getPool();
 
+  const unidadUsuario = await obtenerUnidad(usuarioId);
+  const unidadCaptura = serie.unidad ?? unidadUsuario;
+  const pesoKg = aKg(serie.peso, unidadCaptura);
+
+  if (pesoKg > 999) {
+    throw new HttpError(400, 'El peso no puede superar 999 kg (2202 lb)');
+  }
+
+  const pool = await getPool();
   const result = await pool.request()
     .input('sesionId', sql.Int, sesionId)
     .input('usuarioId', sql.Int, usuarioId)
     .input('ejercicioId', sql.Int, serie.ejercicioId)
-    .input('pesoKg', sql.Decimal(6, 2), serie.pesoKg)
+    .input('pesoKg', sql.Decimal(7, 3), pesoKg)
     .input('reps', sql.TinyInt, serie.reps)
     .input('rir', sql.TinyInt, serie.rir)
     .input('calentamiento', sql.Bit, serie.esCalentamiento)
@@ -204,10 +224,18 @@ export async function registrarSerie(usuarioId, sesionId, serie) {
         AND (e.UsuarioId IS NULL OR e.UsuarioId = @usuarioId)
     `);
 
-  if (result.recordset.length === 0) {
+  const fila = result.recordset[0];
+  if (!fila) {
     throw new HttpError(400, `El ejercicio ${serie.ejercicioId} no existe`);
   }
-  return result.recordset[0];
+
+  const { pesoKg: kg, e1rm, ...resto } = fila;
+  return {
+    ...resto,
+    peso: desdeKg(kg, unidadUsuario),
+    e1rm: desdeKg(e1rm, unidadUsuario),
+    unidad: unidadUsuario
+  };
 }
 
 export async function eliminarSerie(usuarioId, sesionId, serieId) {
