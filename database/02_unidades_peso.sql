@@ -1,11 +1,12 @@
 /* =====================================================================
    Migración 02: precisión de 3 decimales en el peso para soportar lb
+   Ejecutar con Autenticación de Windows (requiere permisos de administrador)
    ===================================================================== */
 USE FitMetrics;
 GO
 
 -- 1. Quitar la regla CHECK de PesoKg (SQL Server le puso un nombre automático)
-DECLARE @constraint SYSNAME;
+DECLARE @constraint SYSNAME, @sql NVARCHAR(400);
 
 SELECT @constraint = cc.name
 FROM sys.check_constraints cc
@@ -14,7 +15,10 @@ JOIN sys.columns c ON c.object_id = cc.parent_object_id
 WHERE cc.parent_object_id = OBJECT_ID('Series') AND c.name = 'PesoKg';
 
 IF @constraint IS NOT NULL
-    EXEC('ALTER TABLE Series DROP CONSTRAINT ' + QUOTENAME(@constraint));
+BEGIN
+    SET @sql = N'ALTER TABLE Series DROP CONSTRAINT ' + QUOTENAME(@constraint);
+    EXEC sp_executesql @sql;
+END
 GO
 
 -- 2. Quitar la columna calculada que depende del peso
