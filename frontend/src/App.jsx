@@ -6,6 +6,7 @@ import Registro from './pages/Registro';
 import Inicio from './pages/Inicio';
 import Proximamente from './pages/Proximamente';
 import Rutinas from './pages/Rutinas';
+import RutinaEditor from './pages/RutinaEditor';
 
 export default function App() {
   return (
@@ -17,9 +18,9 @@ export default function App() {
         <Route element={<Layout />}>
           <Route path="/" element={<Inicio />} />
           <Route path="/rutinas" element={<Rutinas />} />
-          <Route path="/rutinas/nueva" element={<Proximamente titulo="Nueva rutina" />} />
-          <Route path="/rutinas/:id" element={<Proximamente titulo="Editar rutina" />} />         
-           <Route path="/entrenar" element={<Proximamente titulo="Entrenar" />} />
+          <Route path="/rutinas/nueva" element={<RutinaEditor />} />
+          <Route path="/rutinas/:id" element={<RutinaEditor />} />
+          <Route path="/entrenar" element={<Proximamente titulo="Entrenar" />} />
           <Route path="/progreso" element={<Proximamente titulo="Progreso" />} />
           <Route path="/suplementos" element={<Proximamente titulo="Suplementos" />} />
         </Route>
