@@ -3,6 +3,7 @@ import { useAuth } from './hooks/useAuth';
 import RutaProtegida from './components/RutaProtegida';
 import Login from './pages/Login';
 import Boton from './components/ui/Boton';
+import Registro from './pages/Registro';
 
 function InicioTemporal() {
   const { usuario, logout } = useAuth();
@@ -19,6 +20,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/registro" element={<Registro />} />
 
       <Route element={<RutaProtegida />}>
         <Route path="/" element={<InicioTemporal />} />
