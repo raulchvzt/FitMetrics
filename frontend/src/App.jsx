@@ -1,35 +1,30 @@
-import { useEffect, useState } from 'react';
-import { api } from './services/api';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { useAuth } from './hooks/useAuth';
+import RutaProtegida from './components/RutaProtegida';
+import Login from './pages/Login';
+import Boton from './components/ui/Boton';
 
-export default function App() {
-  const [estado, setEstado] = useState('Conectando…');
-  const [ejercicios, setEjercicios] = useState([]);
-
-  useEffect(() => {
-    api('/health')
-      .then((r) => setEstado(`Conectado a ${r.baseDatos}`))
-      .catch((err) => setEstado(err.message));
-
-    api('/ejercicios')
-      .then(setEjercicios)
-      .catch(() => setEjercicios([]));
-  }, []);
-
+function InicioTemporal() {
+  const { usuario, logout } = useAuth();
   return (
     <div className="mx-auto max-w-md space-y-4 p-6">
-      <h1 className="text-3xl font-bold">Fit<span className="text-blue-400">Metrics</span></h1>
-      <p className="rounded-xl border border-borde bg-superficie p-4 font-mono text-sm">{estado}</p>
-
-      <ul className="space-y-2">
-        {ejercicios.map((e) => (
-          <li key={e.id} className="rounded-xl border border-borde bg-superficie p-3">
-            <p className="font-semibold">{e.nombre}</p>
-            <p className="text-sm text-slate-400">
-              {e.musculos.map((m) => `${m.nombre} (${m.factor})`).join(' · ')}
-            </p>
-          </li>
-        ))}
-      </ul>
+      <h1 className="text-2xl font-bold">Hola, {usuario.nombre}</h1>
+      <p className="text-slate-400">Ya iniciaste sesión. Unidad: {usuario.unidadPeso}</p>
+      <Boton variante="secundario" onClick={logout}>Cerrar sesión</Boton>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+
+      <Route element={<RutaProtegida />}>
+        <Route path="/" element={<InicioTemporal />} />
+      </Route>
+
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
