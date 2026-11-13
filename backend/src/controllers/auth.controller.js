@@ -5,7 +5,7 @@ import { UNIDADES } from '../utils/unidades.js';
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function registro(req, res) {
-  const { nombre, email, password } = req.body ?? {};
+  const { nombre, email, password, unidadPeso = 'kg' } = req.body ?? {};
 
   if (!nombre?.trim() || !email || !password) {
     throw new HttpError(400, 'Nombre, correo y contraseña son obligatorios');
@@ -16,7 +16,7 @@ export async function registro(req, res) {
   if (password.length < 8) {
     throw new HttpError(400, 'La contraseña debe tener al menos 8 caracteres');
   }
-    if (!UNIDADES.includes(unidadPeso)) {
+  if (!UNIDADES.includes(unidadPeso)) {
     throw new HttpError(400, 'La unidad debe ser "kg" o "lb"');
   }
 
@@ -29,15 +29,6 @@ export async function registro(req, res) {
 
   res.status(201).json(resultado);
 }
-
-  const resultado = await authService.registrarUsuario({
-    nombre: nombre.trim(),
-    email: email.trim().toLowerCase(),
-    password
-  });
-
-  res.status(201).json(resultado);
-
 
 export async function login(req, res) {
   const { email, password } = req.body ?? {};
