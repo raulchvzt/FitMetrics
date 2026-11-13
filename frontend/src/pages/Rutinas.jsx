@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../services/api';
 import Icono from '../components/ui/Icono';
+import { plural } from '../utils/formato';
 
 export default function Rutinas() {
   const [rutinas, setRutinas] = useState(null);
@@ -57,8 +58,8 @@ export default function Rutinas() {
                   {r.descripcion && (
                     <p className="truncate text-sm text-slate-400">{r.descripcion}</p>
                   )}
-                  <p className="mt-1 font-mono text-sm text-slate-400">
-                    {r.totalEjercicios} ejercicios · {r.totalSeries} series
+                    <p className="mt-1 font-mono text-sm text-slate-400">
+                    {plural(r.totalEjercicios, 'ejercicio')} · {plural(r.totalSeries, 'serie')}
                   </p>
                 </div>
                 <Icono nombre="flecha" className="h-5 w-5 shrink-0 text-slate-500" />

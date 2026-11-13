@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../services/api';
+import { formatoTiempo } from '../utils/formato';
 import Campo from '../components/ui/Campo';
 import Boton from '../components/ui/Boton';
 import Contador from '../components/ui/Contador';
@@ -9,9 +10,9 @@ import SelectorEjercicio from '../components/SelectorEjercicio';
 
 const VALORES_INICIALES = { series: 3, repsMin: 8, repsMax: 12, rir: 2, descansoSeg: 120 };
 
-const formatoTiempo = (seg) => `${Math.floor(seg / 60)}:${String(seg % 60).padStart(2, '0')}`;
-
 export default function RutinaEditor() {
+  const { id } = useParams();
+  const esEdicion = Boolean(id);
   const navigate = useNavigate();
 
   const [nombre, setNombre] = useState('');
@@ -21,10 +22,41 @@ export default function RutinaEditor() {
   const [selectorAbierto, setSelectorAbierto] = useState(false);
   const [error, setError] = useState('');
   const [guardando, setGuardando] = useState(false);
+  const [cargando, setCargando] = useState(esEdicion);
+  const [noEncontrada, setNoEncontrada] = useState(false);
+  const [confirmarEliminar, setConfirmarEliminar] = useState(false);
+  const [eliminando, setEliminando] = useState(false);
 
   useEffect(() => {
     api('/ejercicios').then(setCatalogo).catch((err) => setError(err.message));
   }, []);
+
+  useEffect(() => {
+    if (!id) return;
+
+    let activo = true;
+    setCargando(true);
+
+    api(`/rutinas/${id}`)
+      .then((rutina) => {
+        if (!activo) return;
+        setNombre(rutina.nombre);
+        setDescripcion(rutina.descripcion ?? '');
+        setEjercicios(rutina.ejercicios);
+      })
+      .catch((err) => {
+        if (!activo) return;
+        if (err.status === 404) setNoEncontrada(true);
+        else setError(err.message);
+      })
+      .finally(() => {
+        if (activo) setCargando(false);
+      });
+
+    return () => {
+      activo = false;
+    };
+  }, [id]);
 
   function agregar(ejercicio) {
     setEjercicios((lista) => [
@@ -67,18 +99,21 @@ export default function RutinaEditor() {
     if (!nombre.trim()) return setError('Ponle un nombre a la rutina');
     if (ejercicios.length === 0) return setError('Agrega al menos un ejercicio');
 
+    const datos = {
+      nombre,
+      descripcion,
+      ejercicios: ejercicios.map(({ ejercicioId, series, repsMin, repsMax, rir, descansoSeg }) => ({
+        ejercicioId, series, repsMin, repsMax, rir, descansoSeg
+      }))
+    };
+
     setGuardando(true);
     try {
-      await api('/rutinas', {
-        method: 'POST',
-        body: {
-          nombre,
-          descripcion,
-          ejercicios: ejercicios.map(({ ejercicioId, series, repsMin, repsMax, rir, descansoSeg }) => ({
-            ejercicioId, series, repsMin, repsMax, rir, descansoSeg
-          }))
-        }
-      });
+      if (esEdicion) {
+        await api(`/rutinas/${id}`, { method: 'PUT', body: datos });
+      } else {
+        await api('/rutinas', { method: 'POST', body: datos });
+      }
       navigate('/rutinas');
     } catch (err) {
       setError(err.message);
@@ -86,14 +121,45 @@ export default function RutinaEditor() {
     }
   }
 
+  async function eliminar() {
+    setError('');
+    setEliminando(true);
+    try {
+      await api(`/rutinas/${id}`, { method: 'DELETE' });
+      navigate('/rutinas', { replace: true });
+    } catch (err) {
+      setError(err.message);
+      setEliminando(false);
+      setConfirmarEliminar(false);
+    }
+  }
+
+  const volver = (
+    <Link to="/rutinas" className="inline-flex items-center gap-1 text-sm text-slate-400 hover:text-slate-200">
+      <Icono nombre="atras" className="h-4 w-4" />
+      Rutinas
+    </Link>
+  );
+
+  if (cargando) {
+    return <p className="text-slate-400">Cargando rutina…</p>;
+  }
+
+  if (noEncontrada) {
+    return (
+      <div className="space-y-3">
+        {volver}
+        <h1 className="text-2xl font-bold">Rutina no encontrada</h1>
+        <p className="text-slate-400">Puede que se haya eliminado o que la dirección sea incorrecta.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-5">
       <header className="space-y-1">
-        <Link to="/rutinas" className="inline-flex items-center gap-1 text-sm text-slate-400 hover:text-slate-200">
-          <Icono nombre="atras" className="h-4 w-4" />
-          Rutinas
-        </Link>
-        <h1 className="text-2xl font-bold">Nueva rutina</h1>
+        {volver}
+        <h1 className="text-2xl font-bold">{esEdicion ? 'Editar rutina' : 'Nueva rutina'}</h1>
       </header>
 
       <form onSubmit={guardar} className="space-y-5">
@@ -168,8 +234,39 @@ export default function RutinaEditor() {
           </div>
         )}
 
-        <Boton type="submit" cargando={guardando} className="w-full">Guardar rutina</Boton>
+        <Boton type="submit" cargando={guardando} className="w-full">
+          {esEdicion ? 'Guardar cambios' : 'Guardar rutina'}
+        </Boton>
       </form>
+
+      {esEdicion && (
+        <section className="border-t border-borde pt-5">
+          {confirmarEliminar ? (
+            <div className="space-y-3 rounded-2xl border border-peligro/40 bg-peligro/10 p-4">
+              <p className="font-semibold">¿Eliminar "{nombre}"?</p>
+              <p className="text-sm text-slate-300">
+                Dejará de aparecer en tu lista, pero los entrenamientos que ya hiciste con ella se conservan en tu historial.
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <Boton variante="secundario" onClick={() => setConfirmarEliminar(false)} disabled={eliminando}>
+                  Cancelar
+                </Boton>
+                <Boton variante="peligro" onClick={eliminar} cargando={eliminando}>
+                  Sí, eliminar
+                </Boton>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setConfirmarEliminar(true)}
+              className="h-12 w-full rounded-xl border border-peligro/40 text-sm font-semibold text-red-300 hover:bg-peligro/10"
+            >
+              Eliminar rutina
+            </button>
+          )}
+        </section>
+      )}
 
       {selectorAbierto && (
         <SelectorEjercicio
