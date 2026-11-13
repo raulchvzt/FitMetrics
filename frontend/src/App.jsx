@@ -1,22 +1,10 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { useAuth } from './hooks/useAuth';
 import RutaProtegida from './components/RutaProtegida';
 import Layout from './components/Layout';
 import Login from './pages/Login';
 import Registro from './pages/Registro';
+import Inicio from './pages/Inicio';
 import Proximamente from './pages/Proximamente';
-import Boton from './components/ui/Boton';
-
-function InicioTemporal() {
-  const { usuario, logout } = useAuth();
-  return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Hola, {usuario.nombre}</h1>
-      <p className="text-slate-400">Ya iniciaste sesión. Unidad: {usuario.unidadPeso}</p>
-      <Boton variante="secundario" onClick={logout}>Cerrar sesión</Boton>
-    </div>
-  );
-}
 
 export default function App() {
   return (
@@ -26,7 +14,7 @@ export default function App() {
 
       <Route element={<RutaProtegida />}>
         <Route element={<Layout />}>
-          <Route path="/" element={<InicioTemporal />} />
+          <Route path="/" element={<Inicio />} />
           <Route path="/rutinas" element={<Proximamente titulo="Rutinas" />} />
           <Route path="/entrenar" element={<Proximamente titulo="Entrenar" />} />
           <Route path="/progreso" element={<Proximamente titulo="Progreso" />} />
