@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { plural } from '../utils/formato';
@@ -7,6 +7,9 @@ import Icono from '../components/ui/Icono';
 import HojaInferior from '../components/ui/HojaInferior';
 import Cronometro from '../components/Cronometro';
 import FormularioSerie from '../components/FormularioSerie';
+import TemporizadorDescanso from '../components/TemporizadorDescanso';
+import { prepararAviso, sonarAviso } from '../utils/aviso';
+import { guardarDescanso, leerDescanso } from '../utils/descanso';
 
 const seriesDe = (sesion, ejercicioId) =>
   sesion.ejercicios.find((e) => e.ejercicioId === ejercicioId)?.series ?? [];
@@ -247,6 +250,7 @@ export default function Entrenar() {
     setOcupado(true);
     try {
       await api(`/sesiones/${sesion.id}/finalizar`, { method: 'POST', body: { fatigaPercibida: fatiga } });
+      guardarDescanso(sesion.id, null);
       navigate('/', { replace: true });
     } catch (err) {
       setError(err.message);
@@ -260,6 +264,7 @@ export default function Entrenar() {
     setOcupado(true);
     try {
       await api(`/sesiones/${sesion.id}`, { method: 'DELETE' });
+      guardarDescanso(sesion.id, null);
       setSesion(null);
       setHoja(null);
     } catch (err) {
@@ -333,16 +338,38 @@ export default function Entrenar() {
 
 function SesionEnCurso({ sesion, onRegistrar, onBorrar, onFinalizar, onCancelar }) {
   const [elegidoId, setElegidoId] = useState(null);
+  const [descanso, setDescanso] = useState(() => leerDescanso(sesion.id));
+
+  useEffect(() => {
+    guardarDescanso(sesion.id, descanso);
+  }, [sesion.id, descanso]);
+
+  const terminarDescanso = useCallback(() => {
+    sonarAviso();
+    setDescanso(null);
+  }, []);
 
   const pendiente = sesion.plan.find((p) => trabajoDe(sesion, p.ejercicioId) < p.series);
   const activoId = elegidoId ?? pendiente?.ejercicioId ?? null;
   const totalSeries = sesion.ejercicios.reduce((total, e) => total + e.series.length, 0);
 
   async function registrar(datos) {
+    prepararAviso();
     const actualizada = await onRegistrar(datos);
     const objetivo = actualizada.plan.find((p) => p.ejercicioId === datos.ejercicioId);
-    if (objetivo && trabajoDe(actualizada, datos.ejercicioId) >= objetivo.series) {
-      setElegidoId(null);
+    const terminoEjercicio = trabajoDe(actualizada, datos.ejercicioId) >= objetivo.series;
+    if (terminoEjercicio) setElegidoId(null);
+
+    const proximo = terminoEjercicio
+      ? actualizada.plan.find((p) => trabajoDe(actualizada, p.ejercicioId) < p.series)
+      : objetivo;
+
+    if (!datos.esCalentamiento && proximo) {
+      setDescanso({
+        finEn: Date.now() + objetivo.descansoSeg * 1000,
+        total: objetivo.descansoSeg,
+        siguiente: `${proximo.nombre} · serie ${trabajoDe(actualizada, proximo.ejercicioId) + 1}`
+      });
     }
   }
 
@@ -365,6 +392,18 @@ function SesionEnCurso({ sesion, onRegistrar, onBorrar, onFinalizar, onCancelar 
           Finalizar
         </button>
       </header>
+
+      {descanso && (
+        <TemporizadorDescanso
+          key={descanso.finEn - descanso.total * 1000}
+          finEn={descanso.finEn}
+          total={descanso.total}
+          siguiente={descanso.siguiente}
+          onSumar={() => setDescanso((d) => ({ ...d, finEn: d.finEn + 30000, total: d.total + 30 }))}
+          onSaltar={() => setDescanso(null)}
+          onTerminar={terminarDescanso}
+        />
+      )}
 
       {!pendiente && (
         <p className="rounded-3xl bg-primario/10 px-4 py-3 text-sm font-semibold text-primario">
