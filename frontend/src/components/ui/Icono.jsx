@@ -3,7 +3,14 @@ const trazos = {
   rutinas: 'M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01',
   entrenar: 'M6 7v10M3 9v6M18 7v10M21 9v6M6 12h12',
   progreso: 'M5 20V11M12 20V4M19 20v-6M3 20h18',
-  suplementos: 'M10.5 3.5a5 5 0 0 1 7 7l-7 7a5 5 0 0 1-7-7zM7 7l7 7'
+  suplementos: 'M10.5 3.5a5 5 0 0 1 7 7l-7 7a5 5 0 0 1-7-7zM7 7l7 7',
+  mas: 'M12 5v14M5 12h14',
+  flecha: 'M9 6l6 6-6 6',
+  arriba: 'M6 15l6-6 6 6',
+  abajo: 'M6 9l6 6 6-6',
+  cerrar: 'M6 6l12 12M18 6L6 18',
+  atras: 'M15 6l-6 6 6 6',
+  buscar: 'M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM20 20l-4-4',
 };
 
 export default function Icono({ nombre, className = 'h-6 w-6' }) {

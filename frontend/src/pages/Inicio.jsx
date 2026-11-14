@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { api } from '../services/api';
+import { plural } from '../utils/formato';
 
 function fechaDeHoy() {
   const texto = new Intl.DateTimeFormat('es-MX', {
@@ -74,8 +75,8 @@ export default function Inicio() {
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Hoy toca</span>
             <div>
               <h2 className="text-2xl font-bold">{siguiente.nombre}</h2>
-              <p className="font-mono text-sm text-slate-400">
-                {siguiente.totalEjercicios} ejercicios · {siguiente.totalSeries} series
+                <p className="font-mono text-sm text-slate-400">
+                {plural(siguiente.totalEjercicios, 'ejercicio')} · {plural(siguiente.totalSeries, 'serie')}
               </p>
             </div>
             <Link to="/entrenar" className={botonPrincipal}>Empezar entrenamiento</Link>
