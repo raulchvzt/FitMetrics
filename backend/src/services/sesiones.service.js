@@ -13,7 +13,8 @@ async function buscarSesion(usuarioId, sesionId, { debeEstarAbierta = false } = 
     .query(`
       SELECT s.SesionId AS id, s.RutinaId AS rutinaId, r.Nombre AS rutina,
              s.FechaInicio AS fechaInicio, s.FechaFin AS fechaFin,
-             s.FatigaPercibida AS fatigaPercibida, s.Notas AS notas
+             s.FatigaPercibida AS fatigaPercibida, s.Notas AS notas,
+             DATEDIFF(SECOND, s.FechaInicio, ISNULL(s.FechaFin, SYSUTCDATETIME())) AS segundosTranscurridos
       FROM Sesiones s
       LEFT JOIN Rutinas r ON r.RutinaId = s.RutinaId
       WHERE s.SesionId = @sesionId AND s.UsuarioId = @usuarioId

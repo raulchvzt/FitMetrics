@@ -133,6 +133,20 @@ export default function Inicio() {
           <p className="mt-1 font-mono text-3xl font-bold">{usuario.unidadPeso}</p>
         </div>
       </section>
+
+      <Link
+        to="/historial"
+        className="flex items-center gap-3 rounded-3xl bg-superficie p-3 pr-4 transition hover:bg-elevado"
+      >
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-elevado text-primario">
+          <Icono nombre="progreso" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block font-bold">Historial</span>
+          <span className="block text-sm text-neutral-400">Tus entrenamientos terminados</span>
+        </span>
+        <Icono nombre="flecha" className="h-5 w-5 shrink-0 text-neutral-500" />
+      </Link>
     </div>
   );
 }
