@@ -135,31 +135,34 @@ export default function RutinaEditor() {
   }
 
   const volver = (
-    <Link to="/rutinas" className="inline-flex items-center gap-1 text-sm text-slate-400 hover:text-slate-200">
-      <Icono nombre="atras" className="h-4 w-4" />
-      Rutinas
+    <Link
+      to="/rutinas"
+      aria-label="Volver a rutinas"
+      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-superficie text-neutral-50 transition hover:bg-elevado"
+    >
+      <Icono nombre="atras" className="h-5 w-5" />
     </Link>
   );
 
   if (cargando) {
-    return <p className="text-slate-400">Cargando rutina…</p>;
+    return <p className="text-neutral-400">Cargando rutina…</p>;
   }
 
   if (noEncontrada) {
     return (
-      <div className="space-y-3">
+      <div className="space-y-4">
         {volver}
-        <h1 className="text-2xl font-bold">Rutina no encontrada</h1>
-        <p className="text-slate-400">Puede que se haya eliminado o que la dirección sea incorrecta.</p>
+        <h1 className="text-2xl font-extrabold tracking-tight">Rutina no encontrada</h1>
+        <p className="text-neutral-400">Puede que se haya eliminado o que la dirección sea incorrecta.</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-5">
-      <header className="space-y-1">
+      <header className="flex items-center gap-3">
         {volver}
-        <h1 className="text-2xl font-bold">{esEdicion ? 'Editar rutina' : 'Nueva rutina'}</h1>
+        <h1 className="text-2xl font-extrabold tracking-tight">{esEdicion ? 'Editar rutina' : 'Nueva rutina'}</h1>
       </header>
 
       <form onSubmit={guardar} className="space-y-5">
@@ -173,28 +176,30 @@ export default function RutinaEditor() {
         </div>
 
         <section className="space-y-3">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400">
-            Ejercicios ({ejercicios.length})
+          <h2 className="text-lg font-extrabold">
+            Ejercicios <span className="font-mono text-neutral-400">({ejercicios.length})</span>
           </h2>
 
           {ejercicios.map((ej, index) => (
-            <article key={ej.ejercicioId} className="space-y-3 rounded-2xl border border-borde bg-superficie p-4">
+            <article key={ej.ejercicioId} className="space-y-3 rounded-3xl bg-superficie p-4">
               <div className="flex items-center gap-2">
-                <span className="font-mono text-sm text-slate-500">{index + 1}</span>
-                <h3 className="min-w-0 flex-1 truncate font-semibold">{ej.nombre}</h3>
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primario/15 font-mono text-xs font-bold text-primario">
+                  {index + 1}
+                </span>
+                <h3 className="min-w-0 flex-1 truncate font-bold">{ej.nombre}</h3>
                 <button type="button" onClick={() => mover(index, -1)} disabled={index === 0}
                         aria-label={`Subir ${ej.nombre}`}
-                        className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 hover:bg-fondo disabled:opacity-30">
+                        className="flex h-9 w-9 items-center justify-center rounded-full text-neutral-400 hover:bg-elevado disabled:opacity-30">
                   <Icono nombre="arriba" className="h-5 w-5" />
                 </button>
                 <button type="button" onClick={() => mover(index, 1)} disabled={index === ejercicios.length - 1}
                         aria-label={`Bajar ${ej.nombre}`}
-                        className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 hover:bg-fondo disabled:opacity-30">
+                        className="flex h-9 w-9 items-center justify-center rounded-full text-neutral-400 hover:bg-elevado disabled:opacity-30">
                   <Icono nombre="abajo" className="h-5 w-5" />
                 </button>
                 <button type="button" onClick={() => quitar(index)}
                         aria-label={`Quitar ${ej.nombre}`}
-                        className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 hover:bg-peligro/15 hover:text-red-300">
+                        className="flex h-9 w-9 items-center justify-center rounded-full text-neutral-400 hover:bg-peligro/15 hover:text-red-300">
                   <Icono nombre="cerrar" className="h-5 w-5" />
                 </button>
               </div>
@@ -220,8 +225,8 @@ export default function RutinaEditor() {
           <button
             type="button"
             onClick={() => setSelectorAbierto(true)}
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-dashed
-                       border-slate-600 text-sm font-semibold text-slate-300 hover:border-slate-400"
+            className="flex h-13 w-full items-center justify-center gap-2 rounded-full border border-dashed
+                       border-neutral-600 text-sm font-bold text-neutral-200 transition hover:border-primario hover:text-primario"
           >
             <Icono nombre="mas" className="h-4 w-4" />
             Agregar ejercicio
@@ -229,7 +234,7 @@ export default function RutinaEditor() {
         </section>
 
         {error && (
-          <div role="alert" className="rounded-xl border border-peligro/40 bg-peligro/10 px-3 py-2 text-sm text-red-300">
+          <div role="alert" className="rounded-2xl border border-peligro/40 bg-peligro/10 px-4 py-3 text-sm text-red-300">
             {error}
           </div>
         )}
@@ -242,9 +247,9 @@ export default function RutinaEditor() {
       {esEdicion && (
         <section className="border-t border-borde pt-5">
           {confirmarEliminar ? (
-            <div className="space-y-3 rounded-2xl border border-peligro/40 bg-peligro/10 p-4">
+            <div className="space-y-3 rounded-3xl border border-peligro/40 bg-peligro/10 p-4">
               <p className="font-semibold">¿Eliminar "{nombre}"?</p>
-              <p className="text-sm text-slate-300">
+              <p className="text-sm text-neutral-300">
                 Dejará de aparecer en tu lista, pero los entrenamientos que ya hiciste con ella se conservan en tu historial.
               </p>
               <div className="grid grid-cols-2 gap-3">
@@ -260,7 +265,7 @@ export default function RutinaEditor() {
             <button
               type="button"
               onClick={() => setConfirmarEliminar(true)}
-              className="h-12 w-full rounded-xl border border-peligro/40 text-sm font-semibold text-red-300 hover:bg-peligro/10"
+              className="h-13 w-full rounded-full border border-peligro/40 text-sm font-bold text-red-300 transition hover:bg-peligro/10"
             >
               Eliminar rutina
             </button>

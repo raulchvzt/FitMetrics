@@ -33,40 +33,43 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-6 py-8">
-      <div className="w-full max-w-sm">
-        <div className="mb-8 flex flex-col items-center gap-3">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primario text-white">
-            <Icono nombre="entrenar" className="h-8 w-8" />
-          </div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Fit<span className="text-blue-400">Metrics</span>
-          </h1>
-          <p className="text-sm text-slate-400">Entrena con precisión</p>
-        </div>
+    <div className="mx-auto flex min-h-dvh max-w-md flex-col px-6 pb-8 pt-[calc(1.25rem+env(safe-area-inset-top))]">
+      <Link
+        to="/bienvenida"
+        aria-label="Volver"
+        className="flex h-11 w-11 items-center justify-center rounded-full bg-superficie text-neutral-50 transition hover:bg-elevado"
+      >
+        <Icono nombre="atras" className="h-5 w-5" />
+      </Link>
 
-        <form onSubmit={enviar} className="space-y-4 rounded-2xl border border-borde bg-superficie p-6">
-          {error && (
-            <div role="alert" className="rounded-xl border border-peligro/40 bg-peligro/10 px-3 py-2 text-sm text-red-300">
-              {error}
-            </div>
-          )}
-
-          <Campo etiqueta="Correo" id="email" name="email" type="email"
-                 value={form.email} onChange={actualizar}
-                 autoComplete="email" placeholder="tu@correo.com" required />
-          <Campo etiqueta="Contraseña" id="password" name="password" type="password"
-                 value={form.password} onChange={actualizar}
-                 autoComplete="current-password" required />
-
-          <Boton type="submit" cargando={enviando} className="w-full">Iniciar sesión</Boton>
-        </form>
-
-        <p className="mt-6 text-center text-sm text-slate-400">
-          ¿No tienes cuenta?{' '}
-          <Link to="/registro" className="font-semibold text-blue-400 hover:underline">Regístrate</Link>
-        </p>
+      <div className="mb-8 mt-8 space-y-2">
+        <h1 className="text-[34px] font-extrabold leading-tight tracking-tight">
+          Bienvenido <span className="text-primario">de vuelta</span>
+        </h1>
+        <p className="text-neutral-400">Inicia sesión para seguir con tu progreso.</p>
       </div>
+
+      <form onSubmit={enviar} className="space-y-4">
+        {error && (
+          <div role="alert" className="rounded-2xl border border-peligro/40 bg-peligro/10 px-4 py-3 text-sm text-red-300">
+            {error}
+          </div>
+        )}
+
+        <Campo etiqueta="Correo" id="email" name="email" type="email"
+               value={form.email} onChange={actualizar}
+               autoComplete="email" placeholder="tu@correo.com" required />
+        <Campo etiqueta="Contraseña" id="password" name="password" type="password"
+               value={form.password} onChange={actualizar}
+               autoComplete="current-password" required />
+
+        <Boton type="submit" cargando={enviando} className="mt-2 w-full">Iniciar sesión</Boton>
+      </form>
+
+      <p className="mt-6 text-center text-sm text-neutral-400">
+        ¿No tienes cuenta?{' '}
+        <Link to="/registro" className="font-bold text-primario hover:underline">Regístrate</Link>
+      </p>
     </div>
   );
 }
