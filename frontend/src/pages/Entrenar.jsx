@@ -6,6 +6,13 @@ import Boton from '../components/ui/Boton';
 import Icono from '../components/ui/Icono';
 import HojaInferior from '../components/ui/HojaInferior';
 import Cronometro from '../components/Cronometro';
+import FormularioSerie from '../components/FormularioSerie';
+
+const seriesDe = (sesion, ejercicioId) =>
+  sesion.ejercicios.find((e) => e.ejercicioId === ejercicioId)?.series ?? [];
+
+const trabajoDe = (sesion, ejercicioId) =>
+  seriesDe(sesion, ejercicioId).filter((s) => !s.esCalentamiento).length;
 
 function Aviso({ children }) {
   return (
@@ -93,26 +100,31 @@ function ElegirRutina({ rutinas, onIniciar, iniciando }) {
   );
 }
 
-function TarjetaEjercicio({ objetivo, series, unidad }) {
+function TarjetaEjercicio({ objetivo, series, unidad, activo, onActivar, onBorrar, children }) {
   const trabajo = series.filter((s) => !s.esCalentamiento).length;
   const completo = trabajo >= objetivo.series;
 
   return (
-    <article className="space-y-3 rounded-3xl bg-superficie p-4">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h2 className="truncate text-lg font-extrabold">{objetivo.nombre}</h2>
-          <p className="font-mono text-xs text-neutral-400">
+    <article className={`space-y-3 rounded-3xl bg-superficie p-4 ${activo ? 'ring-1 ring-primario/50' : ''}`}>
+      <button
+        type="button"
+        onClick={onActivar}
+        aria-expanded={activo}
+        className="flex w-full items-start justify-between gap-3 text-left"
+      >
+        <span className="min-w-0">
+          <span className="block truncate text-lg font-extrabold">{objetivo.nombre}</span>
+          <span className="block font-mono text-xs text-neutral-400">
             {objetivo.series} × {objetivo.repsMin}–{objetivo.repsMax} · RIR {objetivo.rir}
-          </p>
-        </div>
+          </span>
+        </span>
         <span
           className={`shrink-0 rounded-full px-2.5 py-1 font-mono text-xs font-bold
             ${completo ? 'bg-primario text-fondo' : 'bg-elevado text-neutral-300'}`}
         >
           {trabajo}/{objetivo.series}
         </span>
-      </div>
+      </button>
 
       {series.length > 0 && (
         <table className="w-full text-left font-mono text-sm">
@@ -123,6 +135,7 @@ function TarjetaEjercicio({ objetivo, series, unidad }) {
               <th scope="col" className="pb-1 font-bold">Reps</th>
               <th scope="col" className="pb-1 font-bold">RIR</th>
               <th scope="col" className="w-8 pb-1"><span className="sr-only">Efectiva</span></th>
+              {activo && <th scope="col" className="w-8 pb-1"><span className="sr-only">Borrar</span></th>}
             </tr>
           </thead>
           <tbody>
@@ -143,11 +156,25 @@ function TarjetaEjercicio({ objetivo, series, unidad }) {
                     </span>
                   )}
                 </td>
+                {activo && (
+                  <td className="py-1.5">
+                    <button
+                      type="button"
+                      onClick={() => onBorrar(s.id)}
+                      aria-label={`Borrar serie ${s.esCalentamiento ? 'de calentamiento' : s.numero}`}
+                      className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-500 transition hover:bg-peligro/15 hover:text-red-300"
+                    >
+                      <Icono nombre="cerrar" className="h-4 w-4" />
+                    </button>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
         </table>
       )}
+
+      {children}
     </article>
   );
 }
@@ -198,6 +225,23 @@ export default function Entrenar() {
     }
   }
 
+  async function registrarSerie(datos) {
+    await api(`/sesiones/${sesion.id}/series`, { method: 'POST', body: datos });
+    const actualizada = await api(`/sesiones/${sesion.id}`);
+    setSesion(actualizada);
+    return actualizada;
+  }
+
+  async function borrarSerie(serieId) {
+    setError('');
+    try {
+      await api(`/sesiones/${sesion.id}/series/${serieId}`, { method: 'DELETE' });
+      setSesion(await api(`/sesiones/${sesion.id}`));
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
   async function finalizar() {
     setError('');
     setOcupado(true);
@@ -237,6 +281,8 @@ export default function Entrenar() {
       ) : (
         <SesionEnCurso
           sesion={sesion}
+          onRegistrar={registrarSerie}
+          onBorrar={borrarSerie}
           onFinalizar={() => setHoja('finalizar')}
           onCancelar={() => setHoja('cancelar')}
         />
@@ -285,10 +331,20 @@ export default function Entrenar() {
   );
 }
 
-function SesionEnCurso({ sesion, onFinalizar, onCancelar }) {
-  const seriesDe = (ejercicioId) =>
-    sesion.ejercicios.find((e) => e.ejercicioId === ejercicioId)?.series ?? [];
+function SesionEnCurso({ sesion, onRegistrar, onBorrar, onFinalizar, onCancelar }) {
+  const [elegidoId, setElegidoId] = useState(null);
+
+  const pendiente = sesion.plan.find((p) => trabajoDe(sesion, p.ejercicioId) < p.series);
+  const activoId = elegidoId ?? pendiente?.ejercicioId ?? null;
   const totalSeries = sesion.ejercicios.reduce((total, e) => total + e.series.length, 0);
+
+  async function registrar(datos) {
+    const actualizada = await onRegistrar(datos);
+    const objetivo = actualizada.plan.find((p) => p.ejercicioId === datos.ejercicioId);
+    if (objetivo && trabajoDe(actualizada, datos.ejercicioId) >= objetivo.series) {
+      setElegidoId(null);
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -303,20 +359,47 @@ function SesionEnCurso({ sesion, onFinalizar, onCancelar }) {
         <button
           type="button"
           onClick={onFinalizar}
-          className="h-11 rounded-full bg-elevado px-4 text-sm font-bold transition hover:bg-neutral-700"
+          className={`h-11 rounded-full px-4 text-sm font-bold transition
+            ${pendiente ? 'bg-elevado hover:bg-neutral-700' : 'bg-primario text-fondo hover:bg-primario-claro'}`}
         >
           Finalizar
         </button>
       </header>
 
-      {sesion.plan.map((objetivo) => (
-        <TarjetaEjercicio
-          key={objetivo.ejercicioId}
-          objetivo={objetivo}
-          series={seriesDe(objetivo.ejercicioId)}
-          unidad={sesion.unidad}
-        />
-      ))}
+      {!pendiente && (
+        <p className="rounded-3xl bg-primario/10 px-4 py-3 text-sm font-semibold text-primario">
+          ¡Completaste todas las series de la rutina! Toca Finalizar cuando termines.
+        </p>
+      )}
+
+      {sesion.plan.map((objetivo) => {
+        const series = seriesDe(sesion, objetivo.ejercicioId);
+        const activo = objetivo.ejercicioId === activoId;
+        const trabajo = series.filter((s) => !s.esCalentamiento);
+
+        return (
+          <TarjetaEjercicio
+            key={objetivo.ejercicioId}
+            objetivo={objetivo}
+            series={series}
+            unidad={sesion.unidad}
+            activo={activo}
+            onActivar={() => setElegidoId(activo ? -1 : objetivo.ejercicioId)}
+            onBorrar={onBorrar}
+          >
+            {activo && (
+              <FormularioSerie
+                key={objetivo.ejercicioId}
+                objetivo={objetivo}
+                ultimaSerie={trabajo.at(-1)}
+                unidadUsuario={sesion.unidad}
+                numeroSiguiente={trabajo.length + 1}
+                onRegistrar={registrar}
+              />
+            )}
+          </TarjetaEjercicio>
+        );
+      })}
 
       <button
         type="button"
