@@ -6,11 +6,11 @@ export default function RutaProtegida() {
   const location = useLocation();
 
   if (cargando) {
-    return <div className="flex min-h-screen items-center justify-center text-slate-400">Cargando…</div>;
+    return <div className="flex min-h-dvh items-center justify-center text-neutral-400">Cargando…</div>;
   }
 
   if (!usuario) {
-    return <Navigate to="/login" replace state={{ desde: location.pathname }} />;
+    return <Navigate to="/bienvenida" replace state={{ desde: location.pathname }} />;
   }
 
   return <Outlet />;
