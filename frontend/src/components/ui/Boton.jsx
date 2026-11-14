@@ -1,14 +1,15 @@
 const variantes = {
-  primario: 'bg-primario text-white hover:bg-blue-500',
-  secundario: 'border border-borde text-slate-200 hover:bg-superficie',
+  primario: 'bg-primario text-fondo hover:bg-primario-claro',
+  secundario: 'bg-elevado text-neutral-50 hover:bg-neutral-800',
   peligro: 'bg-red-600 text-white hover:bg-red-700'
 };
 
 export default function Boton({ variante = 'primario', cargando = false, className = '', children, ...props }) {
   return (
     <button
-      className={`inline-flex h-12 items-center justify-center gap-2 rounded-xl px-4 font-semibold
+      className={`inline-flex h-13 items-center justify-center gap-2 rounded-full px-6 font-bold
                   transition disabled:cursor-not-allowed disabled:opacity-60
+                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primario/60
                   ${variantes[variante]} ${className}`}
       disabled={cargando || props.disabled}
       {...props}

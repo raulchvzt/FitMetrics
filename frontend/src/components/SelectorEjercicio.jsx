@@ -23,20 +23,20 @@ export default function SelectorEjercicio({ catalogo, yaAgregados, onElegir, onC
     >
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col overflow-hidden px-5 pt-6">
         <div className="mb-4 flex items-center justify-between">
-          <h2 id="titulo-selector" className="text-xl font-bold">Elegir ejercicio</h2>
+          <h2 id="titulo-selector" className="text-2xl font-extrabold tracking-tight">Elegir ejercicio</h2>
           <button
             type="button"
             onClick={onCerrar}
             aria-label="Cerrar"
-            className="flex h-11 w-11 items-center justify-center rounded-xl border border-borde text-slate-300"
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-superficie text-neutral-50 transition hover:bg-elevado"
           >
             <Icono nombre="cerrar" className="h-5 w-5" />
           </button>
         </div>
 
-        <label className="mb-4 flex h-12 items-center gap-2 rounded-xl border border-borde bg-superficie px-3.5
-                          focus-within:border-primario focus-within:ring-2 focus-within:ring-primario/30">
-          <Icono nombre="buscar" className="h-5 w-5 text-slate-400" />
+        <label className="mb-4 flex h-13 items-center gap-2 rounded-full border border-borde bg-superficie px-4
+                          focus-within:border-primario focus-within:ring-2 focus-within:ring-primario/25">
+          <Icono nombre="buscar" className="h-5 w-5 text-neutral-400" />
           <span className="sr-only">Buscar ejercicio o músculo</span>
           <input
             type="search"
@@ -44,7 +44,7 @@ export default function SelectorEjercicio({ catalogo, yaAgregados, onElegir, onC
             onChange={(e) => setBusqueda(e.target.value)}
             placeholder="Buscar ejercicio o músculo"
             autoFocus
-            className="w-full bg-transparent text-base outline-none placeholder:text-slate-500"
+            className="w-full bg-transparent text-base outline-none placeholder:text-neutral-500"
           />
         </label>
 
@@ -57,14 +57,18 @@ export default function SelectorEjercicio({ catalogo, yaAgregados, onElegir, onC
                   type="button"
                   onClick={() => onElegir(e)}
                   disabled={agregado}
-                  className="w-full rounded-xl border border-borde bg-superficie p-3 text-left transition
-                             hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="w-full rounded-3xl bg-superficie px-4 py-3 text-left transition
+                             hover:bg-elevado disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <span className="flex items-center justify-between gap-2">
-                    <span className="font-semibold">{e.nombre}</span>
-                    {agregado && <span className="text-xs text-slate-400">Agregado</span>}
+                    <span className="font-bold">{e.nombre}</span>
+                    {agregado && (
+                      <span className="rounded-full bg-elevado px-2.5 py-0.5 text-xs font-semibold text-neutral-300">
+                        Agregado
+                      </span>
+                    )}
                   </span>
-                  <span className="block text-sm text-slate-400">
+                  <span className="block text-sm text-neutral-400">
                     {e.musculos.map((m) => m.nombre).join(' · ')}
                   </span>
                 </button>
@@ -72,7 +76,7 @@ export default function SelectorEjercicio({ catalogo, yaAgregados, onElegir, onC
             );
           })}
           {filtrados.length === 0 && (
-            <li className="py-6 text-center text-sm text-slate-400">Sin resultados para "{busqueda}"</li>
+            <li className="py-6 text-center text-sm text-neutral-400">Sin resultados para "{busqueda}"</li>
           )}
         </ul>
       </div>
