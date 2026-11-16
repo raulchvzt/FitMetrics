@@ -2,6 +2,7 @@ import { getPool, sql } from '../config/db.js';
 import { HttpError } from '../utils/httpError.js';
 import { aKg, desdeKg } from '../utils/unidades.js';
 import { obtenerUnidad } from './auth.service.js';
+import { agregarSugerencias } from './sobrecarga.service.js';
 
 // ---------- Ayudantes ----------
 
@@ -80,7 +81,8 @@ export async function obtenerDetalle(usuarioId, sesionId) {
       .query(`
         SELECT re.Orden AS orden, re.EjercicioId AS ejercicioId, e.Nombre AS nombre,
                re.SeriesObjetivo AS series, re.RepsMin AS repsMin, re.RepsMax AS repsMax,
-               re.RIRObjetivo AS rir, re.DescansoSeg AS descansoSeg
+               re.RIRObjetivo AS rir, re.DescansoSeg AS descansoSeg,
+               e.IncrementoKg AS incrementoKg
         FROM RutinaEjercicios re
         JOIN Ejercicios e ON e.EjercicioId = re.EjercicioId
         WHERE re.RutinaId = @rutinaId
@@ -90,10 +92,17 @@ export async function obtenerDetalle(usuarioId, sesionId) {
   }
 
   const unidad = await obtenerUnidad(usuarioId);
+  const enCurso = !sesion.fechaFin;
+
+  if (enCurso) {
+    plan = await agregarSugerencias(usuarioId, plan, unidad);
+  } else {
+    plan = plan.map(({ incrementoKg, ...objetivo }) => objetivo);
+  }
 
   return {
     ...sesion,
-    enCurso: !sesion.fechaFin,
+    enCurso,
     unidad,
     plan,
     ejercicios: agruparSeriesPorEjercicio(series.recordset, unidad)

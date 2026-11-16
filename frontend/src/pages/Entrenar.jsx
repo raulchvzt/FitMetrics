@@ -103,6 +103,39 @@ function ElegirRutina({ rutinas, onIniciar, iniciando }) {
   );
 }
 
+const ETIQUETAS_SUGERENCIA = {
+  inicial: 'Primera vez',
+  subir: 'Sube el peso',
+  mantener: 'Mantén el peso',
+  bajar: 'Baja el peso'
+};
+
+function Sugerencia({ sugerencia, objetivo }) {
+  const meta = sugerencia.peso === null
+    ? `${objetivo.repsMin}–${objetivo.repsMax} reps`
+    : `${sugerencia.peso} ${sugerencia.unidad} × ${sugerencia.reps}`;
+
+  return (
+    <div className="space-y-2">
+      <div className="rounded-2xl bg-primario/10 p-3">
+        <p className="flex flex-wrap items-baseline gap-x-2">
+          <span className="text-xs font-bold uppercase tracking-wider text-primario">
+            {ETIQUETAS_SUGERENCIA[sugerencia.tipo]}
+          </span>
+          <span className="font-mono text-base font-bold text-neutral-50">{meta}</span>
+        </p>
+        <p className="mt-1 text-xs leading-relaxed text-neutral-300">{sugerencia.mensaje}</p>
+      </div>
+      {sugerencia.estancado && (
+        <p className="rounded-2xl bg-alerta/10 p-3 text-xs leading-relaxed text-amber-200">
+          <span className="font-bold">Posible estancamiento:</span> tu 1RM estimado no ha mejorado en las
+          últimas 3 sesiones. Considera una semana de descarga o revisar tu descanso y sueño.
+        </p>
+      )}
+    </div>
+  );
+}
+
 function TarjetaEjercicio({ objetivo, series, unidad, activo, onActivar, onBorrar, children }) {
   const trabajo = series.filter((s) => !s.esCalentamiento).length;
   const completo = trabajo >= objetivo.series;
@@ -128,6 +161,8 @@ function TarjetaEjercicio({ objetivo, series, unidad, activo, onActivar, onBorra
           {trabajo}/{objetivo.series}
         </span>
       </button>
+
+      {activo && objetivo.sugerencia && <Sugerencia sugerencia={objetivo.sugerencia} objetivo={objetivo} />}
 
       {series.length > 0 && (
         <table className="w-full text-left font-mono text-sm">
