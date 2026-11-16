@@ -9,8 +9,9 @@ export default function FormularioSerie({ objetivo, ultimaSerie, unidadUsuario, 
   const idPeso = useId();
 
   const [unidad, setUnidad] = useState(unidadUsuario);
-  const [peso, setPeso] = useState(ultimaSerie ? String(ultimaSerie.peso) : '');
-  const [reps, setReps] = useState(ultimaSerie?.reps ?? objetivo.repsMin);
+  const pesoInicial = ultimaSerie?.peso ?? objetivo.sugerencia?.peso ?? null;
+  const [peso, setPeso] = useState(pesoInicial === null ? '' : String(pesoInicial));
+  const [reps, setReps] = useState(ultimaSerie?.reps ?? objetivo.sugerencia?.reps ?? objetivo.repsMin);
   const [rir, setRir] = useState(objetivo.rir);
   const [calentamiento, setCalentamiento] = useState(false);
   const [enviando, setEnviando] = useState(false);
