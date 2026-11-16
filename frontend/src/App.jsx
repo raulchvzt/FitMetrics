@@ -11,6 +11,7 @@ import RutinaEditor from './pages/RutinaEditor';
 import Entrenar from './pages/Entrenar';
 import Historial from './pages/Historial';
 import SesionDetalle from './pages/SesionDetalle';
+import Progreso from './pages/Progreso';
 
 export default function App() {
   return (
@@ -28,7 +29,7 @@ export default function App() {
           <Route path="/rutinas/:id" element={<RutinaEditor />} />
           <Route path="/historial" element={<Historial />} />
           <Route path="/historial/:id" element={<SesionDetalle />} />
-          <Route path="/progreso" element={<Proximamente titulo="Progreso" />} />
+          <Route path="/progreso" element={<Progreso />} />
           <Route path="/suplementos" element={<Proximamente titulo="Suplementos" />} />
         </Route>
       </Route>
