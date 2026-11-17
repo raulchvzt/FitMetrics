@@ -76,7 +76,7 @@ export default function Historial() {
         <div className="space-y-3 rounded-3xl border border-dashed border-neutral-700 p-6 text-center">
           <p className="font-bold">Aún no tienes entrenamientos terminados</p>
           <p className="text-sm text-neutral-400">Cuando finalices uno, aparecerá aquí.</p>
-          <Link to="/entrenar" className="inline-flex h-12 items-center rounded-full bg-primario px-5 font-extrabold text-fondo">
+          <Link to="/entrenar" className="inline-flex h-12 items-center rounded-full bg-primario px-5 font-extrabold text-sobre-primario">
             Empezar a entrenar
           </Link>
         </div>

@@ -1,5 +1,5 @@
 const variantes = {
-  primario: 'bg-primario text-fondo hover:bg-primario-claro',
+  primario: 'bg-primario text-sobre-primario hover:bg-primario-claro',
   secundario: 'bg-elevado text-neutral-50 hover:bg-neutral-800',
   peligro: 'bg-red-600 text-white hover:bg-red-700'
 };

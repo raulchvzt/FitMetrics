@@ -26,16 +26,16 @@ export default function TemporizadorDescanso({ finEn, total, siguiente, onSumar,
     <section
       aria-label="Descanso"
       className="sticky top-[calc(0.5rem+env(safe-area-inset-top))] z-10 flex items-center gap-4 rounded-3xl
-                 border border-borde bg-superficie/95 p-3 pr-4 shadow-lg shadow-black/60 backdrop-blur"
+                 border border-borde bg-superficie/95 p-3 pr-4 shadow-lg shadow-sombra/60 backdrop-blur"
     >
       <div className="relative h-18 w-18 shrink-0">
         <svg viewBox="0 0 72 72" className="h-full w-full -rotate-90" aria-hidden="true">
-          <circle cx="36" cy="36" r={RADIO} fill="none" stroke="#2A2A2A" strokeWidth="6" />
+          <circle cx="36" cy="36" r={RADIO} fill="none" strokeWidth="6" className="stroke-borde" />
           <circle
-            cx="36" cy="36" r={RADIO} fill="none" stroke="#D4FF3F" strokeWidth="6" strokeLinecap="round"
+            cx="36" cy="36" r={RADIO} fill="none" strokeWidth="6" strokeLinecap="round"
             strokeDasharray={CIRCUNFERENCIA}
             strokeDashoffset={CIRCUNFERENCIA * (1 - avance)}
-            className="transition-[stroke-dashoffset] duration-300"
+            className="stroke-dato transition-[stroke-dashoffset] duration-300"
           />
         </svg>
         <span

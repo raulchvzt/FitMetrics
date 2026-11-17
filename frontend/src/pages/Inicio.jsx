@@ -6,6 +6,7 @@ import { plural } from '../utils/formato';
 import Icono from '../components/ui/Icono';
 import Avatar from '../components/ui/Avatar';
 import PortadaRutina from '../components/PortadaRutina';
+import BotonTema from '../components/BotonTema';
 import NumeroAnimado from '../components/ui/NumeroAnimado';
 import RecordatorioSuplementos from '../components/RecordatorioSuplementos';
 
@@ -17,7 +18,7 @@ function fechaDeHoy() {
 }
 
 const botonPrincipal =
-  'inline-flex h-12 items-center gap-2 self-start rounded-full bg-primario px-5 font-extrabold text-fondo transition hover:bg-primario-claro';
+  'inline-flex h-12 items-center gap-2 self-start rounded-full bg-primario px-5 font-extrabold text-sobre-primario transition hover:bg-primario-claro';
 
 export default function Inicio() {
   const { usuario } = useAuth();
@@ -64,12 +65,13 @@ export default function Inicio() {
         >
           <Avatar usuario={usuario} className="h-11 w-11 text-lg" />
         </Link>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="text-sm text-neutral-400">{fechaDeHoy()}</p>
           <h1 className="truncate text-2xl font-extrabold tracking-tight">
             Hola, {usuario.nombre.split(' ')[0]}
           </h1>
         </div>
+        <BotonTema />
       </header>
 
       {error && (
@@ -87,7 +89,7 @@ export default function Inicio() {
           rutina={portada}
           className="flex min-h-56 flex-col justify-end gap-3 rounded-[28px] p-5 text-white"
         >
-          <span className="self-start rounded-full bg-primario px-2.5 py-1 text-xs font-extrabold text-fondo">
+          <span className="self-start rounded-full bg-primario px-2.5 py-1 text-xs font-extrabold text-sobre-primario">
             {sesionActiva ? 'Entrenamiento en curso' : 'Hoy toca'}
           </span>
           <div className="space-y-1">

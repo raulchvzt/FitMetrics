@@ -9,7 +9,7 @@ export default function Bienvenida() {
   if (usuario) return <Navigate to="/" replace />;
 
   return (
-    <div className="animate-pagina relative mx-auto min-h-dvh max-w-md overflow-hidden">
+    <div className="tema-oscuro animate-pagina relative mx-auto min-h-dvh max-w-md overflow-hidden">
       <div aria-hidden="true" className="absolute inset-0">
         <img
           src="/bienvenida.png"
@@ -20,7 +20,7 @@ export default function Bienvenida() {
       </div>
 
       <div className="absolute left-6 top-[calc(1.25rem+env(safe-area-inset-top))] flex items-center gap-2.5">
-        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primario text-fondo">
+        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primario text-sobre-primario">
           <Icono nombre="entrenar" className="h-5 w-5" />
         </span>
         <span className="text-lg font-extrabold tracking-tight">FitMetrics</span>
@@ -39,7 +39,7 @@ export default function Bienvenida() {
         <div className="mt-7 flex flex-col gap-2">
           <Link
             to="/registro"
-            className="flex h-14 items-center justify-center gap-2 rounded-full bg-primario font-extrabold text-fondo transition hover:bg-primario-claro"
+            className="flex h-14 items-center justify-center gap-2 rounded-full bg-primario font-extrabold text-sobre-primario transition hover:bg-primario-claro"
           >
             Crear cuenta
             <Icono nombre="avanzar" className="h-5 w-5" />

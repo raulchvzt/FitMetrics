@@ -27,7 +27,7 @@ export default function Progreso() {
             aria-selected={vista.id === v.id}
             onClick={() => setParametros(i === 0 ? {} : { vista: v.id }, { replace: true })}
             className={`h-10 rounded-full text-sm font-extrabold transition
-              ${vista.id === v.id ? 'bg-primario text-fondo' : 'text-neutral-400 hover:text-neutral-100'}`}
+              ${vista.id === v.id ? 'bg-primario text-sobre-primario' : 'text-neutral-400 hover:text-neutral-100'}`}
           >
             {v.etiqueta}
           </button>

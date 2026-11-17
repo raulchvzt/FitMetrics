@@ -21,7 +21,7 @@ export default function TablaSeries({ series, unidad }) {
             <td className="py-1.5 text-neutral-400">{s.esCalentamiento ? '—' : s.e1rm}</td>
             <td className="py-1.5">
               {s.esEfectiva && (
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primario text-fondo">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primario text-sobre-primario">
                   <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor"
                        strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d="M5 12l5 5 9-10" />

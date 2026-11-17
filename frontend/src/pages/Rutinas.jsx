@@ -31,7 +31,7 @@ export default function Rutinas() {
           to="/rutinas/nueva"
           aria-label="Nueva rutina"
           title="Nueva rutina"
-          className="flex h-13 w-13 items-center justify-center rounded-full bg-primario text-fondo transition hover:bg-primario-claro"
+          className="flex h-13 w-13 items-center justify-center rounded-full bg-primario text-sobre-primario transition hover:bg-primario-claro"
         >
           <Icono nombre="mas" className="h-6 w-6" />
         </Link>

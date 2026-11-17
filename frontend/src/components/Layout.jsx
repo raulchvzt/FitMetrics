@@ -25,7 +25,7 @@ export default function Layout() {
         aria-label="Navegación principal"
         className="fixed inset-x-0 bottom-0 z-20 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))]"
       >
-        <div className="mx-auto flex h-17 max-w-md items-center justify-between rounded-full border border-borde bg-superficie px-2.5 shadow-lg shadow-black/50">
+        <div className="mx-auto flex h-17 max-w-md items-center justify-between rounded-full border border-borde bg-superficie px-2.5 shadow-lg shadow-sombra/50">
           {secciones.map((s) => (
             <NavLink
               key={s.ruta}
@@ -40,7 +40,7 @@ export default function Layout() {
               {({ isActive }) =>
                 isActive ? (
                   <>
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primario text-fondo">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primario text-sobre-primario">
                       <Icono nombre={s.icono} className="h-5 w-5" />
                     </span>
                     {s.etiqueta === 'Suplementos' ? 'Suplem.' : s.etiqueta}
