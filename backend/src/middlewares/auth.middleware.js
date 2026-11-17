@@ -11,7 +11,8 @@ export function verificarToken(req, res, next) {
   const token = header.slice(7);
 
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    // Se exige el algoritmo con el que firmamos: así no aceptan tokens "alg: none" ni de otro tipo
+    const payload = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
     req.usuario = { id: payload.sub, email: payload.email };
     next();
   } catch {

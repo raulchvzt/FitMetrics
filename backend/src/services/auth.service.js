@@ -4,11 +4,14 @@ import { getPool, sql } from '../config/db.js';
 import { HttpError } from '../utils/httpError.js';
 import { aKg, desdeKg } from '../utils/unidades.js';
 
+// Hash de una contraseña que nadie conoce (solo para igualar tiempos en el login)
+const HASH_FALSO = bcrypt.hashSync('fitmetrics-usuario-inexistente', 10);
+
 function generarToken(usuario) {
   return jwt.sign(
     { sub: usuario.id, email: usuario.email },
     process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRES_IN || '8h' }
+    { algorithm: 'HS256', expiresIn: process.env.JWT_EXPIRES_IN || '8h' }
   );
 }
 
@@ -51,9 +54,11 @@ export async function iniciarSesion({ email, password }) {
     `);
 
   const fila = result.recordset[0];
-  const passwordCorrecta = fila && await bcrypt.compare(password, fila.PasswordHash);
+  // Aunque el correo no exista, se compara contra un hash falso: así la respuesta
+  // tarda lo mismo y nadie puede averiguar qué correos tienen cuenta midiendo tiempos
+  const passwordCorrecta = await bcrypt.compare(password, fila?.PasswordHash ?? HASH_FALSO);
 
-  if (!passwordCorrecta || !fila.Activo) {
+  if (!fila || !passwordCorrecta || !fila.Activo) {
     throw new HttpError(401, 'Correo o contraseña incorrectos');
   }
 

@@ -5,18 +5,33 @@ import { esImagenValida } from '../utils/imagenes.js';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export async function registro(req, res) {
-  const { nombre, email, password, unidadPeso = 'kg' } = req.body ?? {};
+// bcrypt solo toma en cuenta los primeros 72 bytes: más largo da una falsa sensación de seguridad
+export const LARGO_MAXIMO_PASSWORD = 72;
 
-  if (!nombre?.trim() || !email || !password) {
-    throw new HttpError(400, 'Nombre, correo y contraseña son obligatorios');
-  }
-  if (!EMAIL_REGEX.test(email)) {
-    throw new HttpError(400, 'El correo no tiene un formato válido');
-  }
+const esTexto = (valor) => typeof valor === 'string';
+
+function validarLargoPassword(password) {
   if (password.length < 8) {
     throw new HttpError(400, 'La contraseña debe tener al menos 8 caracteres');
   }
+  if (Buffer.byteLength(password, 'utf8') > LARGO_MAXIMO_PASSWORD) {
+    throw new HttpError(400, `La contraseña puede tener máximo ${LARGO_MAXIMO_PASSWORD} caracteres`);
+  }
+}
+
+export async function registro(req, res) {
+  const { nombre, email, password, unidadPeso = 'kg' } = req.body ?? {};
+
+  if (!esTexto(nombre) || !nombre.trim() || !esTexto(email) || !esTexto(password)) {
+    throw new HttpError(400, 'Nombre, correo y contraseña son obligatorios');
+  }
+  if (nombre.trim().length > 100) {
+    throw new HttpError(400, 'El nombre puede tener máximo 100 caracteres');
+  }
+  if (email.length > 150 || !EMAIL_REGEX.test(email.trim())) {
+    throw new HttpError(400, 'El correo no tiene un formato válido');
+  }
+  validarLargoPassword(password);
   if (!UNIDADES.includes(unidadPeso)) {
     throw new HttpError(400, 'La unidad debe ser "kg" o "lb"');
   }
@@ -34,8 +49,12 @@ export async function registro(req, res) {
 export async function login(req, res) {
   const { email, password } = req.body ?? {};
 
-  if (!email || !password) {
+  if (!esTexto(email) || !esTexto(password) || !email.trim() || !password) {
     throw new HttpError(400, 'Correo y contraseña son obligatorios');
+  }
+  // Una contraseña enorme no puede ser correcta y haría trabajar de más a bcrypt
+  if (email.length > 150 || password.length > LARGO_MAXIMO_PASSWORD) {
+    throw new HttpError(401, 'Correo o contraseña incorrectos');
   }
 
   const resultado = await authService.iniciarSesion({
@@ -93,9 +112,7 @@ export async function cambiarPassword(req, res) {
   if (typeof actual !== 'string' || typeof nueva !== 'string' || !actual || !nueva) {
     throw new HttpError(400, 'Escribe tu contraseña actual y la nueva');
   }
-  if (nueva.length < 8) {
-    throw new HttpError(400, 'La nueva contraseña debe tener al menos 8 caracteres');
-  }
+  validarLargoPassword(nueva);
   if (nueva === actual) {
     throw new HttpError(400, 'La nueva contraseña debe ser distinta de la actual');
   }
