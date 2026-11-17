@@ -93,6 +93,7 @@ Siempre con el mismo formato y el mensaje en español:
 | Método | Ruta | Descripción |
 |---|---|---|
 | `GET` | `/volumen?semana=AAAA-MM-DD` | Series efectivas por músculo en una semana, contra la anterior |
+| `GET` | `/cuerpo` | Recuperación estimada (0–100 %, horas para estar listo) y series de la semana de cada músculo |
 | `GET` | `/ejercicios` | Ejercicios con peso registrado (para la gráfica de fuerza) |
 | `GET` | `/fuerza/:ejercicioId?dias=90` | Mejor 1RM estimado por sesión (`dias`: 30, 90, 180, 365 o 0 = todo) |
 | `GET` | `/objetivos` | Rango de series semanales de cada músculo |

@@ -80,6 +80,13 @@ funciona sin conexión y tiene tema oscuro y claro.
 - **Alerta de estancamiento** cuando tu 1RM estimado deja de subir.
 - Funciona en kg o en lb, con saltos de peso reales para cada ejercicio.
 
+### 🧍 Tu cuerpo: mapa muscular
+- **Silueta de frente y de espalda** pintada músculo por músculo, con dos modos:
+  **recuperación** (cansado, recuperándose o listo) y **volumen semanal** contra tu rango.
+- La recuperación se estima con tus series efectivas, su RIR, el factor de cada
+  músculo y lo que tarda en recuperarse (36 a 72 h), e incluye cuándo estará listo.
+- En el inicio, una tarjeta te dice qué músculos siguen descansando y cuáles están listos hoy.
+
 ### 📊 Progreso y reportes
 - **Volumen semanal** de series efectivas por músculo, contra un rango que tú defines.
 - **Fuerza**: evolución del 1RM estimado de cada ejercicio.

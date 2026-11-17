@@ -7,7 +7,7 @@ import Icono from '../components/ui/Icono';
 import Avatar from '../components/ui/Avatar';
 import PortadaRutina from '../components/PortadaRutina';
 import BotonTema from '../components/BotonTema';
-import NumeroAnimado from '../components/ui/NumeroAnimado';
+import TarjetaRecuperacion from '../components/TarjetaRecuperacion';
 import RecordatorioSuplementos from '../components/RecordatorioSuplementos';
 
 function fechaDeHoy() {
@@ -120,18 +120,7 @@ export default function Inicio() {
 
       <RecordatorioSuplementos suplementos={suplementos} onCambio={setSuplementos} />
 
-      <section className="grid grid-cols-2 gap-3">
-        <div className="rounded-3xl bg-superficie p-4">
-          <p className="text-xs text-neutral-400">Rutinas</p>
-          <p className="mt-1 font-mono text-3xl font-bold">
-            {rutinas ? <NumeroAnimado valor={rutinas.length} /> : '—'}
-          </p>
-        </div>
-        <div className="rounded-3xl bg-superficie p-4">
-          <p className="text-xs text-neutral-400">Unidad</p>
-          <p className="mt-1 font-mono text-3xl font-bold">{usuario.unidadPeso}</p>
-        </div>
-      </section>
+      <TarjetaRecuperacion />
 
       <Link
         to="/historial"
