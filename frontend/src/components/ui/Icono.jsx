@@ -13,6 +13,7 @@ const trazos = {
   buscar: 'M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM20 20l-4-4',
   avanzar: 'M5 12h14M13 6l6 6-6 6',
   play: 'M8 5.5v13l10.5-6.5z',
+  descargar: 'M12 4v11M7 10l5 5 5-5M5 20h14',
 };
 
 const rellenos = new Set(['play']);

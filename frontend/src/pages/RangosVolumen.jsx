@@ -55,7 +55,7 @@ export default function RangosVolumen() {
           objetivos: cambiados.map(({ grupoMuscularId, minimo, maximo }) => ({ grupoMuscularId, minimo, maximo }))
         }
       });
-      navigate('/progreso');
+      navigate('/progreso?vista=volumen');
     } catch (err) {
       setError(err.message);
       setGuardando(false);
@@ -81,7 +81,7 @@ export default function RangosVolumen() {
     <div className="space-y-5">
       <header className="flex items-center gap-3">
         <Link
-          to="/progreso"
+          to="/progreso?vista=volumen"
           aria-label="Volver a progreso"
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-superficie text-neutral-50 transition hover:bg-elevado"
         >
