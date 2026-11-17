@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../services/api';
-import { descripcionToma, formatoCantidad, limpiarDecimal } from '../utils/suplementos';
+import { agruparPorSeccion, descripcionToma, formatoCantidad, limpiarDecimal } from '../utils/suplementos';
 import { plural } from '../utils/formato';
 import Boton from '../components/ui/Boton';
 import Icono from '../components/ui/Icono';
 import HojaInferior from '../components/ui/HojaInferior';
+import ImagenSuplemento from '../components/ImagenSuplemento';
 
 function Chip({ tono, children }) {
   const tonos = {
@@ -24,8 +25,11 @@ function TarjetaSuplemento({ suplemento: s, ocupado, onTomar, onDeshacer, onComp
     <article
       className={`space-y-3 rounded-3xl bg-superficie p-4 ${s.requiereReposicion ? 'ring-1 ring-alerta/50' : ''}`}
     >
-      <div className="flex items-start justify-between gap-3">
-        <Link to={`/suplementos/${s.id}`} className="min-w-0 hover:underline">
+      <div className="flex items-start gap-3">
+        <Link to={`/suplementos/${s.id}`} className="shrink-0" aria-hidden="true" tabIndex={-1}>
+          <ImagenSuplemento suplemento={s} className="h-14 w-14 rounded-2xl" />
+        </Link>
+        <Link to={`/suplementos/${s.id}`} className="min-w-0 flex-1 hover:underline">
           <h2 className="truncate text-lg font-extrabold">{s.nombre}</h2>
           <p className="text-sm text-neutral-400">{descripcionToma(s)}</p>
         </Link>
@@ -225,18 +229,23 @@ export default function Suplementos() {
             </p>
           )}
 
-          <div className="escalonado space-y-4">
-            {datos.suplementos.map((s) => (
-              <TarjetaSuplemento
-              key={s.id}
-              suplemento={s}
-              ocupado={ocupadoId === s.id}
-              onTomar={(sup) => accion(sup, '/tomas', { method: 'POST' })}
-              onDeshacer={(sup) => accion(sup, '/tomas/hoy', { method: 'DELETE' })}
-              onComprar={setComprando}
-              />
-            ))}
-          </div>
+          {agruparPorSeccion(datos.suplementos).map((grupo) => (
+            <section key={grupo.id} aria-labelledby={`seccion-${grupo.id}`} className="space-y-3">
+              <h2 id={`seccion-${grupo.id}`} className="text-sm font-bold text-neutral-400">{grupo.etiqueta}</h2>
+              <div className="escalonado space-y-3">
+                {grupo.suplementos.map((s) => (
+                  <TarjetaSuplemento
+                    key={s.id}
+                    suplemento={s}
+                    ocupado={ocupadoId === s.id}
+                    onTomar={(sup) => accion(sup, '/tomas', { method: 'POST' })}
+                    onDeshacer={(sup) => accion(sup, '/tomas/hoy', { method: 'DELETE' })}
+                    onComprar={setComprando}
+                  />
+                ))}
+              </div>
+            </section>
+          ))}
 
           <p className="px-2 text-xs text-neutral-500">
             Los días restantes de los suplementos de días de entreno se calculan con tus últimas 4 semanas

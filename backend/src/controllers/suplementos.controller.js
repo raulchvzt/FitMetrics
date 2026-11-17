@@ -1,5 +1,7 @@
 import * as suplementosService from '../services/suplementos.service.js';
 import { HttpError } from '../utils/httpError.js';
+import { esImagenValida } from '../utils/imagenes.js';
+import { CATALOGO_SUPLEMENTOS, IDS_CATALOGO, SECCIONES_SUPLEMENTO } from '../utils/catalogoSuplementos.js';
 
 export const UNIDADES_SUPLEMENTO = ['g', 'scoop', 'cápsula', 'tableta', 'ml'];
 const FRECUENCIAS = ['Diario', 'DiaEntreno'];
@@ -27,8 +29,12 @@ function leerCantidad(valor, nombre, { permitirCero = false } = {}) {
 function validarSuplemento(body, { conStock }) {
   const {
     nombre, unidad, dosis, frecuencia = 'Diario', momento = 'Cualquiera',
-    horaRecordatorio = null, presentacion = null, diasAlerta = 7, stock = 0
+    horaRecordatorio = null, presentacion = null, diasAlerta = 7, stock = 0, catalogo = null
   } = body ?? {};
+
+  if (catalogo !== null && !IDS_CATALOGO.has(catalogo)) {
+    throw new HttpError(400, 'El suplemento del catálogo no existe');
+  }
 
   if (typeof nombre !== 'string' || !nombre.trim() || nombre.trim().length > 100) {
     throw new HttpError(400, 'El nombre es obligatorio (máximo 100 caracteres)');
@@ -58,6 +64,7 @@ function validarSuplemento(body, { conStock }) {
     horaRecordatorio,
     presentacion: presentacion === null ? null : leerCantidad(presentacion, 'La presentación'),
     diasAlerta,
+    catalogo,
     ...(conStock && { stock: leerCantidad(stock, 'El stock inicial', { permitirCero: true }) })
   };
 }
@@ -105,4 +112,19 @@ export async function comprar(req, res) {
 export async function ajustar(req, res) {
   const stock = leerCantidad(req.body?.stock, 'El stock', { permitirCero: true });
   res.json(await suplementosService.ajustarStock(req.usuario.id, leerId(req), stock));
+}
+export function catalogo(req, res) {
+  res.json({ secciones: SECCIONES_SUPLEMENTO, suplementos: CATALOGO_SUPLEMENTOS });
+}
+
+export async function actualizarFoto(req, res) {
+  const { foto } = req.body ?? {};
+  if (!esImagenValida(foto)) {
+    throw new HttpError(400, 'La foto debe ser una imagen JPEG, PNG o WebP de máximo 290 KB');
+  }
+  res.json(await suplementosService.actualizarFoto(req.usuario.id, leerId(req), foto));
+}
+
+export async function quitarFoto(req, res) {
+  res.json(await suplementosService.actualizarFoto(req.usuario.id, leerId(req), null));
 }

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { api } from '../services/api';
 import { formatoCantidad } from '../utils/suplementos';
-import Icono from './ui/Icono';
+import ImagenSuplemento from './ImagenSuplemento';
 
 function Recordatorio({ suplemento, fondo, onTomado }) {
   const [enviando, setEnviando] = useState(false);
@@ -21,9 +21,7 @@ function Recordatorio({ suplemento, fondo, onTomado }) {
   return (
     <li className={`rounded-3xl p-3 pl-4 ${fondo}`}>
       <div className="flex items-center gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-alerta/15 text-alerta">
-          <Icono nombre="suplementos" className="h-5 w-5" />
-        </span>
+        <ImagenSuplemento suplemento={suplemento} className="h-11 w-11 rounded-xl" />
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-bold">
             {suplemento.nombre} · <span className="font-mono">{formatoCantidad(suplemento.dosis, suplemento.unidad)}</span>
