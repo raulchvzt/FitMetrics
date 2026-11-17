@@ -5,6 +5,9 @@ import { plural } from '../utils/formato';
 import Boton from '../components/ui/Boton';
 import Icono from '../components/ui/Icono';
 import PortadaRutina from '../components/PortadaRutina';
+import MiniaturaEjercicio from '../components/MiniaturaEjercicio';
+import VerEjercicio from '../components/VerEjercicio';
+import { fotosDeEjercicio } from '../utils/imagenEjercicio';
 import HojaInferior from '../components/ui/HojaInferior';
 import Cronometro from '../components/Cronometro';
 import FormularioSerie from '../components/FormularioSerie';
@@ -143,17 +146,28 @@ function Sugerencia({ sugerencia, objetivo }) {
   );
 }
 
-function TarjetaEjercicio({ objetivo, series, unidad, activo, onActivar, onBorrar, children }) {
+function TarjetaEjercicio({ objetivo, series, unidad, activo, onActivar, onBorrar, onVer, children }) {
   const trabajo = series.filter((s) => !s.esCalentamiento).length;
   const completo = trabajo >= objetivo.series;
 
   return (
     <article className={`space-y-3 rounded-3xl bg-superficie p-4 ${activo ? 'ring-1 ring-primario/50' : ''}`}>
+      <div className="flex items-center gap-3">
+      {fotosDeEjercicio(objetivo).length > 0 && (
+        <button
+          type="button"
+          onClick={onVer}
+          aria-label={`Ver cómo se hace ${objetivo.nombre}`}
+          className="shrink-0 rounded-2xl"
+        >
+          <MiniaturaEjercicio ejercicio={objetivo} className="h-12 w-12 rounded-2xl" />
+        </button>
+      )}
       <button
         type="button"
         onClick={onActivar}
         aria-expanded={activo}
-        className="flex w-full items-start justify-between gap-3 text-left"
+        className="flex min-w-0 flex-1 items-start justify-between gap-3 text-left"
       >
         <span className="min-w-0">
           <span className="block truncate text-lg font-extrabold">{objetivo.nombre}</span>
@@ -168,6 +182,7 @@ function TarjetaEjercicio({ objetivo, series, unidad, activo, onActivar, onBorra
           {trabajo}/{objetivo.series}
         </span>
       </button>
+      </div>
 
       {activo && objetivo.sugerencia && <Sugerencia sugerencia={objetivo.sugerencia} objetivo={objetivo} />}
 
@@ -438,6 +453,7 @@ export default function Entrenar() {
 function SesionEnCurso({ sesion, onRegistrar, onBorrar, onFinalizar, onCancelar }) {
   const [elegidoId, setElegidoId] = useState(null);
   const [descanso, setDescanso] = useState(() => leerDescanso(sesion.id));
+  const [viendo, setViendo] = useState(null);
 
   useEffect(() => {
     guardarDescanso(sesion.id, descanso);
@@ -524,6 +540,7 @@ function SesionEnCurso({ sesion, onRegistrar, onBorrar, onFinalizar, onCancelar 
             activo={activo}
             onActivar={() => setElegidoId(activo ? -1 : objetivo.ejercicioId)}
             onBorrar={onBorrar}
+            onVer={() => setViendo(objetivo)}
           >
             {activo && (
               <FormularioSerie
@@ -546,6 +563,8 @@ function SesionEnCurso({ sesion, onRegistrar, onBorrar, onFinalizar, onCancelar 
       >
         Cancelar entrenamiento
       </button>
+
+      {viendo && <VerEjercicio ejercicio={viendo} onCerrar={() => setViendo(null)} />}
     </div>
   );
 }

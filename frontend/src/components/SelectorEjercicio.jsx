@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Icono from './ui/Icono';
 import FormularioEjercicio from './FormularioEjercicio';
+import MiniaturaEjercicio from './MiniaturaEjercicio';
 import { agruparPorSeccion } from '../utils/seccionesEjercicio';
 
 function normalizar(texto) {
@@ -19,9 +20,11 @@ function Ejercicio({ ejercicio, agregado, onElegir, onEditar }) {
         type="button"
         onClick={() => onElegir(ejercicio)}
         disabled={agregado}
-        className={`w-full rounded-3xl bg-superficie px-4 py-3 text-left transition
+        className={`flex w-full items-center gap-3 rounded-3xl bg-superficie p-2 pr-4 text-left transition
                    hover:bg-elevado disabled:cursor-not-allowed disabled:opacity-50 ${ejercicio.propio ? 'pr-16' : ''}`}
       >
+        <MiniaturaEjercicio ejercicio={ejercicio} className="h-16 w-16 rounded-2xl" />
+        <span className="min-w-0 flex-1">
         <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <span className="font-bold">{ejercicio.nombre}</span>
           {ejercicio.propio && (
@@ -36,6 +39,7 @@ function Ejercicio({ ejercicio, agregado, onElegir, onEditar }) {
         <span className="block text-sm text-neutral-400">
           {ejercicio.equipo && <>{ejercicio.equipo} · </>}
           {musculos}
+        </span>
         </span>
       </button>
       {ejercicio.propio && (
