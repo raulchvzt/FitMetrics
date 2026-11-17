@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/capturas/portada.webp" alt="FitMetrics: capturas de la pantalla de inicio, de un entrenamiento en curso y del resumen de progreso" width="100%">
+  <img src="docs/capturas/portada.webp" alt="FitMetrics: capturas de la pantalla de inicio, de un entrenamiento en curso y del mapa muscular" width="100%">
 </p>
 
 <p align="center">
@@ -38,8 +38,13 @@ funciona sin conexión y tiene tema oscuro y claro.
 <table>
   <tr>
     <td align="center" width="33%"><img src="docs/capturas/bienvenida.webp" alt="Pantalla de bienvenida con foto en blanco y negro y botones para crear cuenta o iniciar sesión"><br><sub><b>Bienvenida</b>: lo primero que ves al abrir la app</sub></td>
-    <td align="center" width="33%"><img src="docs/capturas/inicio.webp" alt="Pantalla de inicio con la rutina de hoy y recordatorios de suplementos"><br><sub><b>Inicio</b>: la rutina de hoy y tus suplementos pendientes</sub></td>
+    <td align="center" width="33%"><img src="docs/capturas/inicio.webp" alt="Pantalla de inicio con la rutina de hoy y recordatorios de suplementos"><br><sub><b>Inicio</b>: la rutina de hoy, tus suplementos y tu recuperación</sub></td>
     <td align="center" width="33%"><img src="docs/capturas/entrenar.webp" alt="Entrenamiento en curso con temporizador de descanso y sugerencia de peso"><br><sub><b>Entrenar</b>: temporizador de descanso y sugerencia de peso para hoy</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/capturas/fin-entrenamiento.webp" alt="Resumen al terminar el entrenamiento con dos récords nuevos de 1RM"><br><sub><b>Al terminar</b>: tus totales y los récords nuevos</sub></td>
+    <td align="center"><img src="docs/capturas/cuerpo.webp" alt="Mapa muscular de frente y de espalda pintado según la recuperación de cada músculo"><br><sub><b>Tu cuerpo</b>: qué tan recuperado está cada músculo</sub></td>
+    <td align="center"><img src="docs/capturas/cuerpo-volumen.webp" alt="Mapa muscular pintado según las series efectivas de la semana contra el rango"><br><sub><b>Volumen en el mapa</b>: tu semana contra tu rango</sub></td>
   </tr>
   <tr>
     <td align="center"><img src="docs/capturas/como-se-hace.webp" alt="Vista de cómo se hace el press de banca con foto del movimiento"><br><sub><b>Cómo se hace</b>: posición inicial y final de cada ejercicio</sub></td>
@@ -48,7 +53,7 @@ funciona sin conexión y tiene tema oscuro y claro.
   </tr>
   <tr>
     <td align="center"><img src="docs/capturas/volumen.webp" alt="Series efectivas por músculo comparadas con su rango objetivo"><br><sub><b>Volumen</b>: series efectivas por músculo contra tu rango</sub></td>
-    <td align="center"><img src="docs/capturas/fuerza.webp" alt="Gráfica de la evolución del 1RM estimado en press de banca"><br><sub><b>Fuerza</b>: evolución de tu 1RM estimado</sub></td>
+    <td align="center"><img src="docs/capturas/fuerza.webp" alt="Gráfica de la evolución del 1RM estimado en press de banca"><br><sub><b>Fuerza</b>: tu 1RM estimado, con el récord marcado</sub></td>
     <td align="center"><img src="docs/capturas/rutinas.webp" alt="Lista de rutinas con foto de portada"><br><sub><b>Rutinas</b>: cada una con su foto</sub></td>
   </tr>
   <tr>
