@@ -38,9 +38,12 @@ export function AuthProvider({ children }) {
     setUsuario(null);
   }, []);
 
+  // El perfil devuelve al usuario ya actualizado (nombre, unidad, foto)
+  const actualizarUsuario = useCallback((perfil) => setUsuario(perfil), []);
+
   const valor = useMemo(
-    () => ({ usuario, cargando, login, registro, logout }),
-    [usuario, cargando, login, registro, logout]
+    () => ({ usuario, cargando, login, registro, logout, actualizarUsuario }),
+    [usuario, cargando, login, registro, logout, actualizarUsuario]
   );
 
   return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>;

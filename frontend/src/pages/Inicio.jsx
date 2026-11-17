@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { api } from '../services/api';
 import { plural } from '../utils/formato';
 import Icono from '../components/ui/Icono';
+import Avatar from '../components/ui/Avatar';
 import NumeroAnimado from '../components/ui/NumeroAnimado';
 import RecordatorioSuplementos from '../components/RecordatorioSuplementos';
 
@@ -33,7 +34,7 @@ function DiscosDecorativos() {
 }
 
 export default function Inicio() {
-  const { usuario, logout } = useAuth();
+  const { usuario } = useAuth();
   const [rutinas, setRutinas] = useState(null);
   const [sesionActiva, setSesionActiva] = useState(null);
   const [error, setError] = useState('');
@@ -61,20 +62,18 @@ export default function Inicio() {
   }, []);
 
   const siguiente = rutinas?.[0];
-  const inicial = usuario.nombre.trim().charAt(0).toUpperCase();
 
   return (
     <div className="escalonado space-y-4">
       <header className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={logout}
-          aria-label="Cerrar sesión"
-          title="Cerrar sesión"
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-primario bg-elevado text-lg font-extrabold"
+        <Link
+          to="/perfil"
+          aria-label="Mi perfil"
+          title="Mi perfil"
+          className="shrink-0 rounded-full border-2 border-primario p-0.5"
         >
-          {inicial}
-        </button>
+          <Avatar usuario={usuario} className="h-11 w-11 text-lg" />
+        </Link>
         <div className="min-w-0">
           <p className="text-sm text-neutral-400">{fechaDeHoy()}</p>
           <h1 className="truncate text-2xl font-extrabold tracking-tight">

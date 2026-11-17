@@ -9,5 +9,8 @@ router.post('/registro', authController.registro);
 router.post('/login', authController.login);
 router.get('/perfil', verificarToken, authController.perfil);
 router.put('/perfil', verificarToken, authController.actualizarPerfil);
+router.put('/perfil/foto', verificarToken, authController.actualizarFoto);
+router.delete('/perfil/foto', verificarToken, authController.quitarFoto);
+router.put('/password', verificarToken, authController.cambiarPassword);
 
 export default router;
