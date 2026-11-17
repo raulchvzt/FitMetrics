@@ -11,5 +11,7 @@ router.get('/:id', rutinasController.obtener);
 router.post('/', rutinasController.crear);
 router.put('/:id', rutinasController.actualizar);
 router.delete('/:id', rutinasController.eliminar);
+router.put('/:id/foto', rutinasController.actualizarFoto);
+router.delete('/:id/foto', rutinasController.quitarFoto);
 
 export default router;

@@ -5,6 +5,7 @@ import { api } from '../services/api';
 import { plural } from '../utils/formato';
 import Icono from '../components/ui/Icono';
 import Avatar from '../components/ui/Avatar';
+import PortadaRutina from '../components/PortadaRutina';
 import NumeroAnimado from '../components/ui/NumeroAnimado';
 import RecordatorioSuplementos from '../components/RecordatorioSuplementos';
 
@@ -17,21 +18,6 @@ function fechaDeHoy() {
 
 const botonPrincipal =
   'inline-flex h-12 items-center gap-2 self-start rounded-full bg-primario px-5 font-extrabold text-fondo transition hover:bg-primario-claro';
-
-function DiscosDecorativos() {
-  return (
-    <svg
-      viewBox="0 0 140 196"
-      className="pointer-events-none absolute -right-5 top-0 h-full w-36"
-      aria-hidden="true"
-    >
-      <rect x="20" y="88" width="120" height="10" rx="5" fill="#2A2A2A" />
-      <rect x="70" y="18" width="24" height="150" rx="8" fill="#D4FF3F" />
-      <rect x="98" y="38" width="18" height="110" rx="6" fill="#1F1F1F" stroke="#3A3A3A" strokeWidth="1.5" />
-      <rect x="50" y="78" width="12" height="30" rx="3" fill="#6B6B6B" />
-    </svg>
-  );
-}
 
 export default function Inicio() {
   const { usuario } = useAuth();
@@ -62,6 +48,10 @@ export default function Inicio() {
   }, []);
 
   const siguiente = rutinas?.[0];
+  // La sesión en curso muestra la foto de su rutina (una sesión libre no tiene)
+  const portada = sesionActiva
+    ? rutinas?.find((r) => r.id === sesionActiva.rutinaId) ?? {}
+    : siguiente;
 
   return (
     <div className="escalonado space-y-4">
@@ -88,51 +78,43 @@ export default function Inicio() {
         </div>
       )}
 
-      <section className="relative flex min-h-48 flex-col gap-3 overflow-hidden rounded-[28px] bg-superficie p-5">
-        {rutinas === null ? (
+      {rutinas === null ? (
+        <section className="flex min-h-48 items-center rounded-[28px] bg-superficie p-5">
           <p className="text-neutral-400">Cargando…</p>
-        ) : sesionActiva ? (
-          <>
-            <DiscosDecorativos />
-            <span className="self-start rounded-full bg-primario/15 px-2.5 py-1 text-xs font-bold text-primario">
-              Entrenamiento en curso
-            </span>
-            <h2 className="relative pr-24 text-3xl font-extrabold tracking-tight">
-              {sesionActiva.rutina ?? 'Sesión libre'}
+        </section>
+      ) : sesionActiva || siguiente ? (
+        <PortadaRutina
+          rutina={portada}
+          className="flex min-h-56 flex-col justify-end gap-3 rounded-[28px] p-5 text-white"
+        >
+          <span className="self-start rounded-full bg-primario px-2.5 py-1 text-xs font-extrabold text-fondo">
+            {sesionActiva ? 'Entrenamiento en curso' : 'Hoy toca'}
+          </span>
+          <div className="space-y-1">
+            <h2 className="truncate text-3xl font-extrabold tracking-tight">
+              {sesionActiva ? sesionActiva.rutina ?? 'Sesión libre' : siguiente.nombre}
             </h2>
-            <Link to="/entrenar" className={`${botonPrincipal} relative mt-auto`}>
-              <Icono nombre="play" className="h-4 w-4" />
-              Continuar
-            </Link>
-          </>
-        ) : siguiente ? (
-          <>
-            <DiscosDecorativos />
-            <span className="self-start rounded-full bg-primario/15 px-2.5 py-1 text-xs font-bold text-primario">
-              Hoy toca
-            </span>
-            <div className="relative space-y-1 pr-24">
-              <h2 className="truncate text-3xl font-extrabold tracking-tight">{siguiente.nombre}</h2>
-              <p className="font-mono text-sm text-neutral-400">
+            {!sesionActiva && (
+              <p className="font-mono text-sm text-white/75">
                 {plural(siguiente.totalEjercicios, 'ejercicio')} · {plural(siguiente.totalSeries, 'serie')}
               </p>
-            </div>
-            <Link to="/entrenar" className={`${botonPrincipal} relative mt-auto`}>
-              <Icono nombre="play" className="h-4 w-4" />
-              Empezar
-            </Link>
-          </>
-        ) : (
-          <>
-            <h2 className="text-2xl font-extrabold tracking-tight">Crea tu primera rutina</h2>
-            <p className="text-sm text-neutral-400">Organiza tus días de entrenamiento para empezar.</p>
-            <Link to="/rutinas" className={`${botonPrincipal} mt-auto`}>
-              Ir a rutinas
-              <Icono nombre="avanzar" className="h-4 w-4" />
-            </Link>
-          </>
-        )}
-      </section>
+            )}
+          </div>
+          <Link to="/entrenar" className={`${botonPrincipal} mt-1`}>
+            <Icono nombre="play" className="h-4 w-4" />
+            {sesionActiva ? 'Continuar' : 'Empezar'}
+          </Link>
+        </PortadaRutina>
+      ) : (
+        <section className="flex min-h-48 flex-col gap-3 rounded-[28px] bg-superficie p-5">
+          <h2 className="text-2xl font-extrabold tracking-tight">Crea tu primera rutina</h2>
+          <p className="text-sm text-neutral-400">Organiza tus días de entrenamiento para empezar.</p>
+          <Link to="/rutinas" className={`${botonPrincipal} mt-auto`}>
+            Ir a rutinas
+            <Icono nombre="avanzar" className="h-4 w-4" />
+          </Link>
+        </section>
+      )}
 
       <RecordatorioSuplementos suplementos={suplementos} onCambio={setSuplementos} />
 

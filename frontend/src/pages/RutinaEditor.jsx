@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../services/api';
 import { formatoTiempo } from '../utils/formato';
@@ -7,6 +7,8 @@ import Boton from '../components/ui/Boton';
 import Contador from '../components/ui/Contador';
 import Icono from '../components/ui/Icono';
 import SelectorEjercicio from '../components/SelectorEjercicio';
+import PortadaRutina from '../components/PortadaRutina';
+import { reducirImagen } from '../utils/imagen';
 
 const VALORES_INICIALES = { series: 3, repsMin: 8, repsMax: 12, rir: 2, descansoSeg: 120 };
 
@@ -26,6 +28,11 @@ export default function RutinaEditor() {
   const [noEncontrada, setNoEncontrada] = useState(false);
   const [confirmarEliminar, setConfirmarEliminar] = useState(false);
   const [eliminando, setEliminando] = useState(false);
+  // Foto propia (data URL) o null = foto aleatoria. Se sube al guardar la rutina.
+  const [foto, setFoto] = useState(null);
+  const [fotoCambiada, setFotoCambiada] = useState(false);
+  const [procesandoFoto, setProcesandoFoto] = useState(false);
+  const entradaFoto = useRef(null);
 
   useEffect(() => {
     api('/ejercicios').then(setCatalogo).catch((err) => setError(err.message));
@@ -43,6 +50,7 @@ export default function RutinaEditor() {
         setNombre(rutina.nombre);
         setDescripcion(rutina.descripcion ?? '');
         setEjercicios(rutina.ejercicios);
+        setFoto(rutina.foto ?? null);
       })
       .catch((err) => {
         if (!activo) return;
@@ -108,17 +116,55 @@ export default function RutinaEditor() {
     };
 
     setGuardando(true);
+    let rutinaId = id;
     try {
       if (esEdicion) {
         await api(`/rutinas/${id}`, { method: 'PUT', body: datos });
       } else {
-        await api('/rutinas', { method: 'POST', body: datos });
+        rutinaId = (await api('/rutinas', { method: 'POST', body: datos })).id;
       }
-      navigate('/rutinas');
     } catch (err) {
       setError(err.message);
       setGuardando(false);
+      return;
     }
+
+    if (fotoCambiada) {
+      try {
+        await (foto
+          ? api(`/rutinas/${rutinaId}/foto`, { method: 'PUT', body: { foto } })
+          : api(`/rutinas/${rutinaId}/foto`, { method: 'DELETE' }));
+      } catch (err) {
+        // La rutina sí se guardó: te deja en su editor para reintentar la foto
+        setError(`La rutina se guardó, pero la foto no: ${err.message}`);
+        setGuardando(false);
+        if (!esEdicion) navigate(`/rutinas/${rutinaId}`, { replace: true });
+        return;
+      }
+    }
+    navigate('/rutinas');
+  }
+
+  async function elegirFoto(evento) {
+    const archivo = evento.target.files?.[0];
+    evento.target.value = '';
+    if (!archivo) return;
+
+    setError('');
+    setProcesandoFoto(true);
+    try {
+      setFoto(await reducirImagen(archivo, { ancho: 800, alto: 450 }));
+      setFotoCambiada(true);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setProcesandoFoto(false);
+    }
+  }
+
+  function usarFotoAleatoria() {
+    setFoto(null);
+    setFotoCambiada(true);
   }
 
   async function eliminar() {
@@ -166,6 +212,38 @@ export default function RutinaEditor() {
       </header>
 
       <form onSubmit={guardar} className="space-y-5">
+        <PortadaRutina
+          rutina={{ id: esEdicion ? Number(id) : undefined, foto }}
+          className={`flex h-44 flex-col justify-between rounded-3xl p-3 text-white transition-opacity
+            ${procesandoFoto ? 'opacity-60' : ''}`}
+        >
+          <p className="self-start rounded-full bg-black/50 px-3 py-1 text-xs font-semibold backdrop-blur">
+            {foto ? 'Tu foto' : esEdicion ? 'Foto aleatoria' : 'Tendrá una foto aleatoria'}
+          </p>
+          <div className="flex flex-wrap justify-end gap-2">
+            {foto && (
+              <button
+                type="button"
+                onClick={usarFotoAleatoria}
+                className="h-10 rounded-full bg-black/50 px-4 text-sm font-bold backdrop-blur transition hover:bg-black/70"
+              >
+                Usar aleatoria
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => entradaFoto.current.click()}
+              disabled={procesandoFoto}
+              className="inline-flex h-10 items-center gap-2 rounded-full bg-primario px-4 text-sm font-extrabold text-fondo
+                         transition hover:bg-primario-claro"
+            >
+              <Icono nombre="camara" className="h-4 w-4" />
+              {procesandoFoto ? 'Procesando…' : 'Cambiar foto'}
+            </button>
+          </div>
+          <input ref={entradaFoto} type="file" accept="image/*" onChange={elegirFoto} className="hidden" />
+        </PortadaRutina>
+
         <div className="space-y-4">
           <Campo etiqueta="Nombre" id="nombre" value={nombre}
                  onChange={(e) => setNombre(e.target.value)}
