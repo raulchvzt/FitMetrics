@@ -6,10 +6,9 @@ const router = Router();
 router.get('/', async (req, res, next) => {
   try {
     const pool = await getPool();
-    const result = await pool.request()
-      .query('SELECT DB_NAME() AS baseDatos, SYSDATETIME() AS horaServidor');
-
-    res.json({ estado: 'ok', ...result.recordset[0] });
+    await pool.request().query('SELECT 1');
+    // No se expone el nombre de la base ni la hora del servidor: solo si responde
+    res.json({ estado: 'ok', baseDatos: 'conectada' });
   } catch (err) {
     next(err);
   }
