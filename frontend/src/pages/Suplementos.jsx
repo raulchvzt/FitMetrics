@@ -51,7 +51,8 @@ function TarjetaSuplemento({ suplemento: s, ocupado, onTomar, onDeshacer, onComp
         {avance !== null && (
           <div className="h-2 rounded-full bg-fondo" aria-hidden="true">
             <div
-              className={`h-2 rounded-full ${s.requiereReposicion ? 'bg-alerta' : 'bg-primario'}`}
+              className={`h-2 origin-left animate-crecer-x rounded-full transition-[width] duration-500
+                ${s.requiereReposicion ? 'bg-alerta' : 'bg-primario'}`}
               style={{ width: `${avance}%` }}
             />
           </div>
@@ -224,16 +225,18 @@ export default function Suplementos() {
             </p>
           )}
 
-          {datos.suplementos.map((s) => (
-            <TarjetaSuplemento
+          <div className="escalonado space-y-4">
+            {datos.suplementos.map((s) => (
+              <TarjetaSuplemento
               key={s.id}
               suplemento={s}
               ocupado={ocupadoId === s.id}
               onTomar={(sup) => accion(sup, '/tomas', { method: 'POST' })}
               onDeshacer={(sup) => accion(sup, '/tomas/hoy', { method: 'DELETE' })}
               onComprar={setComprando}
-            />
-          ))}
+              />
+            ))}
+          </div>
 
           <p className="px-2 text-xs text-neutral-500">
             Los días restantes de los suplementos de días de entreno se calculan con tus últimas 4 semanas

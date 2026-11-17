@@ -38,7 +38,7 @@ function BarraMusculo({ musculo, escala }) {
         />
         {musculo.series > 0 && (
           <div
-            className={`absolute inset-y-[3px] left-0 rounded-full ${estado.barra}`}
+            className={`absolute inset-y-[3px] left-0 origin-left animate-crecer-x rounded-full transition-[width] duration-500 ${estado.barra}`}
             style={{ width: porcentaje(musculo.series) }}
           />
         )}
@@ -136,7 +136,7 @@ export default function VolumenSemanal() {
           </Link>
         </p>
 
-        <ul className="space-y-3">
+        <ul className="escalonado space-y-3">
           {datos.musculos.map((m) => (
             <BarraMusculo key={m.id} musculo={m} escala={escala} />
           ))}

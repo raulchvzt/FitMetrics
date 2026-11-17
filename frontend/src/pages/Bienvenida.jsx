@@ -9,7 +9,7 @@ export default function Bienvenida() {
   if (usuario) return <Navigate to="/" replace />;
 
   return (
-    <div className="relative mx-auto min-h-dvh max-w-md overflow-hidden">
+    <div className="animate-pagina relative mx-auto min-h-dvh max-w-md overflow-hidden">
       <div aria-hidden="true" className="absolute inset-0">
         <img
           src="/bienvenida.png"

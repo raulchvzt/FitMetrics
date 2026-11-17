@@ -341,7 +341,7 @@ export default function Entrenar() {
   }
 
   return (
-    <div className="mx-auto min-h-dvh max-w-md px-4 pb-10 pt-[calc(1rem+env(safe-area-inset-top))]">
+    <div className="animate-pagina mx-auto min-h-dvh max-w-md px-4 pb-10 pt-[calc(1rem+env(safe-area-inset-top))]">
       {error && <div className="mb-4"><Aviso>{error}</Aviso></div>}
 
       {sesion && suplementosAntes.length > 0 && (

@@ -5,6 +5,7 @@ import { api } from '../../services/api';
 import { formatoDiaMes, formatoDiaMesAnio } from '../../utils/fechas';
 import { plural } from '../../utils/formato';
 import Icono from '../ui/Icono';
+import NumeroAnimado from '../ui/NumeroAnimado';
 
 const PERIODOS = [
   { dias: 30, etiqueta: '1M' },
@@ -52,7 +53,7 @@ function Resumen({ puntos, unidad }) {
       <div>
         <p className="text-sm text-neutral-400">1RM estimado actual</p>
         <p className="font-mono text-4xl font-bold leading-none">
-          {decimal.format(actual)} <span className="text-base text-neutral-400">{unidad}</span>
+          <NumeroAnimado valor={actual} formato={decimal.format} /> <span className="text-base text-neutral-400">{unidad}</span>
         </p>
       </div>
       <div className="flex flex-col items-end gap-1">
@@ -215,7 +216,8 @@ export default function FuerzaEjercicio() {
                         strokeWidth={2}
                         dot={{ r: 4, fill: COLOR.serie, stroke: COLOR.superficie, strokeWidth: 2 }}
                         activeDot={{ r: 6, fill: COLOR.serie, stroke: COLOR.superficie, strokeWidth: 2 }}
-                        isAnimationActive={false}
+                        animationDuration={900}
+                        animationEasing="ease-out"
                       />
                     </LineChart>
                   </ResponsiveContainer>
@@ -233,7 +235,7 @@ export default function FuerzaEjercicio() {
 
               <section className="space-y-2">
                 <h3 className="text-sm font-bold text-neutral-400">Sesiones del periodo</h3>
-                <ul className="space-y-2">
+                <ul className="escalonado space-y-2">
                   {[...puntos].reverse().map((p) => (
                     <li key={p.sesionId}>
                       <Link

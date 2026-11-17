@@ -33,7 +33,7 @@ export default function Login() {
   }
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-md flex-col px-6 pb-8 pt-[calc(1.25rem+env(safe-area-inset-top))]">
+    <div className="animate-pagina mx-auto flex min-h-dvh max-w-md flex-col px-6 pb-8 pt-[calc(1.25rem+env(safe-area-inset-top))]">
       <Link
         to="/bienvenida"
         aria-label="Volver"
