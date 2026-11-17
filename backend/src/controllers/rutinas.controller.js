@@ -1,5 +1,6 @@
 import * as rutinasService from '../services/rutinas.service.js';
 import { HttpError } from '../utils/httpError.js';
+import { esImagenValida } from '../utils/imagenes.js';
 
 function enRango(valor, min, max) {
   return Number.isInteger(valor) && valor >= min && valor <= max;
@@ -78,4 +79,15 @@ export async function actualizar(req, res) {
 export async function eliminar(req, res) {
   await rutinasService.desactivarRutina(req.usuario.id, leerId(req));
   res.status(204).end();
+}
+export async function actualizarFoto(req, res) {
+  const { foto } = req.body ?? {};
+  if (!esImagenValida(foto)) {
+    throw new HttpError(400, 'La foto debe ser una imagen JPEG, PNG o WebP de máximo 290 KB');
+  }
+  res.json(await rutinasService.actualizarFoto(req.usuario.id, leerId(req), foto));
+}
+
+export async function quitarFoto(req, res) {
+  res.json(await rutinasService.actualizarFoto(req.usuario.id, leerId(req), null));
 }

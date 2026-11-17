@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../services/api';
 import Icono from '../components/ui/Icono';
+import PortadaRutina from '../components/PortadaRutina';
 import { plural } from '../utils/formato';
 
 export default function Rutinas() {
@@ -55,23 +56,21 @@ export default function Rutinas() {
         <ul className="escalonado space-y-3">
           {rutinas.map((r) => (
             <li key={r.id}>
-              <Link
-                to={`/rutinas/${r.id}`}
-                className="flex items-center gap-3 rounded-3xl bg-superficie p-3 pr-4 transition hover:bg-elevado"
-              >
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-elevado text-primario">
-                  <Icono nombre="entrenar" />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <h2 className="truncate text-base font-bold">{r.nombre}</h2>
-                  {r.descripcion && (
-                    <p className="truncate text-sm text-neutral-400">{r.descripcion}</p>
-                  )}
-                  <p className="font-mono text-xs text-neutral-400">
-                    {plural(r.totalEjercicios, 'ejercicio')} · {plural(r.totalSeries, 'serie')}
-                  </p>
-                </div>
-                <Icono nombre="flecha" className="h-5 w-5 shrink-0 text-neutral-500" />
+              <Link to={`/rutinas/${r.id}`} className="block rounded-3xl">
+                <PortadaRutina rutina={r} className="flex h-36 items-end gap-3 rounded-3xl p-4 text-white">
+                  <div className="min-w-0 flex-1">
+                    <h2 className="truncate text-xl font-extrabold tracking-tight">{r.nombre}</h2>
+                    {r.descripcion && (
+                      <p className="truncate text-sm text-white/75">{r.descripcion}</p>
+                    )}
+                    <p className="font-mono text-xs text-white/75">
+                      {plural(r.totalEjercicios, 'ejercicio')} · {plural(r.totalSeries, 'serie')}
+                    </p>
+                  </div>
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/15 backdrop-blur">
+                    <Icono nombre="flecha" className="h-5 w-5" />
+                  </span>
+                </PortadaRutina>
               </Link>
             </li>
           ))}

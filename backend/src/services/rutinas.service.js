@@ -9,13 +9,17 @@ export async function listarRutinas(usuarioId) {
     .input('usuarioId', sql.Int, usuarioId)
     .query(`
       SELECT r.RutinaId AS id, r.Nombre AS nombre, r.Descripcion AS descripcion,
-             r.FechaCreacion AS fechaCreacion,
-             COUNT(re.RutinaEjercicioId)        AS totalEjercicios,
-             ISNULL(SUM(re.SeriesObjetivo), 0)  AS totalSeries
+             r.FechaCreacion AS fechaCreacion, r.Foto AS foto,
+             t.totalEjercicios, t.totalSeries
       FROM Rutinas r
-      LEFT JOIN RutinaEjercicios re ON re.RutinaId = r.RutinaId
+      -- Los totales van aparte para no agrupar por la foto (columna grande)
+      CROSS APPLY (
+        SELECT COUNT(*) AS totalEjercicios,
+               ISNULL(SUM(re.SeriesObjetivo), 0) AS totalSeries
+        FROM RutinaEjercicios re
+        WHERE re.RutinaId = r.RutinaId
+      ) t
       WHERE r.UsuarioId = @usuarioId AND r.Activa = 1
-      GROUP BY r.RutinaId, r.Nombre, r.Descripcion, r.FechaCreacion
       ORDER BY r.FechaCreacion DESC
     `);
   return result.recordset;
@@ -29,7 +33,7 @@ export async function obtenerRutina(usuarioId, rutinaId) {
     .input('rutinaId', sql.Int, rutinaId)
     .query(`
       SELECT RutinaId AS id, Nombre AS nombre, Descripcion AS descripcion,
-             FechaCreacion AS fechaCreacion
+             FechaCreacion AS fechaCreacion, Foto AS foto
       FROM Rutinas
       WHERE RutinaId = @rutinaId AND UsuarioId = @usuarioId AND Activa = 1
     `);
@@ -156,4 +160,23 @@ export async function desactivarRutina(usuarioId, rutinaId) {
   if (result.rowsAffected[0] === 0) {
     throw new HttpError(404, 'Rutina no encontrada');
   }
+}
+// foto = data URL ya validada, o null para volver a la foto aleatoria
+export async function actualizarFoto(usuarioId, rutinaId, foto) {
+  const pool = await getPool();
+  const result = await pool.request()
+    .input('usuarioId', sql.Int, usuarioId)
+    .input('rutinaId', sql.Int, rutinaId)
+    .input('foto', sql.VarChar(sql.MAX), foto)
+    .query(`
+      UPDATE Rutinas SET Foto = @foto
+      OUTPUT INSERTED.RutinaId AS id, INSERTED.Foto AS foto
+      WHERE RutinaId = @rutinaId AND UsuarioId = @usuarioId AND Activa = 1
+    `);
+
+  const fila = result.recordset[0];
+  if (!fila) {
+    throw new HttpError(404, 'Rutina no encontrada');
+  }
+  return fila;
 }

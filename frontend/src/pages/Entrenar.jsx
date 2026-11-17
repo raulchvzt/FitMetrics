@@ -4,6 +4,7 @@ import { api } from '../services/api';
 import { plural } from '../utils/formato';
 import Boton from '../components/ui/Boton';
 import Icono from '../components/ui/Icono';
+import PortadaRutina from '../components/PortadaRutina';
 import HojaInferior from '../components/ui/HojaInferior';
 import Cronometro from '../components/Cronometro';
 import FormularioSerie from '../components/FormularioSerie';
@@ -60,11 +61,14 @@ function ElegirRutina({ rutinas, onIniciar, iniciando }) {
         </div>
       ) : (
         <>
-          <article className="space-y-4 rounded-[28px] bg-primario p-5 text-fondo">
+          <PortadaRutina
+            rutina={primera}
+            className="flex min-h-60 flex-col justify-end gap-4 rounded-[28px] p-5 text-white"
+          >
             <div>
-              <span className="text-xs font-extrabold uppercase tracking-wider">Siguiente</span>
+              <span className="text-xs font-extrabold uppercase tracking-wider text-primario">Siguiente</span>
               <h2 className="text-[28px] font-extrabold leading-tight tracking-tight">{primera.nombre}</h2>
-              <p className="font-mono text-sm font-bold">
+              <p className="font-mono text-sm text-white/75">
                 {plural(primera.totalEjercicios, 'ejercicio')} · {plural(primera.totalSeries, 'serie')}
               </p>
             </div>
@@ -72,15 +76,17 @@ function ElegirRutina({ rutinas, onIniciar, iniciando }) {
               type="button"
               onClick={() => onIniciar(primera.id)}
               disabled={iniciando}
-              className="inline-flex h-12 items-center gap-2 rounded-full bg-fondo px-5 font-extrabold text-primario disabled:opacity-60"
+              className="inline-flex h-12 items-center gap-2 self-start rounded-full bg-primario px-5 font-extrabold text-fondo
+                         transition hover:bg-primario-claro disabled:opacity-60"
             >
               <Icono nombre="play" className="h-4 w-4" />
               {iniciando ? 'Iniciando…' : 'Empezar'}
             </button>
-          </article>
+          </PortadaRutina>
 
           {resto.map((r) => (
-            <article key={r.id} className="flex items-center gap-3 rounded-3xl bg-superficie p-4">
+            <article key={r.id} className="flex items-center gap-3 rounded-3xl bg-superficie p-3 pr-4">
+              <PortadaRutina rutina={r} ancho={200} oscurecer={false} className="h-14 w-14 shrink-0 rounded-2xl" />
               <div className="min-w-0 flex-1">
                 <h2 className="truncate font-bold">{r.nombre}</h2>
                 <p className="font-mono text-xs text-neutral-400">
