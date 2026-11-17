@@ -10,13 +10,16 @@ export default function Bienvenida() {
 
   return (
     <div className="tema-oscuro animate-pagina relative mx-auto min-h-dvh max-w-md overflow-hidden">
-      <div aria-hidden="true" className="absolute inset-0">
+      {/* Foto completa arriba, nítida; se funde con el fondo negro hacia abajo */}
+      <div aria-hidden="true" className="absolute inset-x-0 top-0">
         <img
-          src="/bienvenida.png"
+          src="/bienvenida.webp"
           alt=""
-          className="absolute inset-x-0 top-0 h-[78%] w-full scale-105 object-cover object-[center_20%] blur-[2px] brightness-90"
+          width="1005"
+          height="1256"
+          className="block h-auto max-h-[74dvh] w-full object-cover object-top"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,10,10,0.45)_0%,rgba(10,10,10,0.1)_28%,rgba(10,10,10,0.8)_60%,#0A0A0A_74%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,10,10,0.55)_0%,rgba(10,10,10,0)_18%,rgba(10,10,10,0)_55%,rgba(10,10,10,0.75)_82%,#0A0A0A_100%)]" />
       </div>
 
       <div className="absolute left-6 top-[calc(1.25rem+env(safe-area-inset-top))]">
