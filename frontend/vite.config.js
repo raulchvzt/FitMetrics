@@ -35,6 +35,8 @@ export default defineConfig({
         // Todo lo de la app se guarda en el teléfono: pantallas, estilos, íconos
         // y las fotos de los ejercicios (≈2 MB). Así abre sin internet.
         globPatterns: ['**/*.{js,css,html,svg,png,webp}'],
+        // Las pantallas de arranque solo las usa iOS al agregar la app; no hace falta guardarlas
+        globIgnores: ['arranque/**'],
         // Cualquier pantalla abre el index.html guardado (menos la API)
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api\//],

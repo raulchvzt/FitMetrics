@@ -30,7 +30,7 @@ function TarjetaSuplemento({ suplemento: s, ocupado, onTomar, onDeshacer, onComp
           <ImagenSuplemento suplemento={s} className="h-14 w-14 rounded-2xl" />
         </Link>
         <Link to={`/suplementos/${s.id}`} className="min-w-0 flex-1 hover:underline">
-          <h2 className="truncate text-lg font-extrabold">{s.nombre}</h2>
+          <h2 className="line-clamp-2 text-lg font-extrabold leading-tight">{s.nombre}</h2>
           <p className="text-sm text-neutral-400">{descripcionToma(s)}</p>
         </Link>
         <div className="flex shrink-0 flex-col items-end gap-1">
