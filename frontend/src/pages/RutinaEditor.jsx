@@ -357,6 +357,14 @@ export default function RutinaEditor() {
           yaAgregados={ejercicios.map((ej) => ej.ejercicioId)}
           onElegir={agregar}
           onCerrar={() => setSelectorAbierto(false)}
+          onCatalogoCambio={(nuevo) => {
+            setCatalogo(nuevo);
+            // Lo que editaste o borraste en el catálogo también cambia en la rutina que estás armando
+            setEjercicios((lista) => lista.flatMap((ej) => {
+              const actual = nuevo.find((e) => e.id === ej.ejercicioId);
+              return actual ? [{ ...ej, nombre: actual.nombre }] : [];
+            }));
+          }}
         />
       )}
     </div>
