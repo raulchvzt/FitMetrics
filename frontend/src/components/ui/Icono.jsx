@@ -14,6 +14,9 @@ const trazos = {
   avanzar: 'M5 12h14M13 6l6 6-6 6',
   play: 'M8 5.5v13l10.5-6.5z',
   descargar: 'M12 4v11M7 10l5 5 5-5M5 20h14',
+  camara: 'M4 8h3l2-3h6l2 3h3v11H4zM12 16.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z',
+  salir: 'M10 4H5v16h5M14 8l4 4-4 4M18 12H9',
+  candado: 'M6 11h12v9H6zM8.5 11V8a3.5 3.5 0 0 1 7 0v3',
 };
 
 const rellenos = new Set(['play']);

@@ -61,15 +61,18 @@ export async function iniciarSesion({ email, password }) {
   return { token: generarToken(usuario), usuario };
 }
 
-export async function obtenerPerfil(usuarioId) {
+// La foto pesa varios KB: solo se incluye cuando se pide (pantalla de perfil e inicio)
+export async function obtenerPerfil(usuarioId, { conFoto = false } = {}) {
   const pool = await getPool();
 
   const result = await pool.request()
     .input('id', sql.Int, usuarioId)
+    .input('conFoto', sql.Bit, conFoto)
     .query(`
       SELECT UsuarioId AS id, Nombre AS nombre, Email AS email,
              PesoCorporalKg, UnidadPeso AS unidadPeso,
-             FechaRegistro AS fechaRegistro
+             FechaRegistro AS fechaRegistro,
+             CASE WHEN @conFoto = 1 THEN FotoPerfil END AS foto
       FROM Usuarios WHERE UsuarioId = @id AND Activo = 1
     `);
 
@@ -78,8 +81,12 @@ export async function obtenerPerfil(usuarioId) {
     throw new HttpError(404, 'Usuario no encontrado');
   }
 
-  const { PesoCorporalKg, ...perfil } = fila;
-  return { ...perfil, pesoCorporal: desdeKg(PesoCorporalKg, fila.unidadPeso) };
+  const { PesoCorporalKg, foto, ...perfil } = fila;
+  return {
+    ...perfil,
+    pesoCorporal: desdeKg(PesoCorporalKg, fila.unidadPeso),
+    ...(conFoto && { foto })
+  };
 }
 
 export async function obtenerUnidad(usuarioId) {
@@ -90,7 +97,7 @@ export async function obtenerUnidad(usuarioId) {
   return result.recordset[0]?.UnidadPeso ?? 'kg';
 }
 
-export async function actualizarPerfil(usuarioId, { unidadPeso, pesoCorporal }) {
+export async function actualizarPerfil(usuarioId, { nombre, unidadPeso, pesoCorporal }) {
   const unidadFinal = unidadPeso ?? await obtenerUnidad(usuarioId);
   const cambiarPeso = pesoCorporal !== undefined;
   const pesoKg = cambiarPeso && pesoCorporal !== null ? aKg(pesoCorporal, unidadFinal) : null;
@@ -98,15 +105,46 @@ export async function actualizarPerfil(usuarioId, { unidadPeso, pesoCorporal }) 
   const pool = await getPool();
   await pool.request()
     .input('id', sql.Int, usuarioId)
+    .input('nombre', sql.NVarChar(100), nombre ?? null)
     .input('unidad', sql.Char(2), unidadFinal)
     .input('cambiarPeso', sql.Bit, cambiarPeso)
     .input('pesoKg', sql.Decimal(5, 2), pesoKg)
     .query(`
       UPDATE Usuarios
-      SET UnidadPeso = @unidad,
+      SET Nombre = ISNULL(@nombre, Nombre),
+          UnidadPeso = @unidad,
           PesoCorporalKg = CASE WHEN @cambiarPeso = 1 THEN @pesoKg ELSE PesoCorporalKg END
       WHERE UsuarioId = @id
     `);
 
-  return obtenerPerfil(usuarioId);
+  return obtenerPerfil(usuarioId, { conFoto: true });
+}
+
+// foto = data URL ya validada, o null para quitarla
+export async function actualizarFoto(usuarioId, foto) {
+  const pool = await getPool();
+  await pool.request()
+    .input('id', sql.Int, usuarioId)
+    .input('foto', sql.VarChar(sql.MAX), foto)
+    .query('UPDATE Usuarios SET FotoPerfil = @foto WHERE UsuarioId = @id');
+
+  return obtenerPerfil(usuarioId, { conFoto: true });
+}
+
+export async function cambiarPassword(usuarioId, { actual, nueva }) {
+  const pool = await getPool();
+  const result = await pool.request()
+    .input('id', sql.Int, usuarioId)
+    .query('SELECT PasswordHash FROM Usuarios WHERE UsuarioId = @id AND Activo = 1');
+
+  const fila = result.recordset[0];
+  if (!fila || !await bcrypt.compare(actual, fila.PasswordHash)) {
+    throw new HttpError(400, 'La contraseña actual no es correcta');
+  }
+
+  const passwordHash = await bcrypt.hash(nueva, 10);
+  await pool.request()
+    .input('id', sql.Int, usuarioId)
+    .input('hash', sql.NVarChar(255), passwordHash)
+    .query('UPDATE Usuarios SET PasswordHash = @hash WHERE UsuarioId = @id');
 }

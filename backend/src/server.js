@@ -20,7 +20,8 @@ if (!process.env.JWT_SECRET) {
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+// Las fotos llegan en base64 dentro del JSON: se sube el límite (por defecto es 100 KB)
+app.use(express.json({ limit: '512kb' }));
 
 app.use('/api/health', healthRoutes);
 app.use('/api/ejercicios', ejerciciosRoutes);
@@ -36,6 +37,12 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Ruta no encontrada' });
 });
 
+// Errores de express.json() (vienen en inglés)
+const ERRORES_CUERPO = {
+  'entity.too.large': 'El archivo es demasiado grande',
+  'entity.parse.failed': 'Los datos enviados no son un JSON válido'
+};
+
 app.use((err, req, res, next) => {
   const status = err.status || 500;
 
@@ -44,7 +51,7 @@ app.use((err, req, res, next) => {
   }
 
   res.status(status).json({
-    error: status === 500 ? 'Error interno del servidor' : err.message
+    error: status === 500 ? 'Error interno del servidor' : ERRORES_CUERPO[err.type] ?? err.message
   });
 });
 
