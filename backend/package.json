@@ -10,7 +10,7 @@
     "test": "node --test"
   },
   "keywords": [],
-  "author": "Tu Nombre",
+  "author": "raulchvzt",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^3.0.3",
