@@ -13,6 +13,49 @@
 
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* Curva tipo iOS: arranca rápido y frena suave */
+  --ease-nativo: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* Animaciones: cada --animate-* crea su clase animate-* */
+  --animate-pagina: pagina 220ms var(--ease-nativo) backwards;
+  --animate-crecer-y: crecer-y 700ms var(--ease-nativo) backwards;
+  --animate-crecer-x: crecer-x 700ms var(--ease-nativo) backwards;
+  --animate-velo: velo 200ms ease-out backwards;
+  --animate-hoja: hoja 320ms var(--ease-nativo) backwards;
+
+  @keyframes pagina {
+    from { opacity: 0; }
+  }
+  @keyframes crecer-y {
+    from { scale: 1 0; }
+  }
+  @keyframes crecer-x {
+    from { scale: 0 1; }
+  }
+  @keyframes velo {
+    from { opacity: 0; }
+  }
+  @keyframes hoja {
+    from { translate: 0 100%; }
+  }
+}
+
+@layer base {
+  html {
+    /* Quita el recuadro gris que pone Safari al tocar */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button,
+  a {
+    transition: scale 120ms var(--ease-nativo);
+  }
+
+  /* 1. Botones que se "hunden" al presionarlos */
+  :is(button, a):not(:disabled, .sin-presion):active {
+    scale: 0.97;
+  }
 }
 
 body {
@@ -20,4 +63,35 @@ body {
   color: var(--color-neutral-50);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+}
+
+/* 3. Entrada escalonada: los hijos aparecen uno tras otro */
+.escalonado > * {
+  animation: entrada 380ms var(--ease-nativo) backwards;
+}
+.escalonado > :nth-child(2) { animation-delay: 50ms; }
+.escalonado > :nth-child(3) { animation-delay: 100ms; }
+.escalonado > :nth-child(4) { animation-delay: 150ms; }
+.escalonado > :nth-child(5) { animation-delay: 200ms; }
+.escalonado > :nth-child(6) { animation-delay: 250ms; }
+.escalonado > :nth-child(7) { animation-delay: 300ms; }
+.escalonado > :nth-child(8) { animation-delay: 350ms; }
+.escalonado > :nth-child(n + 9) { animation-delay: 400ms; }
+
+@keyframes entrada {
+  from {
+    opacity: 0;
+    translate: 0 14px;
+  }
+}
+
+/* Si el iPhone tiene activado "Reducir movimiento", no animamos */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 1ms !important;
+  }
 }

@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { api } from '../services/api';
 import { plural } from '../utils/formato';
 import Icono from '../components/ui/Icono';
+import NumeroAnimado from '../components/ui/NumeroAnimado';
 import RecordatorioSuplementos from '../components/RecordatorioSuplementos';
 
 function fechaDeHoy() {
@@ -63,7 +64,7 @@ export default function Inicio() {
   const inicial = usuario.nombre.trim().charAt(0).toUpperCase();
 
   return (
-    <div className="space-y-4">
+    <div className="escalonado space-y-4">
       <header className="flex items-center gap-3">
         <button
           type="button"
@@ -139,7 +140,9 @@ export default function Inicio() {
       <section className="grid grid-cols-2 gap-3">
         <div className="rounded-3xl bg-superficie p-4">
           <p className="text-xs text-neutral-400">Rutinas</p>
-          <p className="mt-1 font-mono text-3xl font-bold">{rutinas?.length ?? '—'}</p>
+          <p className="mt-1 font-mono text-3xl font-bold">
+            {rutinas ? <NumeroAnimado valor={rutinas.length} /> : '—'}
+          </p>
         </div>
         <div className="rounded-3xl bg-superficie p-4">
           <p className="text-xs text-neutral-400">Unidad</p>

@@ -84,7 +84,7 @@ export default function Historial() {
         agruparPorMes(sesiones).map((grupo) => (
           <section key={grupo.mes} className="space-y-3">
             <h2 className="text-sm font-bold text-neutral-400">{grupo.mes}</h2>
-            <ul className="space-y-3">
+            <ul className="escalonado space-y-3">
               {grupo.sesiones.map((s) => (
                 <li key={s.id}>
                   <Link

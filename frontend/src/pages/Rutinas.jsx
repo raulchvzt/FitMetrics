@@ -52,7 +52,7 @@ export default function Rutinas() {
           </p>
         </div>
       ) : (
-        <ul className="space-y-3">
+        <ul className="escalonado space-y-3">
           {rutinas.map((r) => (
             <li key={r.id}>
               <Link

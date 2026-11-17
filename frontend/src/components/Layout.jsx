@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import Icono from './ui/Icono';
 
 const secciones = [
@@ -10,10 +10,15 @@ const secciones = [
 ];
 
 export default function Layout() {
+  const { pathname } = useLocation();
+
   return (
     <div className="mx-auto flex min-h-dvh max-w-md flex-col">
       <main className="flex-1 px-5 pb-32 pt-6">
-        <Outlet />
+        {/* 2. La key nueva en cada pantalla reinicia la animación de entrada */}
+        <div key={pathname} className="animate-pagina">
+          <Outlet />
+        </div>
       </main>
 
       <nav

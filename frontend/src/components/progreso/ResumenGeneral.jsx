@@ -5,6 +5,7 @@ import { api, descargar } from '../../services/api';
 import { aFecha, formatoDiaMes } from '../../utils/fechas';
 import { plural } from '../../utils/formato';
 import Icono from '../ui/Icono';
+import NumeroAnimado from '../ui/NumeroAnimado';
 
 const PERIODOS = [
   { dias: 30, etiqueta: '30 días', descripcion: 'los últimos 30 días' },
@@ -54,12 +55,12 @@ function Variacion({ valor }) {
   );
 }
 
-function Indicador({ etiqueta, valor, unidad, variacion, nota }) {
+function Indicador({ etiqueta, valor, formato = entero.format, unidad, variacion, nota }) {
   return (
     <div className="flex flex-col gap-1 rounded-3xl bg-superficie p-4">
       <p className="text-xs text-neutral-400">{etiqueta}</p>
       <p className="font-mono text-2xl font-bold leading-tight">
-        {valor}
+        <NumeroAnimado valor={valor} formato={formato} />
         {unidad && <span className="ml-1 text-sm text-neutral-400">{unidad}</span>}
       </p>
       <div className="mt-auto flex min-h-5 items-center gap-2">
@@ -123,7 +124,8 @@ function GraficaEvolucion({ evolucion, agrupacion, unidad }) {
               fill={COLOR.barra}
               radius={[4, 4, 0, 0]}
               maxBarSize={28}
-              isAnimationActive={false}
+              animationDuration={700}
+              animationEasing="ease-out"
             />
           </BarChart>
         </ResponsiveContainer>
@@ -155,7 +157,8 @@ function DiasSemana({ frecuencia }) {
           >
             <span className="font-mono text-xs font-bold text-neutral-300">{d.sesiones}</span>
             <div
-              className={`w-full max-w-7 rounded-md ${d.sesiones > 0 ? 'bg-primario' : 'bg-elevado'}`}
+              className={`w-full max-w-7 origin-bottom animate-crecer-y rounded-md transition-[height] duration-500
+                ${d.sesiones > 0 ? 'bg-primario' : 'bg-elevado'}`}
               style={{ height: d.sesiones > 0 ? `${(d.sesiones / maximo) * 72}%` : '4px' }}
             />
             <span className="text-xs text-neutral-400">{INICIALES[i]}</span>
@@ -170,7 +173,7 @@ function Ejercicios({ ejercicios, unidad }) {
   return (
     <section className="space-y-2">
       <h3 className="text-sm font-bold text-neutral-400">Ejercicios más trabajados</h3>
-      <ol className="space-y-2">
+      <ol className="escalonado space-y-2">
         {ejercicios.map((e, i) => (
           <li key={e.id} className="flex items-center gap-3 rounded-3xl bg-superficie px-4 py-3">
             <span className="w-4 shrink-0 font-mono text-sm font-bold text-neutral-500">{i + 1}</span>
@@ -386,33 +389,34 @@ export default function ResumenGeneral() {
       {!datos ? (
         !error && <p className="text-neutral-400">Cargando…</p>
       ) : (
-        <div className={`space-y-4 transition-opacity ${actualizado ? '' : 'opacity-50'}`}>
+        <div className={`escalonado space-y-4 transition-opacity ${actualizado ? '' : 'opacity-50'}`}>
           <p className="text-sm text-neutral-400">
             Del {formatoDiaMes(datos.periodo.inicio)} al {formatoDiaMes(datos.periodo.fin)} · comparado con los{' '}
             {datos.periodo.dias} días anteriores
           </p>
 
-          <section className="grid grid-cols-2 gap-3">
+          <section className="escalonado grid grid-cols-2 gap-3">
             <Indicador
               etiqueta="Sesiones"
-              valor={entero.format(datos.totales.sesiones)}
+              valor={datos.totales.sesiones}
               variacion={datos.totales.variacion.sesiones}
               nota={datos.totales.minutosPromedio !== null ? `${datos.totales.minutosPromedio} min prom.` : null}
             />
             <Indicador
               etiqueta="Por semana"
-              valor={decimal.format(datos.totales.sesionesPorSemana)}
+              valor={datos.totales.sesionesPorSemana}
+              formato={decimal.format}
               unidad="ses."
               nota={plural(datos.totales.diasEntrenados, 'día entrenado', 'días entrenados')}
             />
             <Indicador
               etiqueta="Series efectivas"
-              valor={entero.format(datos.totales.seriesEfectivas)}
+              valor={datos.totales.seriesEfectivas}
               variacion={datos.totales.variacion.seriesEfectivas}
             />
             <Indicador
               etiqueta="Volumen"
-              valor={entero.format(datos.totales.volumen)}
+              valor={datos.totales.volumen}
               unidad={datos.unidad}
               variacion={datos.totales.variacion.volumen}
             />
