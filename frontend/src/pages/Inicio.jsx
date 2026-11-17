@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { api } from '../services/api';
 import { plural } from '../utils/formato';
 import Icono from '../components/ui/Icono';
+import RecordatorioSuplementos from '../components/RecordatorioSuplementos';
 
 function fechaDeHoy() {
   const texto = new Intl.DateTimeFormat('es-MX', {
@@ -35,6 +36,16 @@ export default function Inicio() {
   const [rutinas, setRutinas] = useState(null);
   const [sesionActiva, setSesionActiva] = useState(null);
   const [error, setError] = useState('');
+  const [suplementos, setSuplementos] = useState([]);
+
+  useEffect(() => {
+    // Los de "antes de entrenar" se recuerdan en la pantalla de entrenar
+    api('/suplementos')
+      .then((datos) => setSuplementos(
+        datos.suplementos.filter((x) => x.pendienteHoy && x.momento !== 'AntesEntrenar')
+      ))
+      .catch(() => setSuplementos([]));
+  }, []);
 
   useEffect(() => {
     Promise.all([api('/rutinas'), api('/sesiones/activa')])
@@ -122,6 +133,8 @@ export default function Inicio() {
           </>
         )}
       </section>
+
+      <RecordatorioSuplementos suplementos={suplementos} onCambio={setSuplementos} />
 
       <section className="grid grid-cols-2 gap-3">
         <div className="rounded-3xl bg-superficie p-4">

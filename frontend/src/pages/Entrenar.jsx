@@ -7,6 +7,7 @@ import Icono from '../components/ui/Icono';
 import HojaInferior from '../components/ui/HojaInferior';
 import Cronometro from '../components/Cronometro';
 import FormularioSerie from '../components/FormularioSerie';
+import RecordatorioSuplementos from '../components/RecordatorioSuplementos';
 import TemporizadorDescanso from '../components/TemporizadorDescanso';
 import { prepararAviso, sonarAviso } from '../utils/aviso';
 import { guardarDescanso, leerDescanso } from '../utils/descanso';
@@ -228,6 +229,26 @@ export default function Entrenar() {
   const [ocupado, setOcupado] = useState(false);
   const [hoja, setHoja] = useState(null);
   const [fatiga, setFatiga] = useState(7);
+  const [suplementosAntes, setSuplementosAntes] = useState([]);
+  const [suplementosDespues, setSuplementosDespues] = useState([]);
+
+  const sesionId = sesion?.id;
+
+  // Al haber un entrenamiento en curso, recordar lo que se toma ANTES de entrenar
+  useEffect(() => {
+    if (!sesionId) return;
+    let activo = true;
+    api('/suplementos')
+      .then((datos) => {
+        if (activo) {
+          setSuplementosAntes(datos.suplementos.filter((x) => x.pendienteHoy && x.momento === 'AntesEntrenar'));
+        }
+      })
+      .catch(() => {});
+    return () => {
+      activo = false;
+    };
+  }, [sesionId]);
 
   useEffect(() => {
     let activo = true;
@@ -286,7 +307,16 @@ export default function Entrenar() {
     try {
       await api(`/sesiones/${sesion.id}/finalizar`, { method: 'POST', body: { fatigaPercibida: fatiga } });
       guardarDescanso(sesion.id, null);
-      navigate('/', { replace: true });
+
+      // Recordar lo que va DESPUÉS de entrenar (o lo diario que aún no tomas)
+      const datos = await api('/suplementos').catch(() => null);
+      const despues = datos?.suplementos.filter((x) => x.pendienteHoy && x.momento !== 'AntesEntrenar') ?? [];
+      if (despues.length > 0) {
+        setSuplementosDespues(despues);
+        setHoja('suplementos');
+      } else {
+        navigate('/', { replace: true });
+      }
     } catch (err) {
       setError(err.message);
       setHoja(null);
@@ -313,6 +343,22 @@ export default function Entrenar() {
   return (
     <div className="mx-auto min-h-dvh max-w-md px-4 pb-10 pt-[calc(1rem+env(safe-area-inset-top))]">
       {error && <div className="mb-4"><Aviso>{error}</Aviso></div>}
+
+      {sesion && suplementosAntes.length > 0 && (
+        <section className="mb-4 space-y-2" aria-label="Antes de empezar">
+          <div className="flex items-center justify-between px-1">
+            <h2 className="text-sm font-bold text-amber-200">Antes de empezar</h2>
+            <button
+              type="button"
+              onClick={() => setSuplementosAntes([])}
+              className="h-9 rounded-full px-3 text-xs font-semibold text-neutral-400 hover:text-neutral-100"
+            >
+              Ocultar
+            </button>
+          </div>
+          <RecordatorioSuplementos suplementos={suplementosAntes} onCambio={setSuplementosAntes} />
+        </section>
+      )}
 
       {sesion === undefined ? (
         <p className="text-neutral-400">Cargando…</p>
@@ -353,6 +399,18 @@ export default function Entrenar() {
             <Boton variante="secundario" onClick={() => setHoja(null)} disabled={ocupado}>Seguir</Boton>
             <Boton onClick={finalizar} cargando={ocupado}>Finalizar</Boton>
           </div>
+        </HojaInferior>
+      )}
+
+      {hoja === 'suplementos' && (
+        <HojaInferior titulo="¡Buen entrenamiento!" onCerrar={() => navigate('/', { replace: true })}>
+          <p className="text-sm text-neutral-300">
+            {suplementosDespues.length > 0 ? 'No olvides tus suplementos de hoy:' : '¡Listo, ya quedó todo registrado!'}
+          </p>
+          <RecordatorioSuplementos suplementos={suplementosDespues} onCambio={setSuplementosDespues} fondo="bg-elevado" />
+          <Boton onClick={() => navigate('/', { replace: true })} className="w-full">
+            {suplementosDespues.length > 0 ? 'Después' : 'Ir al inicio'}
+          </Boton>
         </HojaInferior>
       )}
 
