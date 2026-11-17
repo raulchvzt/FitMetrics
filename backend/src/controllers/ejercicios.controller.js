@@ -1,5 +1,6 @@
 import * as ejerciciosService from '../services/ejercicios.service.js';
 import { HttpError } from '../utils/httpError.js';
+import { esImagenValida } from '../utils/imagenes.js';
 
 export const EQUIPOS = ['Barra', 'Mancuerna', 'Máquina', 'Polea', 'Peso corporal', 'Otro'];
 // Saltos de carga que tienen sentido en un gimnasio (en kg)
@@ -71,4 +72,16 @@ export async function actualizar(req, res) {
 export async function eliminar(req, res) {
   await ejerciciosService.eliminar(req.usuario.id, leerId(req));
   res.status(204).end();
+}
+
+export async function actualizarFoto(req, res) {
+  const { foto } = req.body ?? {};
+  if (!esImagenValida(foto)) {
+    throw new HttpError(400, 'La foto debe ser una imagen JPEG, PNG o WebP de máximo 290 KB');
+  }
+  res.json(await ejerciciosService.actualizarFoto(req.usuario.id, leerId(req), foto));
+}
+
+export async function quitarFoto(req, res) {
+  res.json(await ejerciciosService.actualizarFoto(req.usuario.id, leerId(req), null));
 }

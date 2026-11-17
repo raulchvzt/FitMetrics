@@ -12,5 +12,7 @@ router.get('/grupos', ejerciciosController.grupos);
 router.post('/', ejerciciosController.crear);
 router.put('/:id', ejerciciosController.actualizar);
 router.delete('/:id', ejerciciosController.eliminar);
+router.put('/:id/foto', ejerciciosController.actualizarFoto);
+router.delete('/:id/foto', ejerciciosController.quitarFoto);
 
 export default router;

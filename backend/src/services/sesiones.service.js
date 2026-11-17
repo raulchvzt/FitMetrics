@@ -80,6 +80,7 @@ export async function obtenerDetalle(usuarioId, sesionId) {
       .input('rutinaId', sql.Int, sesion.rutinaId)
       .query(`
         SELECT re.Orden AS orden, re.EjercicioId AS ejercicioId, e.Nombre AS nombre,
+               e.Imagen AS imagen, e.Foto AS foto,
                re.SeriesObjetivo AS series, re.RepsMin AS repsMin, re.RepsMax AS repsMax,
                re.RIRObjetivo AS rir, re.DescansoSeg AS descansoSeg,
                e.IncrementoKg AS incrementoKg

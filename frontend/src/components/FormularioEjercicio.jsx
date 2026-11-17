@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { api } from '../services/api';
 import Boton from './ui/Boton';
 import Campo from './ui/Campo';
 import Icono from './ui/Icono';
+import { reducirImagen } from '../utils/imagen';
 
 const EQUIPOS = ['Barra', 'Mancuerna', 'Máquina', 'Polea', 'Peso corporal', 'Otro'];
 const INCREMENTOS = [0.5, 1, 1.25, 2, 2.5, 5];
@@ -56,6 +57,23 @@ export default function FormularioEjercicio({ ejercicio, nombreSugerido = '', on
   const [error, setError] = useState('');
   const [guardando, setGuardando] = useState(false);
   const [confirmarBorrar, setConfirmarBorrar] = useState(false);
+  // Foto propia: se sube después de guardar los datos
+  const [foto, setFoto] = useState(ejercicio?.foto ?? null);
+  const [fotoCambiada, setFotoCambiada] = useState(false);
+  const entradaFoto = useRef(null);
+
+  async function elegirFoto(evento) {
+    const archivo = evento.target.files?.[0];
+    evento.target.value = '';
+    if (!archivo) return;
+    try {
+      setFoto(await reducirImagen(archivo, { ancho: 480, alto: 320 }));
+      setFotoCambiada(true);
+      setError('');
+    } catch (err) {
+      setError(err.message);
+    }
+  }
 
   useEffect(() => {
     api('/ejercicios/grupos').then(setGrupos).catch((err) => setError(err.message));
@@ -87,10 +105,15 @@ export default function FormularioEjercicio({ ejercicio, nombreSugerido = '', on
 
     setGuardando(true);
     try {
-      const guardado = await api(editando ? `/ejercicios/${ejercicio.id}` : '/ejercicios', {
+      let guardado = await api(editando ? `/ejercicios/${ejercicio.id}` : '/ejercicios', {
         method: editando ? 'PUT' : 'POST',
         body: form
       });
+      if (fotoCambiada) {
+        guardado = await api(`/ejercicios/${guardado.id}/foto`, foto
+          ? { method: 'PUT', body: { foto } }
+          : { method: 'DELETE' });
+      }
       onGuardado(guardado);
     } catch (err) {
       setError(err.message);
@@ -133,6 +156,38 @@ export default function FormularioEjercicio({ ejercicio, nombreSugerido = '', on
         </div>
 
         <div className="flex-1 space-y-5 overflow-y-auto px-5 pb-6">
+          <div className="flex items-center gap-4">
+            {foto ? (
+              <img src={foto} alt="" className="h-20 w-28 shrink-0 rounded-2xl object-cover" />
+            ) : (
+              <span className="flex h-20 w-28 shrink-0 items-center justify-center rounded-2xl border border-dashed border-neutral-700 text-neutral-500">
+                <Icono nombre="camara" className="h-7 w-7" />
+              </span>
+            )}
+            <div className="flex flex-col items-start gap-1">
+              <button
+                type="button"
+                onClick={() => entradaFoto.current.click()}
+                className="text-sm font-bold text-primario"
+              >
+                {foto ? 'Cambiar foto' : 'Agregar foto (opcional)'}
+              </button>
+              {foto && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFoto(null);
+                    setFotoCambiada(true);
+                  }}
+                  className="text-sm font-bold text-neutral-400"
+                >
+                  Quitar foto
+                </button>
+              )}
+            </div>
+            <input ref={entradaFoto} type="file" accept="image/*" onChange={elegirFoto} className="hidden" />
+          </div>
+
           <Campo
             etiqueta="Nombre"
             id="ejercicio-nombre"

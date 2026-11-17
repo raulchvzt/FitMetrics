@@ -8,6 +8,8 @@ import Contador from '../components/ui/Contador';
 import Icono from '../components/ui/Icono';
 import SelectorEjercicio from '../components/SelectorEjercicio';
 import PortadaRutina from '../components/PortadaRutina';
+import MiniaturaEjercicio from '../components/MiniaturaEjercicio';
+import VerEjercicio from '../components/VerEjercicio';
 import { reducirImagen } from '../utils/imagen';
 
 const VALORES_INICIALES = { series: 3, repsMin: 8, repsMax: 12, rir: 2, descansoSeg: 120 };
@@ -33,6 +35,7 @@ export default function RutinaEditor() {
   const [fotoCambiada, setFotoCambiada] = useState(false);
   const [procesandoFoto, setProcesandoFoto] = useState(false);
   const entradaFoto = useRef(null);
+  const [viendo, setViendo] = useState(null);
 
   useEffect(() => {
     api('/ejercicios').then(setCatalogo).catch((err) => setError(err.message));
@@ -261,9 +264,20 @@ export default function RutinaEditor() {
           {ejercicios.map((ej, index) => (
             <article key={ej.ejercicioId} className="space-y-3 rounded-3xl bg-superficie p-4">
               <div className="flex items-center gap-2">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primario/15 font-mono text-xs font-bold text-primario">
-                  {index + 1}
-                </span>
+                <button
+                  type="button"
+                  onClick={() => setViendo(catalogo.find((c) => c.id === ej.ejercicioId) ?? ej)}
+                  aria-label={`Ver cómo se hace ${ej.nombre}`}
+                  className="relative shrink-0 rounded-xl"
+                >
+                  <MiniaturaEjercicio
+                    ejercicio={catalogo.find((c) => c.id === ej.ejercicioId)}
+                    className="h-11 w-11 rounded-xl"
+                  />
+                  <span className="absolute -left-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-primario font-mono text-[10px] font-bold text-sobre-primario">
+                    {index + 1}
+                  </span>
+                </button>
                 <h3 className="min-w-0 flex-1 truncate font-bold">{ej.nombre}</h3>
                 <button type="button" onClick={() => mover(index, -1)} disabled={index === 0}
                         aria-label={`Subir ${ej.nombre}`}
@@ -350,6 +364,8 @@ export default function RutinaEditor() {
           )}
         </section>
       )}
+
+      {viendo && <VerEjercicio ejercicio={viendo} onCerrar={() => setViendo(null)} />}
 
       {selectorAbierto && (
         <SelectorEjercicio

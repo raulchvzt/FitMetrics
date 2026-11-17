@@ -13,6 +13,8 @@ function agrupar(filas) {
         equipo: f.equipo,
         incrementoKg: f.incrementoKg,
         propio: f.propio,
+        imagen: f.imagen,
+        foto: f.foto,
         musculos: []
       });
     }
@@ -23,7 +25,7 @@ function agrupar(filas) {
 
 const SELECT_EJERCICIOS = `
   SELECT e.EjercicioId AS id, e.Nombre AS nombre, e.Tipo AS tipo, e.Equipo AS equipo,
-         e.IncrementoKg AS incrementoKg,
+         e.IncrementoKg AS incrementoKg, e.Imagen AS imagen, e.Foto AS foto,
          CAST(CASE WHEN e.UsuarioId IS NULL THEN 0 ELSE 1 END AS BIT) AS propio,
          g.GrupoMuscularId AS grupoMuscularId, g.Nombre AS musculo, em.Factor AS factor
   FROM Ejercicios e
@@ -211,4 +213,17 @@ export async function eliminar(usuarioId, ejercicioId) {
       DELETE FROM Ejercicios WHERE EjercicioId = @ejercicioId;
     `);
   });
+}
+
+// foto = data URL ya validada, o null para quitarla (solo ejercicios propios)
+export async function actualizarFoto(usuarioId, ejercicioId, foto) {
+  const pool = await getPool();
+  await obtenerPropio(pool, usuarioId, ejercicioId);
+
+  await pool.request()
+    .input('ejercicioId', sql.Int, ejercicioId)
+    .input('foto', sql.VarChar(sql.MAX), foto)
+    .query('UPDATE Ejercicios SET Foto = @foto WHERE EjercicioId = @ejercicioId');
+
+  return obtenerPropio(pool, usuarioId, ejercicioId);
 }
