@@ -6,13 +6,14 @@ import Bienvenida from './pages/Bienvenida';
 import Login from './pages/Login';
 import Registro from './pages/Registro';
 import Inicio from './pages/Inicio';
-import Proximamente from './pages/Proximamente';
 import Rutinas from './pages/Rutinas';
 import RutinaEditor from './pages/RutinaEditor';
 import Entrenar from './pages/Entrenar';
 import Historial from './pages/Historial';
 import SesionDetalle from './pages/SesionDetalle';
 import RangosVolumen from './pages/RangosVolumen';
+import Suplementos from './pages/Suplementos';
+import SuplementoEditor from './pages/SuplementoEditor';
 
 const Progreso = lazy(() => import('./pages/Progreso'));
 
@@ -41,7 +42,9 @@ export default function App() {
               </Suspense>
             }
           />
-          <Route path="/suplementos" element={<Proximamente titulo="Suplementos" />} />
+          <Route path="/suplementos" element={<Suplementos />} />
+          <Route path="/suplementos/nuevo" element={<SuplementoEditor />} />
+          <Route path="/suplementos/:id" element={<SuplementoEditor />} />
         </Route>
       </Route>
 
