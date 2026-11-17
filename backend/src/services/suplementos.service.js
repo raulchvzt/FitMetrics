@@ -1,4 +1,5 @@
 import { getPool, sql } from '../config/db.js';
+import { ilustracionDe, seccionDe } from '../utils/catalogoSuplementos.js';
 import { HttpError } from '../utils/httpError.js';
 import { entrenosPorSemana, estadoInventario, pendienteHoy } from '../utils/suplementos.js';
 
@@ -33,6 +34,7 @@ export async function listar(usuarioId) {
              s.DosisPorToma AS dosis, s.Frecuencia AS frecuencia, s.Momento AS momento,
              CONVERT(CHAR(5), s.HoraRecordatorio, 108) AS horaRecordatorio,
              s.StockActual AS stock, s.Presentacion AS presentacion, s.DiasAlerta AS diasAlerta,
+             s.Catalogo AS catalogo, s.Foto AS foto,
              CAST(CASE WHEN EXISTS (
                SELECT 1 FROM MovimientosInventario m
                WHERE m.SuplementoId = s.SuplementoId
@@ -61,7 +63,13 @@ export async function listar(usuarioId) {
 
   const suplementos = filas.map((s) => {
     const estado = estadoInventario(s, entrenosSemana);
-    return { ...s, ...estado, pendienteHoy: pendienteHoy({ ...s, ...estado }, resumen.entrenasteHoy) };
+    return {
+      ...s,
+      ...estado,
+      pendienteHoy: pendienteHoy({ ...s, ...estado }, resumen.entrenasteHoy),
+      seccion: seccionDe(s),
+      ilustracion: ilustracionDe(s)
+    };
   });
 
   return { entrenosPorSemana: entrenosSemana, entrenasteHoy: resumen.entrenasteHoy, suplementos };
@@ -101,7 +109,8 @@ function entradasSuplemento(request, datos) {
     .input('momento', sql.NVarChar(20), datos.momento)
     .input('hora', sql.VarChar(5), datos.horaRecordatorio)
     .input('presentacion', sql.Decimal(9, 2), datos.presentacion)
-    .input('diasAlerta', sql.TinyInt, datos.diasAlerta);
+    .input('diasAlerta', sql.TinyInt, datos.diasAlerta)
+    .input('catalogo', sql.VarChar(30), datos.catalogo);
 }
 
 export async function crear(usuarioId, datos) {
@@ -112,10 +121,10 @@ export async function crear(usuarioId, datos) {
       .query(`
         INSERT INTO Suplementos
           (UsuarioId, Nombre, Unidad, DosisPorToma, Frecuencia, Momento,
-           HoraRecordatorio, Presentacion, DiasAlerta, StockActual)
+           HoraRecordatorio, Presentacion, DiasAlerta, StockActual, Catalogo)
         OUTPUT INSERTED.SuplementoId AS id
         VALUES (@usuarioId, @nombre, @unidad, @dosis, @frecuencia, @momento,
-                TRY_CAST(@hora AS TIME(0)), @presentacion, @diasAlerta, @stock)
+                TRY_CAST(@hora AS TIME(0)), @presentacion, @diasAlerta, @stock, @catalogo)
       `);
 
     const nuevoId = result.recordset[0].id;
@@ -144,7 +153,7 @@ export async function actualizar(usuarioId, suplementoId, datos) {
       UPDATE Suplementos
       SET Nombre = @nombre, Unidad = @unidad, DosisPorToma = @dosis, Frecuencia = @frecuencia,
           Momento = @momento, HoraRecordatorio = TRY_CAST(@hora AS TIME(0)),
-          Presentacion = @presentacion, DiasAlerta = @diasAlerta
+          Presentacion = @presentacion, DiasAlerta = @diasAlerta, Catalogo = @catalogo
       WHERE SuplementoId = @id AND UsuarioId = @usuarioId AND Activo = 1
     `);
 
@@ -269,5 +278,19 @@ export async function ajustarStock(usuarioId, suplementoId, stockNuevo) {
       await moverStock(nuevaPeticion, suplementoId, 'Ajuste', diferencia, 'Ajuste manual de inventario');
     }
   });
+  return obtener(usuarioId, suplementoId);
+}
+// foto = data URL ya validada, o null para volver a la ilustración
+export async function actualizarFoto(usuarioId, suplementoId, foto) {
+  const pool = await getPool();
+  const result = await pool.request()
+    .input('usuarioId', sql.Int, usuarioId)
+    .input('id', sql.Int, suplementoId)
+    .input('foto', sql.VarChar(sql.MAX), foto)
+    .query(`
+      UPDATE Suplementos SET Foto = @foto
+      WHERE SuplementoId = @id AND UsuarioId = @usuarioId AND Activo = 1
+    `);
+  if (result.rowsAffected[0] === 0) throw new HttpError(404, 'Suplemento no encontrado');
   return obtener(usuarioId, suplementoId);
 }

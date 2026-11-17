@@ -35,3 +35,24 @@ export function limpiarDecimal(texto) {
   const limpio = texto.replace(',', '.');
   return /^\d*\.?\d{0,2}$/.test(limpio) ? limpio : null;
 }
+// Secciones del catálogo (el backend manda "seccion" en cada suplemento)
+export const SECCIONES = [
+  { id: 'rendimiento', etiqueta: 'Rendimiento' },
+  { id: 'proteina', etiqueta: 'Proteína' },
+  { id: 'recuperacion', etiqueta: 'Recuperación' },
+  { id: 'salud', etiqueta: 'Salud' },
+  { id: 'otros', etiqueta: 'Otros' }
+];
+
+export function agruparPorSeccion(lista) {
+  return SECCIONES
+    .map((s) => ({ ...s, suplementos: lista.filter((x) => (x.seccion ?? 'otros') === s.id) }))
+    .filter((g) => g.suplementos.length > 0);
+}
+
+// Para la vista previa del formulario, antes de guardar
+const ILUSTRACION_POR_UNIDAD = { g: 'polvo', scoop: 'polvo', 'cápsula': 'capsulas', tableta: 'tabletas', ml: 'liquido' };
+
+export function ilustracionPara({ catalogo, unidad }, catalogoLista = []) {
+  return catalogoLista.find((c) => c.id === catalogo)?.ilustracion ?? ILUSTRACION_POR_UNIDAD[unidad] ?? 'polvo';
+}

@@ -1,8 +1,12 @@
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../services/api';
 import { formatoFechaHora } from '../utils/formato';
-import { FRECUENCIAS, MOMENTOS, UNIDADES, formatoCantidad, limpiarDecimal } from '../utils/suplementos';
+import {
+  FRECUENCIAS, MOMENTOS, UNIDADES, agruparPorSeccion, descripcionToma, formatoCantidad, ilustracionPara, limpiarDecimal
+} from '../utils/suplementos';
+import { reducirImagen } from '../utils/imagen';
+import ImagenSuplemento from '../components/ImagenSuplemento';
 import Boton from '../components/ui/Boton';
 import Campo from '../components/ui/Campo';
 import Contador from '../components/ui/Contador';
@@ -17,12 +21,57 @@ const VACIO = {
   horaRecordatorio: '',
   presentacion: '',
   stock: '',
-  diasAlerta: 7
+  diasAlerta: 7,
+  catalogo: null
 };
 
 const ETIQUETAS_CORTAS = { Cualquiera: 'Cualquiera', AntesEntrenar: 'Antes', DespuesEntrenar: 'Después' };
 
 const TIPOS_MOVIMIENTO = { Compra: 'Compra', Consumo: 'Toma', Ajuste: 'Ajuste' };
+
+// Primer paso al agregar: elegir del catálogo o escribirlo a mano
+function ElegirDelCatalogo({ catalogo, onElegir, onManual }) {
+  if (!catalogo) return <p className="text-neutral-400">Cargando catálogo…</p>;
+
+  return (
+    <div className="space-y-5">
+      <p className="text-sm text-neutral-400">
+        Elige el tuyo y llenamos la dosis típica por ti. Después la puedes cambiar según la etiqueta de tu producto.
+      </p>
+
+      {agruparPorSeccion(catalogo).map((grupo) => (
+        <section key={grupo.id} aria-labelledby={`cat-${grupo.id}`} className="space-y-2">
+          <h2 id={`cat-${grupo.id}`} className="text-sm font-bold text-neutral-400">{grupo.etiqueta}</h2>
+          <ul className="grid grid-cols-2 gap-2">
+            {grupo.suplementos.map((c) => (
+              <li key={c.id}>
+                <button
+                  type="button"
+                  onClick={() => onElegir(c)}
+                  className="flex h-full w-full flex-col items-start gap-2 rounded-3xl bg-superficie p-3 text-left transition hover:bg-elevado"
+                >
+                  <ImagenSuplemento suplemento={c} className="h-12 w-12 rounded-2xl" />
+                  <span className="text-sm font-bold leading-tight">{c.nombre}</span>
+                  <span className="text-xs text-neutral-400">{descripcionToma(c)}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+
+      <button
+        type="button"
+        onClick={onManual}
+        className="flex h-13 w-full items-center justify-center gap-2 rounded-3xl border border-dashed border-neutral-700
+                   text-sm font-bold text-neutral-300 transition hover:border-primario hover:text-neutral-50"
+      >
+        <Icono nombre="mas" className="h-5 w-5" />
+        No está en la lista: escribirlo a mano
+      </button>
+    </div>
+  );
+}
 
 function Opciones({ etiqueta, opciones, valor, onCambiar, columnas = 2 }) {
   return (
@@ -145,6 +194,20 @@ export default function SuplementoEditor() {
   const [error, setError] = useState('');
   const [guardando, setGuardando] = useState(false);
   const [confirmarEliminar, setConfirmarEliminar] = useState(false);
+  const [catalogo, setCatalogo] = useState(null);
+  // Al agregar, primero se elige del catálogo
+  const [paso, setPaso] = useState(esEdicion ? 'formulario' : 'catalogo');
+  const [nota, setNota] = useState(null);
+  // Foto del bote: se sube después de guardar los datos
+  const [foto, setFoto] = useState(null);
+  const [fotoCambiada, setFotoCambiada] = useState(false);
+  const entradaFoto = useRef(null);
+
+  useEffect(() => {
+    api('/suplementos/catalogo')
+      .then((respuesta) => setCatalogo(respuesta.suplementos))
+      .catch(() => setCatalogo([]));
+  }, []);
 
   useEffect(() => {
     if (!id) return;
@@ -162,8 +225,10 @@ export default function SuplementoEditor() {
           momento: s.momento,
           horaRecordatorio: s.horaRecordatorio ?? '',
           presentacion: s.presentacion === null ? '' : String(s.presentacion),
-          diasAlerta: s.diasAlerta
+          diasAlerta: s.diasAlerta,
+          catalogo: s.catalogo ?? null
         });
+        setFoto(s.foto ?? null);
       })
       .catch((err) => {
         if (activo) setError(err.status === 404 ? 'Suplemento no encontrado' : err.message);
@@ -177,6 +242,33 @@ export default function SuplementoEditor() {
   }, [id]);
 
   const cambiar = (campo) => (valor) => setForm((f) => ({ ...f, [campo]: valor }));
+
+  function elegirDelCatalogo(c) {
+    setForm({
+      ...VACIO,
+      nombre: c.nombre,
+      unidad: c.unidad,
+      dosis: String(c.dosis),
+      frecuencia: c.frecuencia,
+      momento: c.momento,
+      catalogo: c.id
+    });
+    setNota(c.nota);
+    setPaso('formulario');
+  }
+
+  async function elegirFoto(evento) {
+    const archivo = evento.target.files?.[0];
+    evento.target.value = '';
+    if (!archivo) return;
+    try {
+      setFoto(await reducirImagen(archivo, { ancho: 400, alto: 400 }));
+      setFotoCambiada(true);
+      setError('');
+    } catch (err) {
+      setError(err.message);
+    }
+  }
 
   async function guardar(e) {
     e.preventDefault();
@@ -194,13 +286,20 @@ export default function SuplementoEditor() {
       horaRecordatorio: form.horaRecordatorio || null,
       presentacion: form.presentacion ? Number(form.presentacion) : null,
       diasAlerta: form.diasAlerta,
+      catalogo: form.catalogo,
       ...(!esEdicion && { stock: form.stock ? Number(form.stock) : 0 })
     };
 
     setGuardando(true);
     try {
-      if (esEdicion) await api(`/suplementos/${id}`, { method: 'PUT', body: datos });
-      else await api('/suplementos', { method: 'POST', body: datos });
+      const guardado = esEdicion
+        ? await api(`/suplementos/${id}`, { method: 'PUT', body: datos })
+        : await api('/suplementos', { method: 'POST', body: datos });
+      if (fotoCambiada) {
+        await api(`/suplementos/${guardado.id}/foto`, foto
+          ? { method: 'PUT', body: { foto } }
+          : { method: 'DELETE' });
+      }
       navigate('/suplementos');
     } catch (err) {
       setError(err.message);
@@ -250,60 +349,109 @@ export default function SuplementoEditor() {
         <h1 className="text-2xl font-extrabold tracking-tight">{esEdicion ? 'Editar suplemento' : 'Nuevo suplemento'}</h1>
       </header>
 
-      <form onSubmit={guardar} className="space-y-5">
-        <Campo etiqueta="Nombre" id="nombre" value={form.nombre} maxLength={100}
-               onChange={(e) => cambiar('nombre')(e.target.value)} placeholder="Ej. Creatina" required />
-
-        <Opciones etiqueta="Unidad" columnas={5} valor={form.unidad} onCambiar={cambiar('unidad')}
-                  opciones={UNIDADES.map((u) => ({ valor: u, etiqueta: u === 'cápsula' ? 'cáps.' : u === 'tableta' ? 'tab.' : u }))} />
-
-        <div className="grid grid-cols-2 gap-3">
-          <CampoDecimal etiqueta={`Dosis (${form.unidad})`} id="dosis" valor={form.dosis}
-                        onCambiar={cambiar('dosis')} placeholder="5" />
-          <CampoDecimal etiqueta={`Envase (${form.unidad})`} id="presentacion" valor={form.presentacion}
-                        onCambiar={cambiar('presentacion')} placeholder="Opcional" />
-        </div>
-
-        {!esEdicion && (
-          <CampoDecimal etiqueta={`¿Cuánto tienes ahora? (${form.unidad})`} id="stock" valor={form.stock}
-                        onCambiar={cambiar('stock')} placeholder="0" />
-        )}
-
-        <Opciones etiqueta="¿Cuándo lo tomas?" valor={form.frecuencia} onCambiar={cambiar('frecuencia')}
-                  opciones={FRECUENCIAS} />
-
-        <Opciones etiqueta="Momento" columnas={3} valor={form.momento} onCambiar={cambiar('momento')}
-                  opciones={MOMENTOS.map((m) => ({ ...m, etiqueta: ETIQUETAS_CORTAS[m.valor] }))} />
-
-        <div className="grid grid-cols-2 items-end gap-3">
-          <Contador etiqueta="Avisar con (días)" valor={form.diasAlerta} min={0} max={60}
-                    onChange={cambiar('diasAlerta')} />
-          <div className="space-y-1">
-            <label htmlFor={idHora} className="block text-xs text-neutral-400">Hora de recordatorio</label>
-            <input
-              id={idHora}
-              type="time"
-              value={form.horaRecordatorio}
-              onChange={(e) => cambiar('horaRecordatorio')(e.target.value)}
-              className="h-12 w-full rounded-full border border-borde bg-superficie px-4 font-mono text-base outline-none
-                         [color-scheme:dark] focus:border-primario focus:ring-2 focus:ring-primario/25"
+      {paso === 'catalogo' ? (
+        <ElegirDelCatalogo
+          catalogo={catalogo}
+          onElegir={elegirDelCatalogo}
+          onManual={() => {
+            setForm(VACIO);
+            setNota(null);
+            setPaso('formulario');
+          }}
+        />
+      ) : (
+        <form onSubmit={guardar} className="space-y-5">
+          <div className="flex items-center gap-4">
+            <ImagenSuplemento
+              suplemento={{ foto, ilustracion: ilustracionPara(form, catalogo ?? []) }}
+              className="h-24 w-24 rounded-3xl"
             />
+            <div className="flex min-w-0 flex-col items-start gap-1.5">
+              <button type="button" onClick={() => entradaFoto.current.click()} className="inline-flex items-center gap-1.5 text-sm font-bold text-primario">
+                <Icono nombre="camara" className="h-4 w-4" />
+                {foto ? 'Cambiar foto' : 'Tomar foto del bote'}
+              </button>
+              {foto && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFoto(null);
+                    setFotoCambiada(true);
+                  }}
+                  className="text-sm font-bold text-neutral-400"
+                >
+                  Usar ilustración
+                </button>
+              )}
+              {!esEdicion && (
+                <button type="button" onClick={() => setPaso('catalogo')} className="text-sm font-bold text-neutral-400">
+                  Elegir otro del catálogo
+                </button>
+              )}
+            </div>
+            <input ref={entradaFoto} type="file" accept="image/*" onChange={elegirFoto} className="hidden" />
           </div>
-        </div>
-        <p className="-mt-2 text-xs text-neutral-400">
-          Te avisaremos cuando te queden esos días o menos. La hora se usará para notificaciones en días de descanso.
-        </p>
 
-        {error && (
-          <p role="alert" className="rounded-2xl border border-peligro/40 bg-peligro/10 px-4 py-3 text-sm text-red-300">
-            {error}
+          {nota && (
+            <p className="rounded-2xl bg-primario/10 px-4 py-3 text-sm text-neutral-200">
+              <span className="font-bold text-primario">Tip: </span>{nota}
+            </p>
+          )}
+
+          <Campo etiqueta="Nombre" id="nombre" value={form.nombre} maxLength={100}
+                 onChange={(e) => cambiar('nombre')(e.target.value)} placeholder="Ej. Creatina" required />
+
+          <Opciones etiqueta="Unidad" columnas={5} valor={form.unidad} onCambiar={cambiar('unidad')}
+                    opciones={UNIDADES.map((u) => ({ valor: u, etiqueta: u === 'cápsula' ? 'cáps.' : u === 'tableta' ? 'tab.' : u }))} />
+
+          <div className="grid grid-cols-2 gap-3">
+            <CampoDecimal etiqueta={`Dosis (${form.unidad})`} id="dosis" valor={form.dosis}
+                          onCambiar={cambiar('dosis')} placeholder="5" />
+            <CampoDecimal etiqueta={`Envase (${form.unidad})`} id="presentacion" valor={form.presentacion}
+                          onCambiar={cambiar('presentacion')} placeholder="Opcional" />
+          </div>
+
+          {!esEdicion && (
+            <CampoDecimal etiqueta={`¿Cuánto tienes ahora? (${form.unidad})`} id="stock" valor={form.stock}
+                          onCambiar={cambiar('stock')} placeholder="0" />
+          )}
+
+          <Opciones etiqueta="¿Cuándo lo tomas?" valor={form.frecuencia} onCambiar={cambiar('frecuencia')}
+                    opciones={FRECUENCIAS} />
+
+          <Opciones etiqueta="Momento" columnas={3} valor={form.momento} onCambiar={cambiar('momento')}
+                    opciones={MOMENTOS.map((m) => ({ ...m, etiqueta: ETIQUETAS_CORTAS[m.valor] }))} />
+
+          <div className="grid grid-cols-2 items-end gap-3">
+            <Contador etiqueta="Avisar con (días)" valor={form.diasAlerta} min={0} max={60}
+                      onChange={cambiar('diasAlerta')} />
+            <div className="space-y-1">
+              <label htmlFor={idHora} className="block text-xs text-neutral-400">Hora de recordatorio</label>
+              <input
+                id={idHora}
+                type="time"
+                value={form.horaRecordatorio}
+                onChange={(e) => cambiar('horaRecordatorio')(e.target.value)}
+                className="h-12 w-full rounded-full border border-borde bg-superficie px-4 font-mono text-base outline-none
+                           focus:border-primario focus:ring-2 focus:ring-primario/25"
+              />
+            </div>
+          </div>
+          <p className="-mt-2 text-xs text-neutral-400">
+            Te avisaremos cuando te queden esos días o menos. La hora se usará para notificaciones en días de descanso.
           </p>
-        )}
 
-        <Boton type="submit" cargando={guardando} className="w-full">
-          {esEdicion ? 'Guardar cambios' : 'Agregar suplemento'}
-        </Boton>
-      </form>
+          {error && (
+            <p role="alert" className="rounded-2xl border border-peligro/40 bg-peligro/10 px-4 py-3 text-sm text-red-300">
+              {error}
+            </p>
+          )}
+
+          <Boton type="submit" cargando={guardando} className="w-full">
+            {esEdicion ? 'Guardar cambios' : 'Agregar suplemento'}
+          </Boton>
+        </form>
+      )}
 
       {esEdicion && (
         <>
