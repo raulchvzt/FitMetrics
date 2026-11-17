@@ -12,6 +12,9 @@ export const tokenStorage = {
   }
 };
 
+// Se dispara cuando el servidor rechaza el token: AuthProvider cierra la sesión
+export const EVENTO_SESION_EXPIRADA = 'fitmetrics:sesion-expirada';
+
 export class ApiError extends Error {
   constructor(message, status) {
     super(message);
@@ -45,6 +48,11 @@ async function peticion(ruta, { method = 'GET', body } = {}) {
 
   if (!respuesta.ok) {
     const datos = await respuesta.json().catch(() => null);
+    // 401 con token = la sesión venció. (En login/registro un 401 es otra cosa: contraseña incorrecta)
+    if (respuesta.status === 401 && token && !ruta.startsWith('/auth/login') && !ruta.startsWith('/auth/registro')) {
+      tokenStorage.clear();
+      window.dispatchEvent(new Event(EVENTO_SESION_EXPIRADA));
+    }
     throw new ApiError(datos?.error ?? 'Ocurrió un error inesperado', respuesta.status);
   }
   return respuesta;

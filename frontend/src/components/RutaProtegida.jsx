@@ -2,7 +2,7 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 export default function RutaProtegida() {
-  const { usuario, cargando } = useAuth();
+  const { usuario, cargando, sesionExpirada } = useAuth();
   const location = useLocation();
 
   if (cargando) {
@@ -10,7 +10,8 @@ export default function RutaProtegida() {
   }
 
   if (!usuario) {
-    return <Navigate to="/bienvenida" replace state={{ desde: location.pathname }} />;
+    // Si la sesión venció, directo a iniciar sesión (ahí se explica por qué)
+    return <Navigate to={sesionExpirada ? '/login' : '/bienvenida'} replace state={{ desde: location.pathname }} />;
   }
 
   return <Outlet />;

@@ -11,7 +11,8 @@ function generarToken(usuario) {
   return jwt.sign(
     { sub: usuario.id, email: usuario.email },
     process.env.JWT_SECRET,
-    { algorithm: 'HS256', expiresIn: process.env.JWT_EXPIRES_IN || '8h' }
+    // 30 días: en la app instalada no tienes que iniciar sesión a cada rato
+    { algorithm: 'HS256', expiresIn: process.env.JWT_EXPIRES_IN || '30d' }
   );
 }
 
