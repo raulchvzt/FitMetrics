@@ -1,8 +1,12 @@
 import { getPool, sql } from '../config/db.js';
+import { HttpError } from '../utils/httpError.js';
 import { desdeKg } from '../utils/unidades.js';
 import { obtenerUnidad } from './auth.service.js';
 
 const ZONA_HORARIA = process.env.ZONA_HORARIA || 'Central Standard Time (Mexico)';
+
+// Rango de series efectivas por semana cuando el usuario no ha configurado el suyo
+export const RANGO_POR_DEFECTO = { minimo: 10, maximo: 20 };
 
 export async function volumenSemanal(usuarioId, semana) {
   const pool = await getPool();
@@ -10,6 +14,8 @@ export async function volumenSemanal(usuarioId, semana) {
     .input('usuarioId', sql.Int, usuarioId)
     .input('semana', sql.VarChar(10), semana)
     .input('zona', sql.NVarChar(64), ZONA_HORARIA)
+    .input('minimoDefecto', sql.TinyInt, RANGO_POR_DEFECTO.minimo)
+    .input('maximoDefecto', sql.TinyInt, RANGO_POR_DEFECTO.maximo)
     .query(`
       DECLARE @hoy    DATE = CAST(SYSUTCDATETIME() AT TIME ZONE 'UTC' AT TIME ZONE @zona AS DATE);
       DECLARE @base   DATE = ISNULL(TRY_CAST(@semana AS DATE), @hoy);
@@ -30,8 +36,8 @@ export async function volumenSemanal(usuarioId, semana) {
              gm.Nombre AS musculo,
              ISNULL(SUM(CASE WHEN sl.Dia >= @inicio THEN em.Factor END), 0) AS series,
              ISNULL(SUM(CASE WHEN sl.Dia <  @inicio THEN em.Factor END), 0) AS seriesAnterior,
-             ISNULL(ov.SeriesMin, 10) AS minimo,
-             ISNULL(ov.SeriesMax, 20) AS maximo
+             ISNULL(ov.SeriesMin, @minimoDefecto) AS minimo,
+             ISNULL(ov.SeriesMax, @maximoDefecto) AS maximo
       FROM GruposMusculares gm
       LEFT JOIN EjercicioMusculos em ON em.GrupoMuscularId = gm.GrupoMuscularId
       LEFT JOIN SeriesLocales sl ON sl.EjercicioId = em.EjercicioId
@@ -117,4 +123,82 @@ export async function evolucionFuerza(usuarioId, ejercicioId, dias) {
   }));
 
   return { ejercicioId, nombre: ejercicio.nombre, unidad, dias, puntos };
+}
+export async function obtenerObjetivos(usuarioId) {
+  const pool = await getPool();
+  const result = await pool.request()
+    .input('usuarioId', sql.Int, usuarioId)
+    .input('minimoDefecto', sql.TinyInt, RANGO_POR_DEFECTO.minimo)
+    .input('maximoDefecto', sql.TinyInt, RANGO_POR_DEFECTO.maximo)
+    .query(`
+      SELECT gm.GrupoMuscularId AS grupoMuscularId,
+             gm.Nombre AS musculo,
+             ISNULL(ov.SeriesMin, @minimoDefecto) AS minimo,
+             ISNULL(ov.SeriesMax, @maximoDefecto) AS maximo,
+             CAST(CASE WHEN ov.UsuarioId IS NULL THEN 0 ELSE 1 END AS BIT) AS personalizado
+      FROM GruposMusculares gm
+      LEFT JOIN ObjetivosVolumen ov ON ov.UsuarioId = @usuarioId
+                                   AND ov.GrupoMuscularId = gm.GrupoMuscularId
+      ORDER BY gm.GrupoMuscularId
+    `);
+  return { porDefecto: RANGO_POR_DEFECTO, musculos: result.recordset };
+}
+
+export async function guardarObjetivos(usuarioId, objetivos) {
+  const pool = await getPool();
+  const transaction = new sql.Transaction(pool);
+  await transaction.begin();
+
+  try {
+    for (const { grupoMuscularId, minimo, maximo } of objetivos) {
+      const esDefecto = minimo === RANGO_POR_DEFECTO.minimo && maximo === RANGO_POR_DEFECTO.maximo;
+
+      const result = await new sql.Request(transaction)
+        .input('usuarioId', sql.Int, usuarioId)
+        .input('grupoMuscularId', sql.Int, grupoMuscularId)
+        .input('minimo', sql.TinyInt, minimo)
+        .input('maximo', sql.TinyInt, maximo)
+        .input('esDefecto', sql.Bit, esDefecto)
+        .query(`
+          IF NOT EXISTS (SELECT 1 FROM GruposMusculares WHERE GrupoMuscularId = @grupoMuscularId)
+            SELECT 0 AS existe;
+          ELSE
+          BEGIN
+            IF @esDefecto = 1
+              DELETE FROM ObjetivosVolumen
+              WHERE UsuarioId = @usuarioId AND GrupoMuscularId = @grupoMuscularId;
+            ELSE
+              MERGE ObjetivosVolumen AS destino
+              USING (SELECT @usuarioId AS UsuarioId, @grupoMuscularId AS GrupoMuscularId) AS origen
+                 ON destino.UsuarioId = origen.UsuarioId
+                AND destino.GrupoMuscularId = origen.GrupoMuscularId
+              WHEN MATCHED THEN
+                UPDATE SET SeriesMin = @minimo, SeriesMax = @maximo
+              WHEN NOT MATCHED THEN
+                INSERT (UsuarioId, GrupoMuscularId, SeriesMin, SeriesMax)
+                VALUES (@usuarioId, @grupoMuscularId, @minimo, @maximo);
+            SELECT 1 AS existe;
+          END
+        `);
+
+      if (!result.recordset[0].existe) {
+        throw new HttpError(400, `El grupo muscular ${grupoMuscularId} no existe`);
+      }
+    }
+
+    await transaction.commit();
+  } catch (err) {
+    await transaction.rollback();
+    throw err;
+  }
+
+  return obtenerObjetivos(usuarioId);
+}
+
+export async function restablecerObjetivos(usuarioId) {
+  const pool = await getPool();
+  await pool.request()
+    .input('usuarioId', sql.Int, usuarioId)
+    .query('DELETE FROM ObjetivosVolumen WHERE UsuarioId = @usuarioId');
+  return obtenerObjetivos(usuarioId);
 }

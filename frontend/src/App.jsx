@@ -12,6 +12,7 @@ import RutinaEditor from './pages/RutinaEditor';
 import Entrenar from './pages/Entrenar';
 import Historial from './pages/Historial';
 import SesionDetalle from './pages/SesionDetalle';
+import RangosVolumen from './pages/RangosVolumen';
 
 const Progreso = lazy(() => import('./pages/Progreso'));
 
@@ -31,6 +32,7 @@ export default function App() {
           <Route path="/rutinas/:id" element={<RutinaEditor />} />
           <Route path="/historial" element={<Historial />} />
           <Route path="/historial/:id" element={<SesionDetalle />} />
+          <Route path="/progreso/rangos" element={<RangosVolumen />} />
           <Route
             path="/progreso"
             element={

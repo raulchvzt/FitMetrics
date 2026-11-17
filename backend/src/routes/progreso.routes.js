@@ -9,5 +9,8 @@ router.use(verificarToken);
 router.get('/volumen', progresoController.volumen);
 router.get('/ejercicios', progresoController.ejercicios);
 router.get('/fuerza/:ejercicioId', progresoController.fuerza);
+router.get('/objetivos', progresoController.objetivos);
+router.put('/objetivos', progresoController.guardarObjetivos);
+router.delete('/objetivos', progresoController.restablecerObjetivos);
 
 export default router;

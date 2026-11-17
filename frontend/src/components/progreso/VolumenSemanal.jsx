@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../../services/api';
 import { formatoDiaMes, sumarDias } from '../../utils/fechas';
 
@@ -129,7 +130,10 @@ export default function VolumenSemanal() {
         </div>
         <p className="text-xs text-neutral-400">
           Cuentan las series con RIR ≤ 3 que no son calentamiento. Un músculo secundario suma 0.5.
-          La franja gris es tu rango objetivo.
+          La franja gris es tu rango objetivo.{' '}
+          <Link to="/progreso/rangos" className="font-bold text-primario hover:underline">
+            Ajustar rangos
+          </Link>
         </p>
 
         <ul className="space-y-3">
