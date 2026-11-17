@@ -58,6 +58,12 @@
     transition: scale 120ms var(--ease-nativo);
   }
 
+  /* Edge pone su propio "ojito" en las contraseñas: usamos el botón de la pesa */
+  input::-ms-reveal,
+  input::-ms-clear {
+    display: none;
+  }
+
   /* 1. Botones que se "hunden" al presionarlos */
   :is(button, a):not(:disabled, .sin-presion):active {
     scale: 0.97;

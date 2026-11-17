@@ -19,10 +19,7 @@ export default function Bienvenida() {
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,10,10,0.45)_0%,rgba(10,10,10,0.1)_28%,rgba(10,10,10,0.8)_60%,#0A0A0A_74%)]" />
       </div>
 
-      <div className="absolute left-6 top-[calc(1.25rem+env(safe-area-inset-top))] flex items-center gap-2.5">
-        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primario text-sobre-primario">
-          <Icono nombre="entrenar" className="h-5 w-5" />
-        </span>
+      <div className="absolute left-6 top-[calc(1.25rem+env(safe-area-inset-top))]">
         <span className="text-lg font-extrabold tracking-tight">FitMetrics</span>
       </div>
 
