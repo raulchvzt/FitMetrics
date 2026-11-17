@@ -35,3 +35,51 @@ export async function fuerza(req, res) {
   }
   res.json(evolucion);
 }
+const LIMITE_SERIES = 40;
+
+function validarObjetivos(body) {
+  const { objetivos } = body ?? {};
+
+  if (!Array.isArray(objetivos) || objetivos.length === 0 || objetivos.length > 50) {
+    throw new HttpError(400, 'Envía la lista de objetivos a guardar');
+  }
+
+  const vistos = new Set();
+  return objetivos.map((o, i) => {
+    const pos = `Objetivo ${i + 1}`;
+    const { grupoMuscularId, minimo, maximo } = o ?? {};
+
+    if (!Number.isInteger(grupoMuscularId) || grupoMuscularId <= 0) {
+      throw new HttpError(400, `${pos}: grupoMuscularId inválido`);
+    }
+    if (vistos.has(grupoMuscularId)) {
+      throw new HttpError(400, `${pos}: el grupo muscular ${grupoMuscularId} está repetido`);
+    }
+    vistos.add(grupoMuscularId);
+
+    if (!Number.isInteger(minimo) || minimo < 0 || minimo > LIMITE_SERIES) {
+      throw new HttpError(400, `${pos}: el mínimo debe ser un entero de 0 a ${LIMITE_SERIES}`);
+    }
+    if (!Number.isInteger(maximo) || maximo < 1 || maximo > LIMITE_SERIES) {
+      throw new HttpError(400, `${pos}: el máximo debe ser un entero de 1 a ${LIMITE_SERIES}`);
+    }
+    if (maximo < minimo) {
+      throw new HttpError(400, `${pos}: el máximo no puede ser menor que el mínimo`);
+    }
+
+    return { grupoMuscularId, minimo, maximo };
+  });
+}
+
+export async function objetivos(req, res) {
+  res.json(await progresoService.obtenerObjetivos(req.usuario.id));
+}
+
+export async function guardarObjetivos(req, res) {
+  const datos = validarObjetivos(req.body);
+  res.json(await progresoService.guardarObjetivos(req.usuario.id, datos));
+}
+
+export async function restablecerObjetivos(req, res) {
+  res.json(await progresoService.restablecerObjetivos(req.usuario.id));
+}
