@@ -73,6 +73,8 @@ funciona sin conexión y tiene tema oscuro y claro.
   **"Cómo se hace"**, que alterna la posición inicial y la final.
 - Ejercicios propios, con sus músculos y su foto.
 - Historial de entrenamientos con duración, volumen y fatiga percibida.
+- **Resumen al terminar**: duración, volumen, series efectivas, músculos trabajados y
+  **récords nuevos** de 1RM, con confeti cuando rompes uno.
 
 ### 📈 Sobrecarga progresiva automática
 - Para cada ejercicio, la app **sugiere el peso y las repeticiones de hoy** según tus

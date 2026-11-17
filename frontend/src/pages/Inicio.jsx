@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { api } from '../services/api';
 import { plural } from '../utils/formato';
@@ -9,6 +8,8 @@ import PortadaRutina from '../components/PortadaRutina';
 import BotonTema from '../components/BotonTema';
 import TarjetaRecuperacion from '../components/TarjetaRecuperacion';
 import RecordatorioSuplementos from '../components/RecordatorioSuplementos';
+import Esqueleto from '../components/ui/Esqueleto';
+import Enlace from '../components/ui/Enlace';
 
 function fechaDeHoy() {
   const texto = new Intl.DateTimeFormat('es-MX', {
@@ -57,14 +58,14 @@ export default function Inicio() {
   return (
     <div className="escalonado space-y-4">
       <header className="flex items-center gap-3">
-        <Link
+        <Enlace
           to="/perfil"
           aria-label="Mi perfil"
           title="Mi perfil"
           className="shrink-0 rounded-full border-2 border-primario p-0.5"
         >
           <Avatar usuario={usuario} className="h-11 w-11 text-lg" />
-        </Link>
+        </Enlace>
         <div className="min-w-0 flex-1">
           <p className="text-sm text-neutral-400">{fechaDeHoy()}</p>
           <h1 className="truncate text-2xl font-extrabold tracking-tight">
@@ -81,9 +82,7 @@ export default function Inicio() {
       )}
 
       {rutinas === null ? (
-        <section className="flex min-h-48 items-center rounded-[28px] bg-superficie p-5">
-          <p className="text-neutral-400">Cargando…</p>
-        </section>
+        <Esqueleto className="h-56 rounded-[28px]" />
       ) : sesionActiva || siguiente ? (
         <PortadaRutina
           rutina={portada}
@@ -102,19 +101,19 @@ export default function Inicio() {
               </p>
             )}
           </div>
-          <Link to="/entrenar" className={`${botonPrincipal} mt-1`}>
+          <Enlace to="/entrenar" className={`${botonPrincipal} mt-1`}>
             <Icono nombre="play" className="h-4 w-4" />
             {sesionActiva ? 'Continuar' : 'Empezar'}
-          </Link>
+          </Enlace>
         </PortadaRutina>
       ) : (
         <section className="flex min-h-48 flex-col gap-3 rounded-[28px] bg-superficie p-5">
           <h2 className="text-2xl font-extrabold tracking-tight">Crea tu primera rutina</h2>
           <p className="text-sm text-neutral-400">Organiza tus días de entrenamiento para empezar.</p>
-          <Link to="/rutinas" className={`${botonPrincipal} mt-auto`}>
+          <Enlace to="/rutinas" className={`${botonPrincipal} mt-auto`}>
             Ir a rutinas
             <Icono nombre="avanzar" className="h-4 w-4" />
-          </Link>
+          </Enlace>
         </section>
       )}
 
@@ -122,7 +121,7 @@ export default function Inicio() {
 
       <TarjetaRecuperacion />
 
-      <Link
+      <Enlace
         to="/historial"
         className="flex items-center gap-3 rounded-3xl bg-superficie p-3 pr-4 transition hover:bg-elevado"
       >
@@ -134,7 +133,7 @@ export default function Inicio() {
           <span className="block text-sm text-neutral-400">Tus entrenamientos terminados</span>
         </span>
         <Icono nombre="flecha" className="h-5 w-5 shrink-0 text-neutral-500" />
-      </Link>
+      </Enlace>
     </div>
   );
 }

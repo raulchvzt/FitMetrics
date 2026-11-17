@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import Boton from '../components/ui/Boton';
 import Contador from '../components/ui/Contador';
 import Icono from '../components/ui/Icono';
+import { EsqueletoLista } from '../components/ui/Esqueleto';
+import Enlace from '../components/ui/Enlace';
 
 const LIMITE = 40;
 
@@ -80,13 +82,14 @@ export default function RangosVolumen() {
   return (
     <div className="space-y-5">
       <header className="flex items-center gap-3">
-        <Link
+        <Enlace
+          direccion="atras"
           to="/progreso?vista=volumen"
           aria-label="Volver a progreso"
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-superficie text-neutral-50 transition hover:bg-elevado"
         >
           <Icono nombre="atras" className="h-5 w-5" />
-        </Link>
+        </Enlace>
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight">Rangos de volumen</h1>
           <p className="text-sm text-neutral-400">Series efectivas por semana</p>
@@ -105,7 +108,7 @@ export default function RangosVolumen() {
       )}
 
       {!musculos ? (
-        !error && <p className="text-neutral-400">Cargando…</p>
+        !error && <EsqueletoLista filas={6} alto="h-16" etiqueta="Cargando rangos" />
       ) : (
         <>
           <ul className="space-y-3">

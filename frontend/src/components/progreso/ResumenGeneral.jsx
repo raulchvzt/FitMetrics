@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { api, descargar } from '../../services/api';
 import { aFecha, formatoDiaMes } from '../../utils/fechas';
 import { plural } from '../../utils/formato';
@@ -8,6 +7,8 @@ import Icono from '../ui/Icono';
 import NumeroAnimado from '../ui/NumeroAnimado';
 import { useTema } from '../../hooks/useTema';
 import { coloresGrafica } from '../../utils/coloresGrafica';
+import { EsqueletoGrafica } from '../ui/Esqueleto';
+import Enlace from '../ui/Enlace';
 
 const PERIODOS = [
   { dias: 30, etiqueta: '30 días', descripcion: 'los últimos 30 días' },
@@ -96,6 +97,12 @@ function GraficaEvolucion({ evolucion, agrupacion, unidad }) {
       <figure className="-mx-2 h-48" aria-label={`Series efectivas por ${agrupacion}`}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={evolucion} margin={{ top: 8, right: 8, bottom: 0, left: 0 }} barCategoryGap="25%">
+            <defs>
+              <linearGradient id="degradado-barras" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={COLOR.dato} stopOpacity={1} />
+                <stop offset="100%" stopColor={COLOR.dato} stopOpacity={0.55} />
+              </linearGradient>
+            </defs>
             <CartesianGrid vertical={false} stroke={COLOR.rejilla} />
             <XAxis
               dataKey="inicio"
@@ -118,12 +125,20 @@ function GraficaEvolucion({ evolucion, agrupacion, unidad }) {
             />
             <Bar
               dataKey="seriesEfectivas"
-              fill={COLOR.dato}
-              radius={[4, 4, 0, 0]}
+              radius={[6, 6, 0, 0]}
               maxBarSize={28}
-              animationDuration={700}
+              animationDuration={800}
               animationEasing="ease-out"
-            />
+            >
+              {/* El periodo actual va completo; los anteriores, un poco más tenues */}
+              {evolucion.map((fila, i) => (
+                <Cell
+                  key={fila.inicio}
+                  fill="url(#degradado-barras)"
+                  fillOpacity={i === evolucion.length - 1 ? 1 : 0.6}
+                />
+              ))}
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       </figure>
@@ -238,9 +253,9 @@ function Musculos({ musculos }) {
         </ul>
       )}
 
-      <Link to="/progreso?vista=volumen" className="inline-block text-sm font-bold text-primario hover:underline">
+      <Enlace to="/progreso?vista=volumen" className="inline-block text-sm font-bold text-primario hover:underline">
         Ver volumen semana por semana
-      </Link>
+      </Enlace>
     </section>
   );
 }
@@ -250,7 +265,7 @@ function Suplementos({ suplementos }) {
     <section className="space-y-2">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-bold text-neutral-400">Suplementos</h3>
-        <Link to="/suplementos" className="text-sm font-bold text-primario hover:underline">Inventario</Link>
+        <Enlace to="/suplementos" className="text-sm font-bold text-primario hover:underline">Inventario</Enlace>
       </div>
       <ul className="space-y-2">
         {suplementos.map((s) => {
@@ -384,7 +399,7 @@ export default function ResumenGeneral() {
       )}
 
       {!datos ? (
-        !error && <p className="text-neutral-400">Cargando…</p>
+        !error && <EsqueletoGrafica />
       ) : (
         <div className={`escalonado space-y-4 transition-opacity ${actualizado ? '' : 'opacity-50'}`}>
           <p className="text-sm text-neutral-400">

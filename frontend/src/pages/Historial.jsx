@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { formatoFechaHora, formatoMes, formatoNumero, plural } from '../utils/formato';
 import Icono from '../components/ui/Icono';
+import { EsqueletoLista } from '../components/ui/Esqueleto';
+import Enlace from '../components/ui/Enlace';
 
 const POR_PAGINA = 15;
 
@@ -54,13 +55,14 @@ export default function Historial() {
   return (
     <div className="space-y-5">
       <header className="flex items-center gap-3">
-        <Link
+        <Enlace
+          direccion="atras"
           to="/"
           aria-label="Volver al inicio"
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-superficie text-neutral-50 transition hover:bg-elevado"
         >
           <Icono nombre="atras" className="h-5 w-5" />
-        </Link>
+        </Enlace>
         <h1 className="text-[28px] font-extrabold tracking-tight">Historial</h1>
       </header>
 
@@ -71,14 +73,14 @@ export default function Historial() {
       )}
 
       {sesiones === null ? (
-        <p className="text-neutral-400">Cargando…</p>
+        <EsqueletoLista filas={5} etiqueta="Cargando historial" />
       ) : sesiones.length === 0 ? (
         <div className="space-y-3 rounded-3xl border border-dashed border-neutral-700 p-6 text-center">
           <p className="font-bold">Aún no tienes entrenamientos terminados</p>
           <p className="text-sm text-neutral-400">Cuando finalices uno, aparecerá aquí.</p>
-          <Link to="/entrenar" className="inline-flex h-12 items-center rounded-full bg-primario px-5 font-extrabold text-sobre-primario">
+          <Enlace to="/entrenar" className="inline-flex h-12 items-center rounded-full bg-primario px-5 font-extrabold text-sobre-primario">
             Empezar a entrenar
-          </Link>
+          </Enlace>
         </div>
       ) : (
         agruparPorMes(sesiones).map((grupo) => (
@@ -87,7 +89,7 @@ export default function Historial() {
             <ul className="escalonado space-y-3">
               {grupo.sesiones.map((s) => (
                 <li key={s.id}>
-                  <Link
+                  <Enlace
                     to={`/historial/${s.id}`}
                     className="flex items-center gap-3 rounded-3xl bg-superficie p-4 transition hover:bg-elevado"
                   >
@@ -100,7 +102,7 @@ export default function Historial() {
                       </p>
                     </div>
                     <Icono nombre="flecha" className="h-5 w-5 shrink-0 text-neutral-500" />
-                  </Link>
+                  </Enlace>
                 </li>
               ))}
             </ul>

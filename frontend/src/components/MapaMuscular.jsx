@@ -1,3 +1,5 @@
+import { useId } from 'react';
+
 // Silueta de frente y de espalda con cada grupo muscular como una zona aparte.
 // Solo se dibuja la mitad izquierda; la derecha es la misma figura reflejada.
 
@@ -74,16 +76,27 @@ function Mitad({ children }) {
  */
 export default function MapaMuscular({ vista = 'frente', colores = {}, seleccionado, onElegir, className = '' }) {
   const musculos = MUSCULOS[vista];
+  const idBrillo = `brillo-${useId().replace(/:/g, '')}`;
 
   return (
     <svg viewBox="28 8 144 398" className={className} role="img" aria-label={`Mapa muscular, vista de ${vista}`}>
+      <defs>
+        {/* Luz suave desde arriba: da volumen a cada músculo */}
+        <linearGradient id={idBrillo} x1="0" y1="0" x2="0.35" y2="1">
+          <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.28" />
+          <stop offset="55%" stopColor="#FFFFFF" stopOpacity="0" />
+          <stop offset="100%" stopColor="#000000" stopOpacity="0.18" />
+        </linearGradient>
+      </defs>
       <Mitad>
         {BASE[vista].map((d) => (
           <path key={d} d={d} className="fill-neutral-800" />
         ))}
       </Mitad>
-      {Object.entries(musculos).map(([nombre, piezas]) => {
+      {Object.entries(musculos).map(([nombre, piezas], i) => {
         const activo = seleccionado === nombre;
+        // Cada músculo se pinta un poco después del anterior: efecto de "llenado"
+        const retraso = `${i * 45}ms`;
         return (
           <g
             key={nombre}
@@ -94,15 +107,17 @@ export default function MapaMuscular({ vista = 'frente', colores = {}, seleccion
             <title>{nombre}</title>
             <Mitad>
               {piezas.map((d) => (
-                <path
-                  key={d}
-                  d={d}
-                  className="transition-[fill,opacity] duration-300"
-                  stroke={activo ? 'var(--color-neutral-50)' : 'var(--color-fondo)'}
-                  strokeWidth={activo ? 2 : 1.5}
-                  strokeLinejoin="round"
-                  
-                />
+                <g key={d}>
+                  <path
+                    d={d}
+                    className="musculo transition-[fill] duration-500"
+                    style={{ animationDelay: retraso, transitionDelay: retraso }}
+                    stroke={activo ? 'var(--color-neutral-50)' : 'var(--color-fondo)'}
+                    strokeWidth={activo ? 2 : 1.5}
+                    strokeLinejoin="round"
+                  />
+                  <path d={d} fill={`url(#${idBrillo})`} className="pointer-events-none" />
+                </g>
               ))}
             </Mitad>
           </g>

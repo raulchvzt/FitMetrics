@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { agruparPorSeccion, descripcionToma, formatoCantidad, limpiarDecimal } from '../utils/suplementos';
 import { plural } from '../utils/formato';
@@ -7,6 +6,8 @@ import Boton from '../components/ui/Boton';
 import Icono from '../components/ui/Icono';
 import HojaInferior from '../components/ui/HojaInferior';
 import ImagenSuplemento from '../components/ImagenSuplemento';
+import { EsqueletoLista } from '../components/ui/Esqueleto';
+import Enlace from '../components/ui/Enlace';
 
 function Chip({ tono, children }) {
   const tonos = {
@@ -26,13 +27,13 @@ function TarjetaSuplemento({ suplemento: s, ocupado, onTomar, onDeshacer, onComp
       className={`space-y-3 rounded-3xl bg-superficie p-4 ${s.requiereReposicion ? 'ring-1 ring-alerta/50' : ''}`}
     >
       <div className="flex items-start gap-3">
-        <Link to={`/suplementos/${s.id}`} className="shrink-0" aria-hidden="true" tabIndex={-1}>
+        <Enlace to={`/suplementos/${s.id}`} className="shrink-0" aria-hidden="true" tabIndex={-1}>
           <ImagenSuplemento suplemento={s} className="h-14 w-14 rounded-2xl" />
-        </Link>
-        <Link to={`/suplementos/${s.id}`} className="min-w-0 flex-1 hover:underline">
+        </Enlace>
+        <Enlace to={`/suplementos/${s.id}`} className="min-w-0 flex-1 hover:underline">
           <h2 className="line-clamp-2 text-lg font-extrabold leading-tight">{s.nombre}</h2>
           <p className="text-sm text-neutral-400">{descripcionToma(s)}</p>
-        </Link>
+        </Enlace>
         <div className="flex shrink-0 flex-col items-end gap-1">
           {s.agotado ? (
             <Chip tono="rojo">Agotado</Chip>
@@ -192,14 +193,14 @@ export default function Suplementos() {
     <div className="space-y-4">
       <header className="flex items-center justify-between gap-3">
         <h1 className="text-[28px] font-extrabold tracking-tight">Suplementos</h1>
-        <Link
+        <Enlace
           to="/suplementos/nuevo"
           aria-label="Agregar suplemento"
           title="Agregar suplemento"
           className="flex h-13 w-13 items-center justify-center rounded-full bg-primario text-sobre-primario transition hover:bg-primario-claro"
         >
           <Icono nombre="mas" className="h-6 w-6" />
-        </Link>
+        </Enlace>
       </header>
 
       {error && (
@@ -209,16 +210,16 @@ export default function Suplementos() {
       )}
 
       {!datos ? (
-        !error && <p className="text-neutral-400">Cargando…</p>
+        !error && <EsqueletoLista filas={3} alto="h-40" etiqueta="Cargando suplementos" />
       ) : datos.suplementos.length === 0 ? (
         <div className="space-y-3 rounded-3xl border border-dashed border-neutral-700 p-6 text-center">
           <p className="font-bold">Aún no registras suplementos</p>
           <p className="text-sm text-neutral-400">
             Agrega tu creatina, proteína o pre-workout para llevar el inventario y recibir recordatorios.
           </p>
-          <Link to="/suplementos/nuevo" className="inline-flex h-12 items-center rounded-full bg-primario px-5 font-extrabold text-sobre-primario">
+          <Enlace to="/suplementos/nuevo" className="inline-flex h-12 items-center rounded-full bg-primario px-5 font-extrabold text-sobre-primario">
             Agregar suplemento
-          </Link>
+          </Enlace>
         </div>
       ) : (
         <>

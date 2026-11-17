@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { api } from '../services/api';
 import Icono from '../components/ui/Icono';
 import MapaMuscular from '../components/MapaMuscular';
+import { EsqueletoLista } from '../components/ui/Esqueleto';
 import {
   COLOR, consejo, estadoRecuperacion, estadoVolumen, formatoSeries, textoUltimaVez
 } from '../utils/mapaMuscular';
+import Enlace from '../components/ui/Enlace';
 
 const MODOS = [
   { id: 'recuperacion', etiqueta: 'Recuperación' },
@@ -107,13 +108,14 @@ export default function Cuerpo() {
   return (
     <div className="space-y-4">
       <header className="flex items-center gap-3">
-        <Link
+        <Enlace
+          direccion="atras"
           to="/"
           aria-label="Volver al inicio"
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-superficie text-neutral-50 transition hover:bg-elevado"
         >
           <Icono nombre="atras" className="h-5 w-5" />
-        </Link>
+        </Enlace>
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight">Tu cuerpo</h1>
           <p className="text-sm text-neutral-400">Toca un músculo para ver el detalle</p>
@@ -163,7 +165,7 @@ export default function Cuerpo() {
         </div>
       </section>
 
-      {musculos === null && !error && <p className="text-center text-sm text-neutral-400">Cargando…</p>}
+      {musculos === null && !error && <EsqueletoLista filas={2} alto="h-40" etiqueta="Cargando tu cuerpo" />}
 
       {sinDatos && (
         <p className="rounded-3xl bg-superficie px-4 py-3 text-sm leading-relaxed text-neutral-300">

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { api } from '../../services/api';
 import { formatoDiaMes, sumarDias } from '../../utils/fechas';
+import { EsqueletoGrafica } from '../ui/Esqueleto';
+import Enlace from '../ui/Enlace';
 
 const decimal = new Intl.NumberFormat('es-MX', { maximumFractionDigits: 1 });
 function rangoSemana(inicio, fin) {
@@ -77,7 +78,7 @@ export default function VolumenSemanal() {
     );
   }
 
-  if (!datos) return <p className="text-neutral-400">Cargando…</p>;
+  if (!datos) return <EsqueletoGrafica />;
 
   const total = datos.musculos.reduce((suma, m) => suma + m.series, 0);
   const anterior = datos.musculos.reduce((suma, m) => suma + m.seriesAnterior, 0);
@@ -131,9 +132,9 @@ export default function VolumenSemanal() {
         <p className="text-xs text-neutral-400">
           Cuentan las series con RIR ≤ 3 que no son calentamiento. Un músculo secundario suma 0.5.
           La franja gris es tu rango objetivo.{' '}
-          <Link to="/progreso/rangos" className="font-bold text-primario hover:underline">
+          <Enlace to="/progreso/rangos" className="font-bold text-primario hover:underline">
             Ajustar rangos
-          </Link>
+          </Enlace>
         </p>
 
         <ul className="escalonado space-y-3">

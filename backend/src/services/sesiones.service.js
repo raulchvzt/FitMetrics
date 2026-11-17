@@ -3,6 +3,7 @@ import { HttpError } from '../utils/httpError.js';
 import { aKg, desdeKg } from '../utils/unidades.js';
 import { obtenerUnidad } from './auth.service.js';
 import { agregarSugerencias } from './sobrecarga.service.js';
+import { recordsNuevos } from '../utils/records.js';
 
 // ---------- Ayudantes ----------
 
@@ -280,7 +281,50 @@ export async function finalizarSesion(usuarioId, sesionId, { fatigaPercibida }) 
     .input('FatigaPercibida', sql.TinyInt, fatigaPercibida)
     .execute('sp_FinalizarSesion');
 
-  return obtenerDetalle(usuarioId, sesionId);
+  const detalle = await obtenerDetalle(usuarioId, sesionId);
+  return { ...detalle, ...(await logrosDeSesion(usuarioId, sesionId, detalle.unidad)) };
+}
+
+// Récords de 1RM estimado y músculos trabajados, para la pantalla de resumen
+async function logrosDeSesion(usuarioId, sesionId, unidad) {
+  const pool = await getPool();
+  const result = await pool.request()
+    .input('usuarioId', sql.Int, usuarioId)
+    .input('sesionId', sql.Int, sesionId)
+    .query(`
+      SELECT s.EjercicioId AS ejercicioId,
+             e.Nombre AS nombre,
+             MAX(s.E1RM) AS mejor,
+             (SELECT MAX(p.E1RM)
+              FROM Series p
+              JOIN Sesiones ps ON ps.SesionId = p.SesionId
+              WHERE ps.UsuarioId = @usuarioId
+                AND ps.SesionId <> @sesionId
+                AND ps.FechaFin IS NOT NULL
+                AND p.EjercicioId = s.EjercicioId
+                AND p.EsCalentamiento = 0
+                AND p.PesoKg > 0) AS anterior
+      FROM Series s
+      JOIN Ejercicios e ON e.EjercicioId = s.EjercicioId
+      WHERE s.SesionId = @sesionId
+        AND s.EsCalentamiento = 0
+        AND s.PesoKg > 0
+      GROUP BY s.EjercicioId, e.Nombre;
+
+      SELECT gm.Nombre AS nombre, SUM(em.Factor) AS series
+      FROM Series s
+      JOIN EjercicioMusculos em ON em.EjercicioId = s.EjercicioId
+      JOIN GruposMusculares gm ON gm.GrupoMuscularId = em.GrupoMuscularId
+      WHERE s.SesionId = @sesionId
+        AND s.EsEfectiva = 1
+      GROUP BY gm.Nombre;
+    `);
+
+  const [mejores, musculos] = result.recordsets;
+  return {
+    records: recordsNuevos(mejores, unidad),
+    musculos: musculos.map((m) => ({ nombre: m.nombre, series: Number(m.series) }))
+  };
 }
 
 export async function cancelarSesion(usuarioId, sesionId) {
