@@ -8,6 +8,7 @@ import authRoutes from './routes/auth.routes.js';
 import rutinasRoutes from './routes/rutinas.routes.js';
 import sesionesRoutes from './routes/sesiones.routes.js';
 import progresoRoutes from './routes/progreso.routes.js';
+import suplementosRoutes from './routes/suplementos.routes.js';
 
 
 if (!process.env.JWT_SECRET) {
@@ -26,6 +27,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/rutinas', rutinasRoutes);
 app.use('/api/sesiones', sesionesRoutes);
 app.use('/api/progreso', progresoRoutes);
+app.use('/api/suplementos', suplementosRoutes);
 
 
 app.use((req, res) => {
