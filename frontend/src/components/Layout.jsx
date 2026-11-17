@@ -14,7 +14,7 @@ export default function Layout() {
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-md flex-col">
-      <main className="flex-1 px-5 pb-32 pt-6">
+      <main className="flex-1 px-5 pb-32 pt-[calc(1.5rem+env(safe-area-inset-top))]">
         {/* 2. La key nueva en cada pantalla reinicia la animación de entrada */}
         <div key={pathname} className="animate-pagina">
           <Outlet />
