@@ -2,6 +2,7 @@ import { getPool, sql } from '../config/db.js';
 import { HttpError } from '../utils/httpError.js';
 import { desdeKg } from '../utils/unidades.js';
 import { obtenerUnidad } from './auth.service.js';
+import { estadoDelCuerpo, HORAS_MAXIMAS } from '../utils/recuperacion.js';
 
 const ZONA_HORARIA = process.env.ZONA_HORARIA || 'Central Standard Time (Mexico)';
 
@@ -201,4 +202,53 @@ export async function restablecerObjetivos(usuarioId) {
     .input('usuarioId', sql.Int, usuarioId)
     .query('DELETE FROM ObjetivosVolumen WHERE UsuarioId = @usuarioId');
   return obtenerObjetivos(usuarioId);
+}
+// Recuperación y volumen semanal de cada músculo (pantalla "Tu cuerpo")
+export async function estadoCuerpo(usuarioId) {
+  const { musculos: volumen } = await volumenSemanal(usuarioId, null);
+
+  const pool = await getPool();
+  const result = await pool.request()
+    .input('usuarioId', sql.Int, usuarioId)
+    .input('horas', sql.Int, HORAS_MAXIMAS)
+    .input('zona', sql.NVarChar(64), ZONA_HORARIA)
+    .query(`
+      DECLARE @ahora DATETIME2 = SYSUTCDATETIME();
+      DECLARE @hoy   DATE = CAST(@ahora AT TIME ZONE 'UTC' AT TIME ZONE @zona AS DATE);
+
+      -- Series efectivas recientes, con hace cuántas horas se hicieron
+      SELECT em.GrupoMuscularId AS grupoMuscularId,
+             em.Factor AS factor,
+             s.RIR AS rir,
+             DATEDIFF(MINUTE, se.FechaInicio, @ahora) / 60.0 AS horas
+      FROM Series s
+      JOIN Sesiones se ON se.SesionId = s.SesionId
+      JOIN EjercicioMusculos em ON em.EjercicioId = s.EjercicioId
+      WHERE se.UsuarioId = @usuarioId
+        AND s.EsEfectiva = 1
+        AND se.FechaInicio >= DATEADD(HOUR, -@horas, @ahora);
+
+      -- Última sesión de cada músculo (últimos 60 días)
+      WITH PorSesion AS (
+        SELECT em.GrupoMuscularId,
+               se.FechaInicio,
+               SUM(em.Factor) AS Series,
+               ROW_NUMBER() OVER (PARTITION BY em.GrupoMuscularId ORDER BY se.FechaInicio DESC) AS Puesto
+        FROM Series s
+        JOIN Sesiones se ON se.SesionId = s.SesionId
+        JOIN EjercicioMusculos em ON em.EjercicioId = s.EjercicioId
+        WHERE se.UsuarioId = @usuarioId
+          AND s.EsEfectiva = 1
+          AND se.FechaInicio >= DATEADD(DAY, -60, @ahora)
+        GROUP BY em.GrupoMuscularId, se.SesionId, se.FechaInicio
+      )
+      SELECT GrupoMuscularId AS grupoMuscularId,
+             DATEDIFF(DAY, CAST(FechaInicio AT TIME ZONE 'UTC' AT TIME ZONE @zona AS DATE), @hoy) AS dias,
+             Series AS series
+      FROM PorSesion
+      WHERE Puesto = 1;
+    `);
+
+  const [recientes, ultimas] = result.recordsets;
+  return { musculos: estadoDelCuerpo({ volumen, recientes, ultimas }) };
 }

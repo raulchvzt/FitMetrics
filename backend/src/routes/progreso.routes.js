@@ -7,6 +7,7 @@ const router = Router();
 router.use(verificarToken);
 
 router.get('/volumen', progresoController.volumen);
+router.get('/cuerpo', progresoController.cuerpo);
 router.get('/ejercicios', progresoController.ejercicios);
 router.get('/fuerza/:ejercicioId', progresoController.fuerza);
 router.get('/objetivos', progresoController.objetivos);

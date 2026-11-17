@@ -15,6 +15,7 @@ import RangosVolumen from './pages/RangosVolumen';
 import Suplementos from './pages/Suplementos';
 import SuplementoEditor from './pages/SuplementoEditor';
 import Perfil from './pages/Perfil';
+import Cuerpo from './pages/Cuerpo';
 import AvisosApp from './components/AvisosApp';
 
 const Progreso = lazy(() => import('./pages/Progreso'));
@@ -50,6 +51,7 @@ export default function App() {
             <Route path="/suplementos/nuevo" element={<SuplementoEditor />} />
             <Route path="/suplementos/:id" element={<SuplementoEditor />} />
             <Route path="/perfil" element={<Perfil />} />
+            <Route path="/cuerpo" element={<Cuerpo />} />
           </Route>
         </Route>
 

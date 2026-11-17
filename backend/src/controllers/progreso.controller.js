@@ -12,6 +12,10 @@ export async function volumen(req, res) {
 
   res.json(await progresoService.volumenSemanal(req.usuario.id, semana ?? null));
 }
+export async function cuerpo(req, res) {
+  res.json(await progresoService.estadoCuerpo(req.usuario.id));
+}
+
 const PERIODOS = [30, 90, 180, 365, 0];
 
 export async function ejercicios(req, res) {
