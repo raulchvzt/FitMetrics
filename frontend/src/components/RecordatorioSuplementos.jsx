@@ -23,10 +23,11 @@ function Recordatorio({ suplemento, fondo, onTomado }) {
       <div className="flex items-center gap-3">
         <ImagenSuplemento suplemento={suplemento} className="h-11 w-11 rounded-xl" />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-bold">
-            {suplemento.nombre} · <span className="font-mono">{formatoCantidad(suplemento.dosis, suplemento.unidad)}</span>
+          {/* El nombre puede ocupar 2 líneas para no cortarse junto al botón */}
+          <p className="line-clamp-2 text-sm font-bold leading-snug">{suplemento.nombre}</p>
+          <p className="mt-0.5 text-xs text-amber-200">
+            <span className="font-mono">{formatoCantidad(suplemento.dosis, suplemento.unidad)}</span> · ¿Ya la tomaste hoy?
           </p>
-          <p className="text-xs text-amber-200">¿Ya la tomaste hoy?</p>
         </div>
         <button
           type="button"

@@ -1,13 +1,14 @@
-// Colores y textos del mapa muscular (volumen semanal y recuperación)
+// Colores y textos del mapa muscular (volumen semanal y recuperación).
+// Se usa --color-dato (lima en oscuro, verde en claro) para que se vea sobre blanco.
 
 export const COLOR = {
   vacio: 'var(--color-neutral-700)',
-  bajo: 'color-mix(in oklab, var(--color-primario) 38%, var(--color-neutral-700))',
-  enRango: 'var(--color-primario)',
+  bajo: 'color-mix(in oklab, var(--color-dato) 38%, var(--color-neutral-700))',
+  enRango: 'var(--color-dato)',
   exceso: 'var(--color-alerta)',
   cansado: 'var(--color-peligro)',
   medio: 'var(--color-alerta)',
-  listo: 'var(--color-primario)'
+  listo: 'var(--color-dato)'
 };
 
 export const LISTO_DESDE = 80;
