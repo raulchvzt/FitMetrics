@@ -7,6 +7,7 @@ import Avatar from '../components/ui/Avatar';
 import Boton from '../components/ui/Boton';
 import Campo from '../components/ui/Campo';
 import Icono from '../components/ui/Icono';
+import { useTema } from '../hooks/useTema';
 
 const KG_POR_LB = 0.45359237;
 
@@ -86,7 +87,7 @@ function SeccionFoto({ usuario, onActualizado }) {
           disabled={subiendo}
           aria-label="Cambiar foto de perfil"
           className="absolute bottom-0 right-0 flex h-10 w-10 items-center justify-center rounded-full border-4 border-fondo
-                     bg-primario text-fondo transition hover:bg-primario-claro"
+                     bg-primario text-sobre-primario transition hover:bg-primario-claro"
         >
           <Icono nombre="camara" className="h-5 w-5" />
         </button>
@@ -189,7 +190,7 @@ function SeccionDatos({ usuario, onActualizado }) {
               aria-pressed={form.unidadPeso === unidad}
               onClick={() => cambiarUnidad(unidad)}
               className={`h-11 rounded-full font-mono font-bold transition
-                ${form.unidadPeso === unidad ? 'bg-primario text-fondo' : 'text-neutral-400 hover:text-neutral-100'}`}
+                ${form.unidadPeso === unidad ? 'bg-primario text-sobre-primario' : 'text-neutral-400 hover:text-neutral-100'}`}
             >
               {unidad}
             </button>
@@ -226,6 +227,41 @@ function SeccionDatos({ usuario, onActualizado }) {
         Guardar cambios
       </Boton>
     </form>
+  );
+}
+
+// ---------- Apariencia ----------
+
+const TEMAS = [
+  { id: 'oscuro', etiqueta: 'Oscuro', icono: 'luna' },
+  { id: 'claro', etiqueta: 'Claro', icono: 'sol' }
+];
+
+function SeccionApariencia() {
+  const { tema, cambiarTema } = useTema();
+
+  return (
+    <section className="space-y-3 rounded-[28px] bg-superficie p-5">
+      <div>
+        <h3 className="font-extrabold">Apariencia</h3>
+        <p className="text-xs text-neutral-400">También puedes cambiarlo con el botón del inicio</p>
+      </div>
+      <div role="group" aria-label="Tema" className="grid grid-cols-2 gap-1 rounded-full bg-fondo p-1">
+        {TEMAS.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            aria-pressed={tema === t.id}
+            onClick={() => cambiarTema(t.id)}
+            className={`flex h-11 items-center justify-center gap-2 rounded-full font-bold transition
+              ${tema === t.id ? 'bg-primario text-sobre-primario' : 'text-neutral-400 hover:text-neutral-100'}`}
+          >
+            <Icono nombre={t.icono} className="h-4 w-4" />
+            {t.etiqueta}
+          </button>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -341,6 +377,7 @@ export default function Perfil() {
 
       <SeccionFoto usuario={usuario} onActualizado={actualizarUsuario} />
       <SeccionDatos usuario={usuario} onActualizado={actualizarUsuario} />
+      <SeccionApariencia />
       <SeccionContrasena />
 
       <button

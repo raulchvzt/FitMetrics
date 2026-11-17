@@ -34,7 +34,7 @@ function Recordatorio({ suplemento, fondo, onTomado }) {
           type="button"
           onClick={tomar}
           disabled={enviando}
-          className="h-10 shrink-0 rounded-full bg-alerta px-4 text-sm font-extrabold text-fondo transition hover:bg-amber-300 disabled:opacity-60"
+          className="h-10 shrink-0 rounded-full bg-alerta px-4 text-sm font-extrabold text-sobre-primario transition hover:bg-amber-300 disabled:opacity-60"
         >
           {enviando ? '…' : 'Tomada'}
         </button>

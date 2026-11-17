@@ -19,7 +19,7 @@ export default function PortadaRutina({ rutina, ancho = 800, oscurecer = true, c
   const [fallida, setFallida] = useState(null);
 
   return (
-    <div className={`relative isolate overflow-hidden bg-elevado ${className}`}>
+    <div className={`tema-oscuro relative isolate overflow-hidden bg-elevado ${className}`}>
       {fuente && fuente !== fallida ? (
         <img
           src={fuente}

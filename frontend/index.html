@@ -4,6 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#0A0A0A" />
+    <script>
+      // Aplica el tema guardado antes de pintar la página, para que no parpadee en oscuro
+      try {
+        if (localStorage.getItem('fitmetrics_tema') === 'claro') {
+          document.documentElement.dataset.tema = 'claro';
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#F2F2EE');
+        }
+      } catch (e) { /* sin almacenamiento */ }
+    </script>
     <title>FitMetrics</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

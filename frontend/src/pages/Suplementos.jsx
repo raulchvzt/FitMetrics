@@ -52,7 +52,7 @@ function TarjetaSuplemento({ suplemento: s, ocupado, onTomar, onDeshacer, onComp
           <div className="h-2 rounded-full bg-fondo" aria-hidden="true">
             <div
               className={`h-2 origin-left animate-crecer-x rounded-full transition-[width] duration-500
-                ${s.requiereReposicion ? 'bg-alerta' : 'bg-primario'}`}
+                ${s.requiereReposicion ? 'bg-alerta' : 'bg-dato'}`}
               style={{ width: `${avance}%` }}
             />
           </div>
@@ -116,7 +116,7 @@ function HojaCompra({ suplemento: s, onCerrar, onGuardar }) {
               type="button"
               onClick={() => setCantidad(String(s.presentacion * n))}
               className={`h-11 rounded-full text-sm font-bold transition
-                ${Number(cantidad) === s.presentacion * n ? 'bg-primario text-fondo' : 'bg-elevado hover:bg-neutral-700'}`}
+                ${Number(cantidad) === s.presentacion * n ? 'bg-primario text-sobre-primario' : 'bg-elevado hover:bg-neutral-700'}`}
             >
               {plural(n, 'envase')}
             </button>
@@ -192,7 +192,7 @@ export default function Suplementos() {
           to="/suplementos/nuevo"
           aria-label="Agregar suplemento"
           title="Agregar suplemento"
-          className="flex h-13 w-13 items-center justify-center rounded-full bg-primario text-fondo transition hover:bg-primario-claro"
+          className="flex h-13 w-13 items-center justify-center rounded-full bg-primario text-sobre-primario transition hover:bg-primario-claro"
         >
           <Icono nombre="mas" className="h-6 w-6" />
         </Link>
@@ -212,7 +212,7 @@ export default function Suplementos() {
           <p className="text-sm text-neutral-400">
             Agrega tu creatina, proteína o pre-workout para llevar el inventario y recibir recordatorios.
           </p>
-          <Link to="/suplementos/nuevo" className="inline-flex h-12 items-center rounded-full bg-primario px-5 font-extrabold text-fondo">
+          <Link to="/suplementos/nuevo" className="inline-flex h-12 items-center rounded-full bg-primario px-5 font-extrabold text-sobre-primario">
             Agregar suplemento
           </Link>
         </div>

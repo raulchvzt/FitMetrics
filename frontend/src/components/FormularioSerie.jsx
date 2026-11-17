@@ -72,7 +72,7 @@ export default function FormularioSerie({ objetivo, ultimaSerie, unidadUsuario, 
               aria-pressed={unidad === u}
               onClick={() => setUnidad(u)}
               className={`h-8 rounded-full px-3.5 font-mono text-sm font-bold transition
-                ${unidad === u ? 'bg-primario text-fondo' : 'text-neutral-400 hover:text-neutral-100'}`}
+                ${unidad === u ? 'bg-primario text-sobre-primario' : 'text-neutral-400 hover:text-neutral-100'}`}
             >
               {u}
             </button>
@@ -115,7 +115,7 @@ export default function FormularioSerie({ objetivo, ultimaSerie, unidadUsuario, 
                 aria-pressed={rir === n}
                 onClick={() => setRir(n)}
                 className={`h-11 rounded-full font-mono font-bold transition
-                  ${rir === n ? 'bg-primario text-fondo' : 'bg-elevado text-neutral-50 hover:bg-neutral-700'}`}
+                  ${rir === n ? 'bg-primario text-sobre-primario' : 'bg-elevado text-neutral-50 hover:bg-neutral-700'}`}
               >
                 {n === 5 ? '5+' : n}
               </button>

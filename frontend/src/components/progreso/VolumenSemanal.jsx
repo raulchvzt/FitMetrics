@@ -10,7 +10,7 @@ function rangoSemana(inicio, fin) {
 
 const ESTADOS = {
   bajo: { barra: 'bg-alerta', texto: 'text-alerta', etiqueta: 'Por debajo' },
-  optimo: { barra: 'bg-primario', texto: 'text-neutral-50', etiqueta: 'En rango' },
+  optimo: { barra: 'bg-dato', texto: 'text-neutral-50', etiqueta: 'En rango' },
   alto: { barra: 'bg-red-400', texto: 'text-red-300', etiqueta: 'Por encima' }
 };
 
@@ -122,7 +122,7 @@ export default function VolumenSemanal() {
           {anterior > 0 && (
             <span
               className={`rounded-full px-2.5 py-1 font-mono text-xs font-bold
-                ${diferencia >= 0 ? 'bg-primario text-fondo' : 'bg-elevado text-neutral-300'}`}
+                ${diferencia >= 0 ? 'bg-primario text-sobre-primario' : 'bg-elevado text-neutral-300'}`}
             >
               {diferencia >= 0 ? '+' : ''}{decimal.format(diferencia)} vs. semana anterior
             </span>

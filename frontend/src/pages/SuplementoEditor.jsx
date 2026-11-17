@@ -36,7 +36,7 @@ function Opciones({ etiqueta, opciones, valor, onCambiar, columnas = 2 }) {
             aria-pressed={valor === o.valor}
             onClick={() => onCambiar(o.valor)}
             className={`min-h-11 rounded-full px-2 text-sm font-bold leading-tight transition
-              ${valor === o.valor ? 'bg-primario text-fondo' : 'text-neutral-400 hover:text-neutral-100'}`}
+              ${valor === o.valor ? 'bg-primario text-sobre-primario' : 'text-neutral-400 hover:text-neutral-100'}`}
           >
             {o.etiqueta}
           </button>

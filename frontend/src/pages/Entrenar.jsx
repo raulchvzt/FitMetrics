@@ -55,7 +55,7 @@ function ElegirRutina({ rutinas, onIniciar, iniciando }) {
       {!primera ? (
         <div className="space-y-3 rounded-3xl border border-dashed border-neutral-700 p-6 text-center">
           <p className="font-bold">Necesitas una rutina para empezar</p>
-          <Link to="/rutinas/nueva" className="inline-flex h-12 items-center rounded-full bg-primario px-5 font-extrabold text-fondo">
+          <Link to="/rutinas/nueva" className="inline-flex h-12 items-center rounded-full bg-primario px-5 font-extrabold text-sobre-primario">
             Crear rutina
           </Link>
         </div>
@@ -76,7 +76,7 @@ function ElegirRutina({ rutinas, onIniciar, iniciando }) {
               type="button"
               onClick={() => onIniciar(primera.id)}
               disabled={iniciando}
-              className="inline-flex h-12 items-center gap-2 self-start rounded-full bg-primario px-5 font-extrabold text-fondo
+              className="inline-flex h-12 items-center gap-2 self-start rounded-full bg-primario px-5 font-extrabold text-sobre-primario
                          transition hover:bg-primario-claro disabled:opacity-60"
             >
               <Icono nombre="play" className="h-4 w-4" />
@@ -163,7 +163,7 @@ function TarjetaEjercicio({ objetivo, series, unidad, activo, onActivar, onBorra
         </span>
         <span
           className={`shrink-0 rounded-full px-2.5 py-1 font-mono text-xs font-bold
-            ${completo ? 'bg-primario text-fondo' : 'bg-elevado text-neutral-300'}`}
+            ${completo ? 'bg-primario text-sobre-primario' : 'bg-elevado text-neutral-300'}`}
         >
           {trabajo}/{objetivo.series}
         </span>
@@ -192,7 +192,7 @@ function TarjetaEjercicio({ objetivo, series, unidad, activo, onActivar, onBorra
                 <td className="py-1.5">{s.rir ?? '—'}</td>
                 <td className="py-1.5">
                   {s.esEfectiva && (
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primario text-fondo">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primario text-sobre-primario">
                       <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor"
                            strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                         <path d="M5 12l5 5 9-10" />
@@ -394,7 +394,7 @@ export default function Entrenar() {
                   aria-pressed={fatiga === n}
                   onClick={() => setFatiga(n)}
                   className={`h-12 rounded-full font-mono font-bold transition
-                    ${fatiga === n ? 'bg-primario text-fondo' : 'bg-elevado text-neutral-50 hover:bg-neutral-700'}`}
+                    ${fatiga === n ? 'bg-primario text-sobre-primario' : 'bg-elevado text-neutral-50 hover:bg-neutral-700'}`}
                 >
                   {n}
                 </button>
@@ -486,7 +486,7 @@ function SesionEnCurso({ sesion, onRegistrar, onBorrar, onFinalizar, onCancelar 
           type="button"
           onClick={onFinalizar}
           className={`h-11 rounded-full px-4 text-sm font-bold transition
-            ${pendiente ? 'bg-elevado hover:bg-neutral-700' : 'bg-primario text-fondo hover:bg-primario-claro'}`}
+            ${pendiente ? 'bg-elevado hover:bg-neutral-700' : 'bg-primario text-sobre-primario hover:bg-primario-claro'}`}
         >
           Finalizar
         </button>

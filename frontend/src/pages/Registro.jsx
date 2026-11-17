@@ -79,7 +79,7 @@ export default function Registro() {
                 className={`flex h-11 cursor-pointer items-center justify-center rounded-full font-mono font-bold transition
                   has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primario/60
                   ${form.unidadPeso === unidad
-                    ? 'bg-primario text-fondo'
+                    ? 'bg-primario text-sobre-primario'
                     : 'text-neutral-400 hover:text-neutral-100'}`}
               >
                 <input type="radio" name="unidadPeso" value={unidad} className="sr-only"

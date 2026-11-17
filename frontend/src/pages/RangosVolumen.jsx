@@ -134,7 +134,7 @@ export default function RangosVolumen() {
 
           {cambiados.length > 0 && (
             <div className="sticky bottom-[calc(6rem+env(safe-area-inset-bottom))] z-10">
-              <Boton onClick={guardar} cargando={guardando} className="w-full shadow-lg shadow-black/60">
+              <Boton onClick={guardar} cargando={guardando} className="w-full shadow-lg shadow-sombra/60">
                 Guardar {cambiados.length === 1 ? '1 cambio' : `${cambiados.length} cambios`}
               </Boton>
             </div>

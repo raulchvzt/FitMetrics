@@ -6,6 +6,8 @@ import { aFecha, formatoDiaMes } from '../../utils/fechas';
 import { plural } from '../../utils/formato';
 import Icono from '../ui/Icono';
 import NumeroAnimado from '../ui/NumeroAnimado';
+import { useTema } from '../../hooks/useTema';
+import { coloresGrafica } from '../../utils/coloresGrafica';
 
 const PERIODOS = [
   { dias: 30, etiqueta: '30 días', descripcion: 'los últimos 30 días' },
@@ -19,12 +21,6 @@ const DESCARGAS_CSV = [
   { tipo: 'sesiones', etiqueta: 'Sesiones' },
   { tipo: 'suplementos', etiqueta: 'Suplementos' }
 ];
-
-const COLOR = {
-  barra: '#D4FF3F',
-  rejilla: '#2A2A2A',
-  ejes: '#A3A3A3'
-};
 
 const entero = new Intl.NumberFormat('es-MX', { maximumFractionDigits: 0 });
 const decimal = new Intl.NumberFormat('es-MX', { maximumFractionDigits: 1 });
@@ -75,7 +71,7 @@ function ContenidoTooltip({ active, payload, agrupacion, unidad }) {
   if (!active || !payload?.length) return null;
   const grupo = payload[0].payload;
   return (
-    <div className="rounded-2xl border border-borde bg-fondo px-3 py-2 shadow-lg shadow-black/60">
+    <div className="rounded-2xl border border-borde bg-fondo px-3 py-2 shadow-lg shadow-sombra/60">
       <p className="text-xs text-neutral-400">{etiquetaGrupo(grupo.inicio, agrupacion, true)}</p>
       <p className="font-mono text-base font-bold text-neutral-50">
         {plural(grupo.seriesEfectivas, 'serie efectiva', 'series efectivas')}
@@ -88,6 +84,7 @@ function ContenidoTooltip({ active, payload, agrupacion, unidad }) {
 }
 
 function GraficaEvolucion({ evolucion, agrupacion, unidad }) {
+  const COLOR = coloresGrafica(useTema().tema);
   return (
     <section className="space-y-3 rounded-[28px] bg-superficie p-5">
       <div>
@@ -117,11 +114,11 @@ function GraficaEvolucion({ evolucion, agrupacion, unidad }) {
             />
             <Tooltip
               content={<ContenidoTooltip agrupacion={agrupacion} unidad={unidad} />}
-              cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+              cursor={{ fill: COLOR.resalte }}
             />
             <Bar
               dataKey="seriesEfectivas"
-              fill={COLOR.barra}
+              fill={COLOR.dato}
               radius={[4, 4, 0, 0]}
               maxBarSize={28}
               animationDuration={700}
@@ -158,7 +155,7 @@ function DiasSemana({ frecuencia }) {
             <span className="font-mono text-xs font-bold text-neutral-300">{d.sesiones}</span>
             <div
               className={`w-full max-w-7 origin-bottom animate-crecer-y rounded-md transition-[height] duration-500
-                ${d.sesiones > 0 ? 'bg-primario' : 'bg-elevado'}`}
+                ${d.sesiones > 0 ? 'bg-dato' : 'bg-elevado'}`}
               style={{ height: d.sesiones > 0 ? `${(d.sesiones / maximo) * 72}%` : '4px' }}
             />
             <span className="text-xs text-neutral-400">{INICIALES[i]}</span>
@@ -308,7 +305,7 @@ function Exportar({ dias }) {
         type="button"
         onClick={() => bajar('pdf', `/reportes/pdf?dias=${dias}`)}
         disabled={descargando !== null}
-        className="flex h-13 w-full items-center justify-center gap-2 rounded-full bg-primario font-extrabold text-fondo
+        className="flex h-13 w-full items-center justify-center gap-2 rounded-full bg-primario font-extrabold text-sobre-primario
                    transition hover:bg-primario-claro disabled:opacity-60"
       >
         <Icono nombre="descargar" className="h-5 w-5" />
@@ -373,7 +370,7 @@ export default function ResumenGeneral() {
             aria-pressed={dias === p.dias}
             onClick={() => setDias(p.dias)}
             className={`h-9 rounded-full text-sm font-bold transition
-              ${dias === p.dias ? 'bg-primario text-fondo' : 'text-neutral-400 hover:text-neutral-100'}`}
+              ${dias === p.dias ? 'bg-primario text-sobre-primario' : 'text-neutral-400 hover:text-neutral-100'}`}
           >
             {p.etiqueta}
           </button>

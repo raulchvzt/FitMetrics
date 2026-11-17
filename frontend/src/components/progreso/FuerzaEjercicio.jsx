@@ -6,6 +6,8 @@ import { formatoDiaMes, formatoDiaMesAnio } from '../../utils/fechas';
 import { plural } from '../../utils/formato';
 import Icono from '../ui/Icono';
 import NumeroAnimado from '../ui/NumeroAnimado';
+import { useTema } from '../../hooks/useTema';
+import { coloresGrafica } from '../../utils/coloresGrafica';
 
 const PERIODOS = [
   { dias: 30, etiqueta: '1M' },
@@ -15,21 +17,13 @@ const PERIODOS = [
   { dias: 0, etiqueta: 'Todo' }
 ];
 
-const COLOR = {
-  serie: '#D4FF3F',
-  superficie: '#161616',
-  rejilla: '#2A2A2A',
-  ejes: '#A3A3A3',
-  cursor: '#6B6B6B'
-};
-
 const decimal = new Intl.NumberFormat('es-MX', { maximumFractionDigits: 1 });
 
 function ContenidoTooltip({ active, payload, unidad }) {
   if (!active || !payload?.length) return null;
   const punto = payload[0].payload;
   return (
-    <div className="rounded-2xl border border-borde bg-fondo px-3 py-2 shadow-lg shadow-black/60">
+    <div className="rounded-2xl border border-borde bg-fondo px-3 py-2 shadow-lg shadow-sombra/60">
       <p className="font-mono text-base font-bold text-neutral-50">
         {decimal.format(punto.e1rm)} {unidad}
       </p>
@@ -60,7 +54,7 @@ function Resumen({ puntos, unidad }) {
         {puntos.length > 1 && (
           <span
             className={`rounded-full px-2.5 py-1 font-mono text-xs font-bold
-              ${cambio >= 0 ? 'bg-primario text-fondo' : 'bg-elevado text-neutral-300'}`}
+              ${cambio >= 0 ? 'bg-primario text-sobre-primario' : 'bg-elevado text-neutral-300'}`}
           >
             {cambio >= 0 ? '+' : ''}{decimal.format(cambio)} {unidad} ({cambio >= 0 ? '+' : ''}{decimal.format(porcentaje)}%)
           </span>
@@ -72,6 +66,7 @@ function Resumen({ puntos, unidad }) {
 }
 
 export default function FuerzaEjercicio() {
+  const COLOR = coloresGrafica(useTema().tema);
   const idSelector = useId();
   const [ejercicios, setEjercicios] = useState(null);
   const [elegido, setElegido] = useState(null);
@@ -159,7 +154,7 @@ export default function FuerzaEjercicio() {
               aria-pressed={dias === p.dias}
               onClick={() => setDias(p.dias)}
               className={`h-9 rounded-full font-mono text-sm font-bold transition
-                ${dias === p.dias ? 'bg-primario text-fondo' : 'text-neutral-400 hover:text-neutral-100'}`}
+                ${dias === p.dias ? 'bg-primario text-sobre-primario' : 'text-neutral-400 hover:text-neutral-100'}`}
             >
               {p.etiqueta}
             </button>
@@ -212,10 +207,10 @@ export default function FuerzaEjercicio() {
                       <Line
                         type="linear"
                         dataKey="e1rm"
-                        stroke={COLOR.serie}
+                        stroke={COLOR.dato}
                         strokeWidth={2}
-                        dot={{ r: 4, fill: COLOR.serie, stroke: COLOR.superficie, strokeWidth: 2 }}
-                        activeDot={{ r: 6, fill: COLOR.serie, stroke: COLOR.superficie, strokeWidth: 2 }}
+                        dot={{ r: 4, fill: COLOR.dato, stroke: COLOR.superficie, strokeWidth: 2 }}
+                        activeDot={{ r: 6, fill: COLOR.dato, stroke: COLOR.superficie, strokeWidth: 2 }}
                         animationDuration={900}
                         animationEasing="ease-out"
                       />
