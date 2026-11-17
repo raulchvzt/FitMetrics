@@ -37,24 +37,29 @@ funciona sin conexión y tiene tema oscuro y claro.
 
 <table>
   <tr>
+    <td align="center" width="33%"><img src="docs/capturas/bienvenida.webp" alt="Pantalla de bienvenida con foto en blanco y negro y botones para crear cuenta o iniciar sesión"><br><sub><b>Bienvenida</b>: lo primero que ves al abrir la app</sub></td>
     <td align="center" width="33%"><img src="docs/capturas/inicio.webp" alt="Pantalla de inicio con la rutina de hoy y recordatorios de suplementos"><br><sub><b>Inicio</b>: la rutina de hoy y tus suplementos pendientes</sub></td>
     <td align="center" width="33%"><img src="docs/capturas/entrenar.webp" alt="Entrenamiento en curso con temporizador de descanso y sugerencia de peso"><br><sub><b>Entrenar</b>: temporizador de descanso y sugerencia de peso para hoy</sub></td>
-    <td align="center" width="33%"><img src="docs/capturas/como-se-hace.webp" alt="Vista de cómo se hace el press de banca con foto del movimiento"><br><sub><b>Cómo se hace</b>: posición inicial y final de cada ejercicio</sub></td>
   </tr>
   <tr>
+    <td align="center"><img src="docs/capturas/como-se-hace.webp" alt="Vista de cómo se hace el press de banca con foto del movimiento"><br><sub><b>Cómo se hace</b>: posición inicial y final de cada ejercicio</sub></td>
     <td align="center"><img src="docs/capturas/resumen.webp" alt="Resumen de 30 días con sesiones, series efectivas y volumen"><br><sub><b>Resumen</b>: tus números del mes contra el anterior</sub></td>
     <td align="center"><img src="docs/capturas/resumen-graficas.webp" alt="Gráficas de series efectivas por semana y días que más entrenas"><br><sub><b>Gráficas</b>: series por semana y tus días más constantes</sub></td>
-    <td align="center"><img src="docs/capturas/volumen.webp" alt="Series efectivas por músculo comparadas con su rango objetivo"><br><sub><b>Volumen</b>: series efectivas por músculo contra tu rango</sub></td>
   </tr>
   <tr>
+    <td align="center"><img src="docs/capturas/volumen.webp" alt="Series efectivas por músculo comparadas con su rango objetivo"><br><sub><b>Volumen</b>: series efectivas por músculo contra tu rango</sub></td>
     <td align="center"><img src="docs/capturas/fuerza.webp" alt="Gráfica de la evolución del 1RM estimado en press de banca"><br><sub><b>Fuerza</b>: evolución de tu 1RM estimado</sub></td>
     <td align="center"><img src="docs/capturas/rutinas.webp" alt="Lista de rutinas con foto de portada"><br><sub><b>Rutinas</b>: cada una con su foto</sub></td>
-    <td align="center"><img src="docs/capturas/ejercicios.webp" alt="Selector de ejercicios con fotos agrupado por músculo"><br><sub><b>79 ejercicios</b> con foto, por sección muscular</sub></td>
   </tr>
   <tr>
+    <td align="center"><img src="docs/capturas/ejercicios.webp" alt="Selector de ejercicios con fotos agrupado por músculo"><br><sub><b>79 ejercicios</b> con foto, por sección muscular</sub></td>
     <td align="center"><img src="docs/capturas/suplementos.webp" alt="Inventario de suplementos con stock y días restantes"><br><sub><b>Suplementos</b>: stock, días restantes y tomas</sub></td>
-    <td align="center"><img src="docs/capturas/inicio-claro.webp" alt="Pantalla de inicio en tema claro"><br><sub><b>Tema claro</b>, con un toque</sub></td>
     <td align="center"><img src="docs/capturas/perfil.webp" alt="Pantalla de perfil con datos personales"><br><sub><b>Perfil</b>: foto, unidad kg/lb y contraseña</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/capturas/inicio-claro.webp" alt="Pantalla de inicio en tema claro"><br><sub><b>Tema claro</b>: cambia con un toque</sub></td>
+    <td align="center"><img src="docs/capturas/entrenar-claro.webp" alt="Entrenamiento en curso en tema claro"><br><sub><b>Entrenar</b> en tema claro</sub></td>
+    <td align="center"><img src="docs/capturas/resumen-claro.webp" alt="Resumen de progreso en tema claro"><br><sub><b>Resumen</b> en tema claro</sub></td>
   </tr>
 </table>
 
