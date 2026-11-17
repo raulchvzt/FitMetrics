@@ -141,7 +141,7 @@ export default function FormularioEjercicio({ ejercicio, nombreSugerido = '', on
       className="fixed inset-0 z-40 flex animate-pagina flex-col bg-fondo"
     >
       <form onSubmit={guardar} className="mx-auto flex w-full max-w-md flex-1 flex-col overflow-hidden">
-        <div className="flex items-center gap-3 px-5 pb-4 pt-6">
+        <div className="flex items-center gap-3 px-5 pb-4 pt-[calc(1.5rem+env(safe-area-inset-top))]">
           <button
             type="button"
             onClick={onCerrar}

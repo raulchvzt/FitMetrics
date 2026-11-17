@@ -115,7 +115,7 @@ export default function SelectorEjercicio({ catalogo, yaAgregados, onElegir, onC
       aria-labelledby="titulo-selector"
       className="fixed inset-0 z-30 flex flex-col bg-fondo"
     >
-      <div className="mx-auto flex w-full max-w-md flex-1 flex-col overflow-hidden pt-6">
+      <div className="mx-auto flex w-full max-w-md flex-1 flex-col overflow-hidden pt-[calc(1.5rem+env(safe-area-inset-top))]">
         <div className="mb-4 flex items-center justify-between px-5">
           <h2 id="titulo-selector" className="text-2xl font-extrabold tracking-tight">Elegir ejercicio</h2>
           <button

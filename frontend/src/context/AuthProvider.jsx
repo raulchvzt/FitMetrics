@@ -36,6 +36,9 @@ export function AuthProvider({ children }) {
   const logout = useCallback(() => {
     tokenStorage.clear();
     setUsuario(null);
+    // Borra los datos guardados para usar sin conexión: si otra persona inicia
+    // sesión en este teléfono, no debe ver los tuyos
+    if ('caches' in window) caches.delete('api').catch(() => {});
   }, []);
 
   // El perfil devuelve al usuario ya actualizado (nombre, unidad, foto)

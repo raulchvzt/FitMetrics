@@ -35,7 +35,12 @@ async function peticion(ruta, { method = 'GET', body } = {}) {
       body: body !== undefined ? JSON.stringify(body) : undefined
     });
   } catch {
-    throw new ApiError('No se pudo conectar con el servidor', 0);
+    throw new ApiError(
+      navigator.onLine === false
+        ? 'Sin conexión: este cambio necesita internet. Inténtalo cuando vuelvas a tener señal.'
+        : 'No se pudo conectar con el servidor',
+      0
+    );
   }
 
   if (!respuesta.ok) {
