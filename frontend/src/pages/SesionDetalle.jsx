@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { api } from '../services/api';
 import { formatoDuracion, formatoFechaHora, formatoNumero } from '../utils/formato';
 import Icono from '../components/ui/Icono';
 import TablaSeries from '../components/TablaSeries';
+import { EsqueletoLista } from '../components/ui/Esqueleto';
+import Enlace from '../components/ui/Enlace';
 
 function Dato({ etiqueta, valor, destacado = false }) {
   return (
@@ -30,13 +32,14 @@ export default function SesionDetalle() {
   }, [id]);
 
   const volver = (
-    <Link
+    <Enlace
+      direccion="atras"
       to="/historial"
       aria-label="Volver al historial"
       className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-superficie text-neutral-50 transition hover:bg-elevado"
     >
       <Icono nombre="atras" className="h-5 w-5" />
-    </Link>
+    </Enlace>
   );
 
   if (error) {
@@ -50,7 +53,7 @@ export default function SesionDetalle() {
     );
   }
 
-  if (!sesion) return <p className="text-neutral-400">Cargando…</p>;
+  if (!sesion) return <EsqueletoLista filas={4} alto="h-32" etiqueta="Cargando sesión" />;
 
   const todas = sesion.ejercicios.flatMap((e) => e.series);
   const efectivas = todas.filter((s) => s.esEfectiva).length;
@@ -69,9 +72,9 @@ export default function SesionDetalle() {
       </header>
 
       {sesion.enCurso && (
-        <Link to="/entrenar" className="block rounded-3xl bg-primario/10 px-4 py-3 text-sm font-semibold text-primario">
+        <Enlace to="/entrenar" className="block rounded-3xl bg-primario/10 px-4 py-3 text-sm font-semibold text-primario">
           Este entrenamiento sigue en curso. Toca aquí para continuarlo.
-        </Link>
+        </Enlace>
       )}
 
       <section className="grid grid-cols-2 gap-3">

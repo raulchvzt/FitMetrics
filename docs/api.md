@@ -86,7 +86,7 @@ Siempre con el mismo formato y el mensaje en español:
 | `DELETE` | `/:id` | Cancela la sesión en curso |
 | `POST` | `/:id/series` | Registra una serie (`ejercicioId`, `peso`, `reps`, `rir`, `esCalentamiento`) |
 | `DELETE` | `/:id/series/:serieId` | Borra una serie |
-| `POST` | `/:id/finalizar` | Termina la sesión (`{ fatigaPercibida }` de 1 a 10) |
+| `POST` | `/:id/finalizar` | Termina la sesión (`{ fatigaPercibida }` de 1 a 10); responde con el detalle, los `records` nuevos de 1RM y los `musculos` trabajados |
 
 ## Progreso — `/api/progreso`
 

@@ -1,6 +1,7 @@
 import { useEffect, useId, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import {
+  Area, CartesianGrid, ComposedChart, Line, ReferenceDot, ResponsiveContainer, Tooltip, XAxis, YAxis
+} from 'recharts';
 import { api } from '../../services/api';
 import { formatoDiaMes, formatoDiaMesAnio } from '../../utils/fechas';
 import { plural } from '../../utils/formato';
@@ -8,6 +9,8 @@ import Icono from '../ui/Icono';
 import NumeroAnimado from '../ui/NumeroAnimado';
 import { useTema } from '../../hooks/useTema';
 import { coloresGrafica } from '../../utils/coloresGrafica';
+import { EsqueletoGrafica } from '../ui/Esqueleto';
+import Enlace from '../ui/Enlace';
 
 const PERIODOS = [
   { dias: 30, etiqueta: '1M' },
@@ -105,7 +108,7 @@ export default function FuerzaEjercicio() {
     );
   }
 
-  if (!ejercicios) return <p className="text-neutral-400">Cargando…</p>;
+  if (!ejercicios) return <EsqueletoGrafica />;
 
   if (ejercicios.length === 0) {
     return (
@@ -121,6 +124,8 @@ export default function FuerzaEjercicio() {
 
   const actualizado = datos?.ejercicioId === ejercicioId && datos?.dias === dias;
   const puntos = datos?.puntos ?? [];
+  // Si hay empate se marca el más reciente
+  const record = puntos.reduce((mejor, p) => (!mejor || p.e1rm >= mejor.e1rm ? p : mejor), null);
   const unidad = datos?.unidad ?? '';
 
   return (
@@ -163,7 +168,7 @@ export default function FuerzaEjercicio() {
       </div>
 
       {!datos ? (
-        <p className="text-neutral-400">Cargando…</p>
+        <EsqueletoGrafica />
       ) : (
         <div className={`space-y-4 transition-opacity ${actualizado ? '' : 'opacity-50'}`}>
           {puntos.length === 0 ? (
@@ -177,7 +182,14 @@ export default function FuerzaEjercicio() {
 
                 <figure className="-mx-2 h-56" aria-label={`Evolución del 1RM estimado en ${datos.nombre}`}>
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={puntos} margin={{ top: 8, right: 12, bottom: 0, left: 0 }}>
+                    {/* Margen derecho extra para que la etiqueta "Récord" no se corte en el último punto */}
+                    <ComposedChart data={puntos} margin={{ top: 22, right: 26, bottom: 0, left: 0 }}>
+                      <defs>
+                        <linearGradient id="degradado-fuerza" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor={COLOR.dato} stopOpacity={0.35} />
+                          <stop offset="100%" stopColor={COLOR.dato} stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
                       <CartesianGrid vertical={false} stroke={COLOR.rejilla} />
                       <XAxis
                         dataKey="fecha"
@@ -204,8 +216,17 @@ export default function FuerzaEjercicio() {
                         content={<ContenidoTooltip unidad={unidad} />}
                         cursor={{ stroke: COLOR.cursor, strokeWidth: 1 }}
                       />
+                      <Area
+                        type="monotone"
+                        dataKey="e1rm"
+                        stroke="none"
+                        fill="url(#degradado-fuerza)"
+                        animationDuration={900}
+                        animationEasing="ease-out"
+                        tooltipType="none"
+                      />
                       <Line
-                        type="linear"
+                        type="monotone"
                         dataKey="e1rm"
                         stroke={COLOR.dato}
                         strokeWidth={2}
@@ -214,7 +235,20 @@ export default function FuerzaEjercicio() {
                         animationDuration={900}
                         animationEasing="ease-out"
                       />
-                    </LineChart>
+                      {/* El mejor 1RM del periodo, marcado como récord */}
+                      {record && puntos.length > 1 && (
+                        <ReferenceDot
+                          x={record.fecha}
+                          y={record.e1rm}
+                          r={7}
+                          fill={COLOR.dato}
+                          stroke={COLOR.superficie}
+                          strokeWidth={3}
+                          ifOverflow="visible"
+                          label={{ value: 'Récord', position: 'top', fill: COLOR.dato, fontSize: 11, fontWeight: 700, offset: 10 }}
+                        />
+                      )}
+                    </ComposedChart>
                   </ResponsiveContainer>
                 </figure>
 
@@ -233,7 +267,7 @@ export default function FuerzaEjercicio() {
                 <ul className="escalonado space-y-2">
                   {[...puntos].reverse().map((p) => (
                     <li key={p.sesionId}>
-                      <Link
+                      <Enlace
                         to={`/historial/${p.sesionId}`}
                         className="flex items-center gap-3 rounded-3xl bg-superficie px-4 py-3 transition hover:bg-elevado"
                       >
@@ -245,7 +279,7 @@ export default function FuerzaEjercicio() {
                           {decimal.format(p.e1rm)} <span className="text-neutral-400">{unidad}</span>
                         </span>
                         <Icono nombre="flecha" className="h-4 w-4 shrink-0 text-neutral-500" />
-                      </Link>
+                      </Enlace>
                     </li>
                   ))}
                 </ul>

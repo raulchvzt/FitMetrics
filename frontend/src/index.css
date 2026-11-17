@@ -182,3 +182,92 @@ body {
     transition-duration: 1ms !important;
   }
 }
+
+/* Confeti de la pantalla de resumen (récords nuevos) */
+.confeti > span {
+  position: absolute;
+  top: -24px;
+  animation-name: confeti;
+  animation-timing-function: cubic-bezier(0.25, 0.6, 0.45, 1);
+  animation-fill-mode: both;
+}
+@keyframes confeti {
+  0%   { translate: 0 0; rotate: 0deg; opacity: 1; }
+  85%  { opacity: 1; }
+  100% { translate: var(--deriva) 105vh; rotate: var(--giro); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .confeti { display: none; }
+}
+
+/* Esqueletos de carga: bloque gris con un brillo que lo recorre */
+.esqueleto {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-superficie);
+}
+.esqueleto::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  translate: -100% 0;
+  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--color-neutral-50) 7%, transparent), transparent);
+  animation: brillo 1.4s ease-in-out infinite;
+}
+@keyframes brillo {
+  to { translate: 100% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .esqueleto::after { animation: none; }
+}
+
+/* Mapa muscular: los músculos se "llenan" de color al aparecer */
+.musculo {
+  animation: llenar 600ms var(--ease-nativo) backwards;
+}
+@keyframes llenar {
+  from { fill: var(--color-neutral-700); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .musculo { animation: none; transition: none; }
+}
+
+/* ---------- Transiciones entre pantallas (View Transitions) ---------- */
+/* La barra de abajo se queda quieta mientras cambia el contenido */
+.barra-navegacion { view-transition-name: barra; }
+::view-transition-group(barra) { animation: none; }
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 320ms;
+  animation-timing-function: var(--ease-nativo);
+}
+/* Entrar a algo: la pantalla nueva llega desde la derecha */
+:root[data-direccion="adelante"]::view-transition-old(root) { animation-name: salir-izquierda; }
+:root[data-direccion="adelante"]::view-transition-new(root) { animation-name: entrar-derecha; }
+/* Volver: al revés */
+:root[data-direccion="atras"]::view-transition-old(root) { animation-name: salir-derecha; }
+:root[data-direccion="atras"]::view-transition-new(root) { animation-name: entrar-izquierda; }
+/* Cambiar de sección en la barra: solo un fundido rápido */
+:root[data-direccion="tab"]::view-transition-old(root),
+:root[data-direccion="tab"]::view-transition-new(root) { animation-duration: 180ms; }
+
+/* La foto de una rutina "vuela" de la lista al editor */
+::view-transition-group(*) {
+  animation-duration: 380ms;
+  animation-timing-function: var(--ease-nativo);
+}
+
+@keyframes salir-izquierda  { to   { translate: -25% 0; opacity: 0.4; } }
+@keyframes entrar-derecha   { from { translate: 100% 0; } }
+@keyframes salir-derecha    { to   { translate: 100% 0; } }
+@keyframes entrar-izquierda { from { translate: -25% 0; opacity: 0.4; } }
+
+/* La pantalla que sale queda debajo cuando volvemos */
+:root[data-direccion="atras"]::view-transition-old(root) { z-index: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none !important; }
+}

@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import Icono from './ui/Icono';
+import { conTransiciones, marcarDireccion } from '../utils/transiciones';
 
 const secciones = [
   { ruta: '/', etiqueta: 'Inicio', icono: 'inicio' },
@@ -15,15 +16,16 @@ export default function Layout() {
   return (
     <div className="mx-auto flex min-h-dvh max-w-md flex-col">
       <main className="flex-1 px-5 pb-32 pt-[calc(1.5rem+env(safe-area-inset-top))]">
-        {/* 2. La key nueva en cada pantalla reinicia la animación de entrada */}
-        <div key={pathname} className="animate-pagina">
+        {/* Con View Transitions el navegador anima el cambio de pantalla; si no las
+            soporta, la key nueva en cada pantalla reinicia la animación de entrada */}
+        <div key={pathname} className={conTransiciones ? undefined : 'animate-pagina'}>
           <Outlet />
         </div>
       </main>
 
       <nav
         aria-label="Navegación principal"
-        className="fixed inset-x-0 bottom-0 z-20 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))]"
+        className="barra-navegacion fixed inset-x-0 bottom-0 z-20 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))]"
       >
         <div className="mx-auto flex h-17 max-w-md items-center justify-between rounded-full border border-borde bg-superficie px-2.5 shadow-lg shadow-sombra/50">
           {secciones.map((s) => (
@@ -31,6 +33,8 @@ export default function Layout() {
               key={s.ruta}
               to={s.ruta}
               end={s.ruta === '/'}
+              viewTransition
+              onClick={() => marcarDireccion('tab')}
               className={({ isActive }) =>
                 isActive
                   ? 'flex h-12 items-center gap-2 rounded-full bg-elevado pl-1.5 pr-4 text-sm font-bold text-neutral-50'

@@ -12,9 +12,11 @@ import HojaInferior from '../components/ui/HojaInferior';
 import Cronometro from '../components/Cronometro';
 import FormularioSerie from '../components/FormularioSerie';
 import RecordatorioSuplementos from '../components/RecordatorioSuplementos';
+import ResumenSesion from '../components/ResumenSesion';
 import TemporizadorDescanso from '../components/TemporizadorDescanso';
 import { prepararAviso, sonarAviso } from '../utils/aviso';
 import { guardarDescanso, leerDescanso } from '../utils/descanso';
+import { EsqueletoLista } from '../components/ui/Esqueleto';
 
 const seriesDe = (sesion, ejercicioId) =>
   sesion.ejercicios.find((e) => e.ejercicioId === ejercicioId)?.series ?? [];
@@ -252,6 +254,7 @@ export default function Entrenar() {
   const [fatiga, setFatiga] = useState(7);
   const [suplementosAntes, setSuplementosAntes] = useState([]);
   const [suplementosDespues, setSuplementosDespues] = useState([]);
+  const [resumen, setResumen] = useState(null);
 
   const sesionId = sesion?.id;
 
@@ -326,18 +329,14 @@ export default function Entrenar() {
     setError('');
     setOcupado(true);
     try {
-      await api(`/sesiones/${sesion.id}/finalizar`, { method: 'POST', body: { fatigaPercibida: fatiga } });
+      const terminada = await api(`/sesiones/${sesion.id}/finalizar`, { method: 'POST', body: { fatigaPercibida: fatiga } });
       guardarDescanso(sesion.id, null);
 
       // Recordar lo que va DESPUÉS de entrenar (o lo diario que aún no tomas)
       const datos = await api('/suplementos').catch(() => null);
-      const despues = datos?.suplementos.filter((x) => x.pendienteHoy && x.momento !== 'AntesEntrenar') ?? [];
-      if (despues.length > 0) {
-        setSuplementosDespues(despues);
-        setHoja('suplementos');
-      } else {
-        navigate('/', { replace: true });
-      }
+      setSuplementosDespues(datos?.suplementos.filter((x) => x.pendienteHoy && x.momento !== 'AntesEntrenar') ?? []);
+      setHoja(null);
+      setResumen(terminada);
     } catch (err) {
       setError(err.message);
       setHoja(null);
@@ -382,7 +381,7 @@ export default function Entrenar() {
       )}
 
       {sesion === undefined ? (
-        <p className="text-neutral-400">Cargando…</p>
+        <EsqueletoLista filas={4} alto="h-32" etiqueta="Cargando entrenamiento" />
       ) : sesion === null ? (
         <ElegirRutina rutinas={rutinas} onIniciar={iniciar} iniciando={ocupado} />
       ) : (
@@ -423,16 +422,13 @@ export default function Entrenar() {
         </HojaInferior>
       )}
 
-      {hoja === 'suplementos' && (
-        <HojaInferior titulo="¡Buen entrenamiento!" onCerrar={() => navigate('/', { replace: true })}>
-          <p className="text-sm text-neutral-300">
-            {suplementosDespues.length > 0 ? 'No olvides tus suplementos de hoy:' : '¡Listo, ya quedó todo registrado!'}
-          </p>
-          <RecordatorioSuplementos suplementos={suplementosDespues} onCambio={setSuplementosDespues} fondo="bg-elevado" />
-          <Boton onClick={() => navigate('/', { replace: true })} className="w-full">
-            {suplementosDespues.length > 0 ? 'Después' : 'Ir al inicio'}
-          </Boton>
-        </HojaInferior>
+      {resumen && (
+        <ResumenSesion
+          sesion={resumen}
+          suplementos={suplementosDespues}
+          onSuplementos={setSuplementosDespues}
+          onListo={() => navigate('/', { replace: true })}
+        />
       )}
 
       {hoja === 'cancelar' && (

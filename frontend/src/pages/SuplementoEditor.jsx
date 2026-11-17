@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { api } from '../services/api';
 import { formatoFechaHora } from '../utils/formato';
 import {
@@ -11,6 +11,8 @@ import Boton from '../components/ui/Boton';
 import Campo from '../components/ui/Campo';
 import Contador from '../components/ui/Contador';
 import Icono from '../components/ui/Icono';
+import { EsqueletoLista } from '../components/ui/Esqueleto';
+import Enlace from '../components/ui/Enlace';
 
 const VACIO = {
   nombre: '',
@@ -320,16 +322,17 @@ export default function SuplementoEditor() {
   }
 
   const volver = (
-    <Link
+    <Enlace
+      direccion="atras"
       to="/suplementos"
       aria-label="Volver a suplementos"
       className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-superficie text-neutral-50 transition hover:bg-elevado"
     >
       <Icono nombre="atras" className="h-5 w-5" />
-    </Link>
+    </Enlace>
   );
 
-  if (cargando) return <p className="text-neutral-400">Cargando…</p>;
+  if (cargando) return <EsqueletoLista filas={4} alto="h-16" etiqueta="Cargando suplemento" />;
 
   if (esEdicion && !suplemento) {
     return (

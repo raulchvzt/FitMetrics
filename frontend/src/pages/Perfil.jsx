@@ -1,5 +1,4 @@
 import { useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { api } from '../services/api';
 import { reducirImagen } from '../utils/imagen';
@@ -8,6 +7,7 @@ import Boton from '../components/ui/Boton';
 import Campo from '../components/ui/Campo';
 import Icono from '../components/ui/Icono';
 import { useTema } from '../hooks/useTema';
+import Enlace from '../components/ui/Enlace';
 
 const KG_POR_LB = 0.45359237;
 
@@ -365,13 +365,14 @@ export default function Perfil() {
   return (
     <div className="escalonado space-y-5">
       <header className="flex items-center gap-3">
-        <Link
+        <Enlace
+          direccion="atras"
           to="/"
           aria-label="Volver al inicio"
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-superficie text-neutral-50 transition hover:bg-elevado"
         >
           <Icono nombre="atras" className="h-5 w-5" />
-        </Link>
+        </Enlace>
         <h1 className="text-2xl font-extrabold tracking-tight">Mi perfil</h1>
       </header>
 

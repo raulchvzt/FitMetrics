@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { api } from '../services/api';
 import Icono from './ui/Icono';
 import MapaMuscular from './MapaMuscular';
 import { COLOR, LISTO_DESDE, estadoRecuperacion } from '../utils/mapaMuscular';
+import Enlace from './ui/Enlace';
 
 export default function TarjetaRecuperacion() {
   const [musculos, setMusculos] = useState(null);
@@ -24,7 +24,7 @@ export default function TarjetaRecuperacion() {
   const sinDatos = musculos.every((m) => !m.ultimaVez);
 
   return (
-    <Link to="/cuerpo" className="block rounded-[28px] bg-superficie p-4 transition hover:bg-elevado">
+    <Enlace to="/cuerpo" className="block rounded-[28px] bg-superficie p-4 transition hover:bg-elevado">
       <div className="flex items-center justify-between">
         <h2 className="font-extrabold tracking-tight">Recuperación</h2>
         <span className="flex items-center gap-1 text-sm font-semibold text-neutral-400">
@@ -83,6 +83,6 @@ export default function TarjetaRecuperacion() {
           </div>
         )}
       </div>
-    </Link>
+    </Enlace>
   );
 }

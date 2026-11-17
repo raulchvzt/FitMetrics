@@ -13,13 +13,17 @@ function Respaldo() {
 
 // Foto de fondo de una rutina con un oscurecido abajo para que el texto se lea.
 // rutina = { id, foto } (id puede faltar en una rutina nueva)
-export default function PortadaRutina({ rutina, ancho = 800, oscurecer = true, className = '', children }) {
+// nombreTransicion: la misma foto en dos pantallas "vuela" de una a otra al navegar
+export default function PortadaRutina({ rutina, ancho = 800, oscurecer = true, nombreTransicion, className = '', children }) {
   const fuente = rutina.id || rutina.foto ? fotoDeRutina(rutina, ancho) : null;
   // Guardamos qué foto falló: si cambia la foto, se vuelve a intentar sola
   const [fallida, setFallida] = useState(null);
 
   return (
-    <div className={`tema-oscuro relative isolate overflow-hidden bg-elevado ${className}`}>
+    <div
+      className={`tema-oscuro relative isolate overflow-hidden bg-elevado ${className}`}
+      style={nombreTransicion ? { viewTransitionName: nombreTransicion } : undefined}
+    >
       {fuente && fuente !== fallida ? (
         <img
           src={fuente}

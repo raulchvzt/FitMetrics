@@ -17,6 +17,7 @@ import SuplementoEditor from './pages/SuplementoEditor';
 import Perfil from './pages/Perfil';
 import Cuerpo from './pages/Cuerpo';
 import AvisosApp from './components/AvisosApp';
+import { EsqueletoGrafica } from './components/ui/Esqueleto';
 
 const Progreso = lazy(() => import('./pages/Progreso'));
 
@@ -42,7 +43,7 @@ export default function App() {
             <Route
               path="/progreso"
               element={
-                <Suspense fallback={<p className="text-neutral-400">Cargando…</p>}>
+                <Suspense fallback={<EsqueletoGrafica />}>
                   <Progreso />
                 </Suspense>
               }

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../services/api';
 import { formatoTiempo } from '../utils/formato';
 import Campo from '../components/ui/Campo';
@@ -11,6 +11,8 @@ import PortadaRutina from '../components/PortadaRutina';
 import MiniaturaEjercicio from '../components/MiniaturaEjercicio';
 import VerEjercicio from '../components/VerEjercicio';
 import { reducirImagen } from '../utils/imagen';
+import { EsqueletoLista } from '../components/ui/Esqueleto';
+import Enlace from '../components/ui/Enlace';
 
 const VALORES_INICIALES = { series: 3, repsMin: 8, repsMax: 12, rir: 2, descansoSeg: 120 };
 
@@ -18,6 +20,7 @@ export default function RutinaEditor() {
   const { id } = useParams();
   const esEdicion = Boolean(id);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
@@ -31,7 +34,8 @@ export default function RutinaEditor() {
   const [confirmarEliminar, setConfirmarEliminar] = useState(false);
   const [eliminando, setEliminando] = useState(false);
   // Foto propia (data URL) o null = foto aleatoria. Se sube al guardar la rutina.
-  const [foto, setFoto] = useState(null);
+  // Si venimos de la lista, ya traemos la foto: así la portada aparece desde el primer momento
+  const [foto, setFoto] = useState(() => (esEdicion ? location.state?.rutina?.foto ?? null : null));
   const [fotoCambiada, setFotoCambiada] = useState(false);
   const [procesandoFoto, setProcesandoFoto] = useState(false);
   const entradaFoto = useRef(null);
@@ -185,17 +189,27 @@ export default function RutinaEditor() {
   }
 
   const volver = (
-    <Link
+    <Enlace
+      direccion="atras"
       to="/rutinas"
       aria-label="Volver a rutinas"
       className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-superficie text-neutral-50 transition hover:bg-elevado"
     >
       <Icono nombre="atras" className="h-5 w-5" />
-    </Link>
+    </Enlace>
   );
 
   if (cargando) {
-    return <p className="text-neutral-400">Cargando rutina…</p>;
+    return (
+      <div className="space-y-5">
+        <header className="flex items-center gap-3">
+          {volver}
+          <h1 className="text-2xl font-extrabold tracking-tight">Editar rutina</h1>
+        </header>
+        <PortadaRutina rutina={{ id: Number(id), foto }} nombreTransicion={`rutina-${id}`} className="h-44 rounded-3xl" />
+        <EsqueletoLista filas={3} alto="h-24" etiqueta="Cargando rutina" />
+      </div>
+    );
   }
 
   if (noEncontrada) {
@@ -218,6 +232,7 @@ export default function RutinaEditor() {
       <form onSubmit={guardar} className="space-y-5">
         <PortadaRutina
           rutina={{ id: esEdicion ? Number(id) : undefined, foto }}
+          nombreTransicion={esEdicion ? `rutina-${id}` : undefined}
           className={`flex h-44 flex-col justify-between rounded-3xl p-3 text-white transition-opacity
             ${procesandoFoto ? 'opacity-60' : ''}`}
         >
