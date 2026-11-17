@@ -44,8 +44,9 @@ export default function RutinaEditor() {
   useEffect(() => {
     if (!id) return;
 
+    // "cargando" ya empieza en true al editar (y el Layout vuelve a montar la
+    // pantalla al cambiar de rutina), así que no hace falta ponerlo aquí
     let activo = true;
-    setCargando(true);
 
     api(`/rutinas/${id}`)
       .then((rutina) => {

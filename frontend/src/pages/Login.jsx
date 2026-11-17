@@ -6,7 +6,7 @@ import Boton from '../components/ui/Boton';
 import Icono from '../components/ui/Icono';
 
 export default function Login() {
-  const { usuario, login } = useAuth();
+  const { usuario, login, sesionExpirada } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -50,6 +50,11 @@ export default function Login() {
       </div>
 
       <form onSubmit={enviar} className="space-y-4">
+        {sesionExpirada && !error && (
+          <div role="status" className="rounded-2xl border border-alerta/40 bg-alerta/10 px-4 py-3 text-sm text-amber-200">
+            Tu sesión terminó. Inicia sesión de nuevo para seguir.
+          </div>
+        )}
         {error && (
           <div role="alert" className="rounded-2xl border border-peligro/40 bg-peligro/10 px-4 py-3 text-sm text-red-300">
             {error}
