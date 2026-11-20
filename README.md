@@ -28,6 +28,7 @@ funciona sin conexión y tiene tema oscuro y claro.
 - [Cómo funciona](#cómo-funciona)
 - [Arquitectura](#arquitectura)
 - [Instalación](#instalación)
+- [Publicar en la nube](#publicar-en-la-nube)
 - [Pruebas](#pruebas)
 - [Seguridad](#seguridad)
 - [Hoja de ruta](#hoja-de-ruta)
@@ -219,10 +220,11 @@ Llena el `.env`:
 |---|---|
 | `DB_SERVER`, `DB_PORT`, `DB_NAME` | Dónde está SQL Server (`localhost`, `1433`, `FitMetrics`) |
 | `DB_USER`, `DB_PASSWORD` | `fitmetrics_app` y la contraseña que pusiste en `crear_usuario_app.sql` |
+| `DB_ENCRYPT` | `false` en tu PC; `true` en Azure SQL (conexión cifrada) |
 | `JWT_SECRET` | **Mínimo 32 caracteres.** Genera uno con `node -e "console.log(require('crypto').randomBytes(48).toString('base64'))"` |
 | `JWT_EXPIRES_IN` | Cuánto dura la sesión (`30d`) |
 | `CORS_ORIGINS` | Dominios del frontend permitidos (en tu PC no hace falta cambiarlo) |
-| `TRUST_PROXY` | Solo al publicar detrás de un proxy, normalmente `1` |
+| `TRUST_PROXY` | Solo al publicar: cuántos proxies hay antes de la API (`2` con Vercel + Render) |
 
 ```bash
 npm run dev     # http://localhost:3000
@@ -263,6 +265,20 @@ npm run preview -- --host   # puerto 4173
 | `frontend` | `npm run preview` | Sirve la versión compilada |
 | `frontend` | `npm run lint` | Revisa el código con ESLint |
 
+## Publicar en la nube
+
+FitMetrics se puede publicar **gratis**: la app en **Vercel**, la API en **Render** y la base
+en **Azure SQL Database** (plan gratuito). Vercel reenvía `/api` a Render, así la app y la API
+comparten dominio y el modo sin conexión funciona igual.
+
+La guía paso a paso está en **[docs/despliegue.md](docs/despliegue.md)**. Los archivos
+de configuración ya vienen en el repositorio:
+[`render.yaml`](render.yaml), [`frontend/vercel.json`](frontend/vercel.json) y
+[`database/azure/usuario_app_azure.sql`](database/azure/usuario_app_azure.sql).
+
+> En el plan gratis, la API y la base se duermen tras 15 minutos sin uso; al volver,
+> la app avisa "Despertando el servidor" y tarda hasta un minuto en responder.
+
 ## Pruebas
 
 ```bash
@@ -270,10 +286,11 @@ cd backend
 npm test
 ```
 
-**46 pruebas** con el runner nativo de Node (`node:test`), sin base de datos:
+**59 pruebas** con el runner nativo de Node (`node:test`), sin base de datos:
 
 - **Reglas de negocio:** sobrecarga y estancamiento, inventario de suplementos,
-  agrupación de reportes, CSV, validación de imágenes y de ejercicios.
+  agrupación de reportes, CSV, validación de imágenes y de ejercicios, recuperación
+  muscular, récords y reintentos de conexión con Azure SQL.
 - **Seguridad:** encabezados, CORS, límite de intentos de login y firma del JWT.
   Estas levantan la API real en un puerto libre.
 
@@ -292,7 +309,7 @@ npm test
 ## Hoja de ruta
 
 - [x] **v1.0**: entrenamiento, sobrecarga, volumen, fuerza, suplementos, reportes, PWA y seguridad
-- [ ] Publicar en internet (Vercel + Render + Azure SQL)
+- [ ] Publicar en internet (Vercel + Render + Azure SQL): [guía lista](docs/despliegue.md)
 - [ ] Notificaciones push de suplementos a la hora elegida
 - [ ] Registrar series sin conexión y enviarlas al recuperar la señal
 - [ ] Pruebas automáticas del frontend
