@@ -102,9 +102,10 @@ y gasta el tiempo gratis.
    | `CORS_ORIGINS` | por ahora `https://fitmetrics.vercel.app`; lo corriges en el paso 3 |
 
    El resto ya viene en `render.yaml` (`JWT_SECRET` lo genera Render solo).
-4. **Apply**. Cuando termine, tu API queda en `https://fitmetrics-api.onrender.com`.
-   - Si Render le pone otro nombre (por ejemplo `fitmetrics-api-x1y2`), cambia esa dirección
-     en [`frontend/vercel.json`](../frontend/vercel.json).
+4. **Apply**. Cuando termine, copia la dirección del servicio (arriba, bajo el nombre).
+   Si `fitmetrics-api` ya estaba ocupado, Render agrega letras al final: la de este proyecto es
+   `https://fitmetrics-api-wme2.onrender.com`. Esa dirección debe ser la misma que está en
+   [`frontend/vercel.json`](../frontend/vercel.json).
 
 ### 2.1 Dejar entrar a Render en el firewall de Azure
 
@@ -118,8 +119,8 @@ Render todavía no puede llegar a la base: Azure solo deja entrar a tu PC.
 
 ### 2.2 Probar
 
-- `https://fitmetrics-api.onrender.com/api/health` → `{"estado":"ok"}` (la API está encendida).
-- `https://fitmetrics-api.onrender.com/api/health/db` → `{"estado":"ok","baseDatos":"conectada"}`.
+- `https://fitmetrics-api-wme2.onrender.com/api/health` → `{"estado":"ok"}` (la API está encendida).
+- `https://fitmetrics-api-wme2.onrender.com/api/health/db` → `{"estado":"ok","baseDatos":"conectada"}`.
   La primera vez puede tardar hasta un minuto porque la base estaba en pausa.
 
 ---

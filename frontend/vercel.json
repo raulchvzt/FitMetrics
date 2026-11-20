@@ -3,7 +3,7 @@
   "rewrites": [
     {
       "source": "/api/:ruta*",
-      "destination": "https://fitmetrics-api.onrender.com/api/:ruta*"
+      "destination": "https://fitmetrics-api-wme2.onrender.com/api/:ruta*"
     },
     {
       "source": "/((?!api/).*)",
