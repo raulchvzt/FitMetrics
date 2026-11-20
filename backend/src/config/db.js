@@ -1,8 +1,10 @@
 import sql from 'mssql';
 
 // En tu PC: SQL Server local sin cifrado.
-// En la nube (Azure SQL): DB_ENCRYPT=true, conexión cifrada y certificado verificado.
+// En la nube: DB_ENCRYPT=true para cifrar la conexión. Si el hosting usa un certificado
+// que no está firmado por una autoridad reconocida, DB_TRUST_SERVER_CERT=true lo acepta.
 const cifrar = process.env.DB_ENCRYPT === 'true';
+const confiarCertificado = !cifrar || process.env.DB_TRUST_SERVER_CERT === 'true';
 
 const config = {
   server: process.env.DB_SERVER,
@@ -10,12 +12,12 @@ const config = {
   database: process.env.DB_NAME,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  // La base gratuita de Azure se pausa cuando no se usa y tarda en despertar
+  // Una base en la nube puede tardar en responder la primera vez (si estaba en pausa)
   connectionTimeout: 60_000,
   requestTimeout: 30_000,
   options: {
     encrypt: cifrar,
-    trustServerCertificate: !cifrar // solo en local se acepta un certificado sin verificar
+    trustServerCertificate: confiarCertificado
   },
   pool: {
     max: 10,

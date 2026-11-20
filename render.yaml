@@ -6,7 +6,7 @@ services:
     name: fitmetrics-api
     runtime: node
     plan: free
-    region: virginia          # cerca de Azure "East US", donde va la base de datos
+    region: virginia
     rootDir: backend
     branch: main
     buildCommand: npm ci
@@ -18,17 +18,19 @@ services:
       - key: NODE_VERSION
         value: "22"
       - key: DB_SERVER
-        sync: false           # ej. fitmetrics-raul.database.windows.net
+        sync: false           # ej. db81363.databaseasp.net
       - key: DB_PORT
         value: "1433"
       - key: DB_NAME
-        value: FitMetrics
+        sync: false           # nombre de la base en el hosting (ej. db81363)
       - key: DB_USER
-        value: fitmetrics_app
+        sync: false
       - key: DB_PASSWORD
         sync: false
       - key: DB_ENCRYPT
         value: "true"
+      - key: DB_TRUST_SERVER_CERT
+        value: "true"         # el hosting gratuito usa un certificado propio
       - key: JWT_SECRET
         generateValue: true   # Render crea un secreto largo y aleatorio
       - key: JWT_EXPIRES_IN
