@@ -9,7 +9,13 @@
   <img alt="Node.js y Express 5" src="https://img.shields.io/badge/Express-5-0A0A0A?logo=express&logoColor=D4FF3F">
   <img alt="SQL Server" src="https://img.shields.io/badge/SQL%20Server-0A0A0A?logo=microsoftsqlserver&logoColor=D4FF3F">
   <img alt="PWA" src="https://img.shields.io/badge/PWA-instalable-0A0A0A?logo=pwa&logoColor=D4FF3F">
-  <img alt="46 pruebas" src="https://img.shields.io/badge/pruebas-46%20✓-D4FF3F?labelColor=0A0A0A">
+  <img alt="59 pruebas" src="https://img.shields.io/badge/pruebas-59%20✓-D4FF3F?labelColor=0A0A0A">
+</p>
+
+<p align="center">
+  <a href="https://fitmetrics-rose.vercel.app"><b>🔗 Ver demo</b></a> ·
+  <a href="docs/despliegue.md">Cómo está publicada</a> ·
+  <a href="https://github.com/raulchvzt/FitMetrics/releases">Versiones</a>
 </p>
 
 # FitMetrics
@@ -220,7 +226,8 @@ Llena el `.env`:
 |---|---|
 | `DB_SERVER`, `DB_PORT`, `DB_NAME` | Dónde está SQL Server (`localhost`, `1433`, `FitMetrics`) |
 | `DB_USER`, `DB_PASSWORD` | `fitmetrics_app` y la contraseña que pusiste en `crear_usuario_app.sql` |
-| `DB_ENCRYPT` | `false` en tu PC; `true` en Azure SQL (conexión cifrada) |
+| `DB_ENCRYPT` | `false` en tu PC; `true` en la nube (conexión cifrada) |
+| `DB_TRUST_SERVER_CERT` | Solo en la nube si el hosting usa un certificado propio (MonsterASP: `true`) |
 | `JWT_SECRET` | **Mínimo 32 caracteres.** Genera uno con `node -e "console.log(require('crypto').randomBytes(48).toString('base64'))"` |
 | `JWT_EXPIRES_IN` | Cuánto dura la sesión (`30d`) |
 | `CORS_ORIGINS` | Dominios del frontend permitidos (en tu PC no hace falta cambiarlo) |
@@ -267,17 +274,20 @@ npm run preview -- --host   # puerto 4173
 
 ## Publicar en la nube
 
-FitMetrics se puede publicar **gratis**: la app en **Vercel**, la API en **Render** y la base
-en **Azure SQL Database** (plan gratuito). Vercel reenvía `/api` a Render, así la app y la API
-comparten dominio y el modo sin conexión funciona igual.
+FitMetrics está publicada **gratis y sin tarjeta** en
+**[fitmetrics-rose.vercel.app](https://fitmetrics-rose.vercel.app)**:
 
-La guía paso a paso está en **[docs/despliegue.md](docs/despliegue.md)**. Los archivos
-de configuración ya vienen en el repositorio:
-[`render.yaml`](render.yaml), [`frontend/vercel.json`](frontend/vercel.json) y
-[`database/azure/usuario_app_azure.sql`](database/azure/usuario_app_azure.sql).
+| Parte | Servicio |
+|---|---|
+| App | **Vercel**, que además reenvía `/api` a Render (misma dirección, sin CORS) |
+| API | **Render** (plan Free) |
+| Base de datos | **MonsterASP.NET**: SQL Server 2025 gratis con acceso remoto |
 
-> En el plan gratis, la API y la base se duermen tras 15 minutos sin uso; al volver,
-> la app avisa "Despertando el servidor" y tarda hasta un minuto en responder.
+La guía paso a paso está en **[docs/despliegue.md](docs/despliegue.md)**, y la configuración
+en [`render.yaml`](render.yaml) y [`frontend/vercel.json`](frontend/vercel.json).
+
+> En el plan gratis, la API se duerme tras 15 minutos sin uso; al volver, la app avisa
+> "Despertando el servidor" y tarda hasta un minuto en responder.
 
 ## Pruebas
 
@@ -290,7 +300,7 @@ npm test
 
 - **Reglas de negocio:** sobrecarga y estancamiento, inventario de suplementos,
   agrupación de reportes, CSV, validación de imágenes y de ejercicios, recuperación
-  muscular, récords y reintentos de conexión con Azure SQL.
+  muscular, récords y reintentos de conexión con la base en la nube.
 - **Seguridad:** encabezados, CORS, límite de intentos de login y firma del JWT.
   Estas levantan la API real en un puerto libre.
 
@@ -309,7 +319,7 @@ npm test
 ## Hoja de ruta
 
 - [x] **v1.0**: entrenamiento, sobrecarga, volumen, fuerza, suplementos, reportes, PWA y seguridad
-- [ ] Publicar en internet (Vercel + Render + Azure SQL): [guía lista](docs/despliegue.md)
+- [x] **v1.1**: publicada en internet (Vercel + Render + MonsterASP): [ver demo](https://fitmetrics-rose.vercel.app)
 - [ ] Notificaciones push de suplementos a la hora elegida
 - [ ] Registrar series sin conexión y enviarlas al recuperar la señal
 - [ ] Pruebas automáticas del frontend

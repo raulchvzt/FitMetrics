@@ -11,7 +11,7 @@ services:
     branch: main
     buildCommand: npm ci
     startCommand: npm start
-    # Revisión ligera: no toca la base para que Azure SQL pueda pausarse
+    # Revisión ligera: no toca la base en cada revisión de Render
     healthCheckPath: /api/health
     autoDeploy: true
     envVars:
@@ -36,6 +36,6 @@ services:
       - key: JWT_EXPIRES_IN
         value: 30d
       - key: CORS_ORIGINS
-        sync: false           # ej. https://fitmetrics-raul.vercel.app
+        sync: false           # ej. https://fitmetrics-rose.vercel.app
       - key: TRUST_PROXY
         value: "2"            # Vercel y Render: 2 proxies antes de la API
