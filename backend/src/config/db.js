@@ -26,7 +26,8 @@ const config = {
   }
 };
 
-// Errores de Azure SQL que significan "todavía estoy despertando, intenta otra vez"
+// Errores de bases en la nube (Azure SQL y similares) que significan
+// "todavía estoy despertando, intenta otra vez"
 const ERRORES_TEMPORALES = new Set([40613, 40197, 40501, 49918, 49919, 49920, 4060]);
 const INTENTOS = 4;
 const ESPERA_MS = 8_000;
@@ -56,7 +57,7 @@ export function getPool() {
     poolPromise = conectar()
       .then(pool => {
         console.log('✅ Conectado a SQL Server');
-        // Si la conexión se cae (por ejemplo, Azure pausó la base), se vuelve a crear
+        // Si la conexión se cae (por ejemplo, la base se pausó), se vuelve a crear
         pool.on('error', () => { poolPromise = null; });
         return pool;
       })
