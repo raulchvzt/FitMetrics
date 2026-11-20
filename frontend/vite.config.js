@@ -54,7 +54,8 @@ export default defineConfig({
               cacheName: 'api',
               networkTimeoutSeconds: 6,
               expiration: { maxEntries: 150, maxAgeSeconds: SEMANA },
-              cacheableResponse: { statuses: [200] }
+              // Solo se guardan datos JSON de la API (no la página de "cargando" de Render)
+              cacheableResponse: { statuses: [200], headers: { 'content-type': 'application/json; charset=utf-8' } }
             }
           },
           {

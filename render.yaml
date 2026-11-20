@@ -1,0 +1,39 @@
+# Configuración del backend en Render (plan gratuito).
+# En Render: New → Blueprint → elige este repositorio. Los valores con
+# "sync: false" te los pide Render al crear el servicio (no se guardan aquí).
+services:
+  - type: web
+    name: fitmetrics-api
+    runtime: node
+    plan: free
+    region: virginia          # cerca de Azure "East US", donde va la base de datos
+    rootDir: backend
+    branch: main
+    buildCommand: npm ci
+    startCommand: npm start
+    # Revisión ligera: no toca la base para que Azure SQL pueda pausarse
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: DB_SERVER
+        sync: false           # ej. fitmetrics-raul.database.windows.net
+      - key: DB_PORT
+        value: "1433"
+      - key: DB_NAME
+        value: FitMetrics
+      - key: DB_USER
+        value: fitmetrics_app
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_ENCRYPT
+        value: "true"
+      - key: JWT_SECRET
+        generateValue: true   # Render crea un secreto largo y aleatorio
+      - key: JWT_EXPIRES_IN
+        value: 30d
+      - key: CORS_ORIGINS
+        sync: false           # ej. https://fitmetrics-raul.vercel.app
+      - key: TRUST_PROXY
+        value: "2"            # Vercel y Render: 2 proxies antes de la API
