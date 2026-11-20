@@ -1,90 +1,40 @@
 # Despliegue gratis en la nube
 
-Guía para publicar FitMetrics sin pagar nada y usarla en el iPhone desde cualquier lugar.
+Cómo está publicada FitMetrics en **[fitmetrics-rose.vercel.app](https://fitmetrics-rose.vercel.app)**
+sin pagar nada y sin tarjeta de crédito.
 
 ```mermaid
 flowchart LR
     A["📱 iPhone<br/>(app instalada)"] -->|HTTPS| B["Vercel<br/>frontend + /api"]
     B -->|"/api/*"| C["Render<br/>API Node.js"]
-    C -->|"cifrado"| D[("Azure SQL<br/>FitMetrics")]
+    C -->|"cifrado"| D[("MonsterASP.NET<br/>SQL Server 2025")]
 ```
 
 | Parte | Servicio | Plan gratis |
 |---|---|---|
-| Frontend (la app) | **Vercel** | Hobby: sin límite práctico para un proyecto personal |
+| Frontend (la app) | **Vercel** | Hobby |
 | API (backend) | **Render** | Free: 750 h al mes; se duerme tras 15 min sin uso |
-| Base de datos | **Azure SQL Database** | Free: 100,000 segundos de vCore y 32 GB al mes; se pausa tras 15 min sin uso |
+| Base de datos | **MonsterASP.NET** | Free: 1 base SQL Server 2025 de 1 GB con acceso remoto, sin tarjeta |
 
 Vercel también hace de puente: la app llama a `/api/...` en su propio dominio y Vercel lo
 reenvía a Render (`frontend/vercel.json`). Así no hay problemas de CORS y el modo sin
-conexión sigue funcionando igual que en tu PC.
+conexión funciona igual que en tu PC.
 
-> **Lo que hay que saber del plan gratis.** Si nadie usa la app en 15 minutos, Render y Azure
-> se duermen. La primera vez que la abras después tardará **hasta 1 minuto** en responder
-> (la app muestra "Despertando el servidor"). Luego va rápida mientras la uses.
+> **Lo que hay que saber del plan gratis.** Si nadie usa la app en 15 minutos, Render se duerme.
+> La primera vez que la abras después tardará **hasta 1 minuto** en responder (la app muestra
+> "Despertando el servidor"). Luego va rápida mientras la uses.
 
 ---
 
-## Paso 1 · Base de datos en Azure SQL
+## Paso 1 · App en Vercel
 
-### 1.1 Crear la cuenta
+1. Entra a **[vercel.com](https://vercel.com)** con tu cuenta de GitHub.
+2. **Add New… → Project** → importa **FitMetrics**.
+3. **Root Directory**: `frontend`. Vercel detecta Vite solo. **Deploy**.
+4. Anota la dirección que te da (en este proyecto: `https://fitmetrics-rose.vercel.app`).
+   Se puede cambiar en **Settings → Domains**.
 
-- Como estudiante del TecNM puedes usar **Azure for Students** con tu correo institucional:
-  no pide tarjeta. (La versión *Students Starter* no incluye la base gratis).
-- Si no, crea una cuenta normal de Azure (pide tarjeta solo para verificar; la base gratis no cobra).
-
-### 1.2 Crear la base gratis
-
-1. Entra a **[aka.ms/azuresqlhub](https://aka.ms/azuresqlhub)** y en *Create a database*
-   elige **Start free**.
-2. En **Basics**:
-   - **Resource group**: crea uno nuevo, `fitmetrics`.
-   - **Database name**: `FitMetrics` (exactamente así).
-   - **Server** → *Create new*:
-     - **Server name**: algo único, por ejemplo `fitmetrics-raul` → queda
-       `fitmetrics-raul.database.windows.net`.
-     - **Location**: **(US) East US** (Render estará en Virginia, al lado).
-     - **Authentication method**: *Use SQL authentication*. Crea un usuario administrador
-       y una contraseña fuerte. **Guárdalos**: son solo para ti (SSMS), la app usará otro usuario.
-   - **Behavior when free limit reached**: **Auto-pause the database until next month**.
-     ⚠️ Muy importante: con esta opción **nunca te cobran**. No elijas *Continue using database
-     for additional charges*.
-   - Revisa que **Estimated Cost/Month** diga **0**.
-3. En **Networking**:
-   - **Connectivity method**: *Public endpoint*.
-   - **Add current client IP address**: *Yes* (para conectarte desde tu PC con SSMS).
-   - **Allow Azure services and resources to access this server**: *No*.
-4. **Review + create** → **Create**. Tarda unos minutos.
-
-### 1.3 Copiar tu base local a Azure (estructura y datos)
-
-En **SSMS conectado a tu SQL Server local**:
-
-1. Clic derecho en **FitMetrics** → **Tasks** → **Generate Scripts…**
-2. **Choose Objects**: *Script entire database and all database objects*.
-3. **Set Scripting Options** → **Advanced**:
-   - **Script for the database engine type**: *Microsoft Azure SQL Database*.
-   - **Types of data to script**: *Schema and data* (si quieres empezar en blanco: *Schema only*).
-   - **Script USE DATABASE**: *False*.
-4. Guárdalo como archivo, por ejemplo `fitmetrics_azure.sql`.
-
-Ahora **conecta SSMS a Azure** (*Connect → Database Engine*):
-
-- **Server name**: `fitmetrics-raul.database.windows.net`
-- **Authentication**: *SQL Server Authentication* con el administrador del paso 1.2
-- **Encryption**: *Mandatory*
-
-Abre `fitmetrics_azure.sql`, elige la base **FitMetrics** en la lista de arriba (no `master`)
-y ejecútalo (F5).
-
-### 1.4 Crear el usuario de la app
-
-Con la misma conexión a Azure y la base **FitMetrics** seleccionada, abre
-[`database/azure/usuario_app_azure.sql`](../database/azure/usuario_app_azure.sql), cambia
-`CAMBIA_ESTA_CONTRASEÑA_1!` por una contraseña nueva y ejecútalo. Esa contraseña va en Render.
-
-Al terminar, **desconéctate de Azure en SSMS**: una conexión abierta no deja que la base se pause
-y gasta el tiempo gratis.
+Hasta terminar el paso 3 la app abre, pero el inicio de sesión falla: todavía no hay API.
 
 ---
 
@@ -92,77 +42,130 @@ y gasta el tiempo gratis.
 
 1. Entra a **[render.com](https://render.com)** con tu cuenta de GitHub.
 2. **New** → **Blueprint** → elige el repositorio **FitMetrics**. Render lee
-   [`render.yaml`](../render.yaml) y prepara el servicio `fitmetrics-api` (plan Free, Virginia).
-3. Te pedirá 3 valores:
+   [`render.yaml`](../render.yaml) y prepara el servicio `fitmetrics-api` (plan Free).
+3. Te pedirá algunos valores. Los de la base todavía no los tienes: pon `pendiente`
+   y los cambias en el paso 3.
 
    | Variable | Valor |
    |---|---|
-   | `DB_SERVER` | `fitmetrics-raul.database.windows.net` |
-   | `DB_PASSWORD` | la contraseña de `fitmetrics_app` (paso 1.4) |
-   | `CORS_ORIGINS` | por ahora `https://fitmetrics.vercel.app`; lo corriges en el paso 3 |
+   | `DB_SERVER`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` | `pendiente` por ahora |
+   | `CORS_ORIGINS` | tu dirección de Vercel, sin `/` al final |
 
    El resto ya viene en `render.yaml` (`JWT_SECRET` lo genera Render solo).
-4. **Apply**. Cuando termine, copia la dirección del servicio (arriba, bajo el nombre).
-   Si `fitmetrics-api` ya estaba ocupado, Render agrega letras al final: la de este proyecto es
-   `https://fitmetrics-api-wme2.onrender.com`. Esa dirección debe ser la misma que está en
-   [`frontend/vercel.json`](../frontend/vercel.json).
-
-### 2.1 Dejar entrar a Render en el firewall de Azure
-
-Render todavía no puede llegar a la base: Azure solo deja entrar a tu PC.
-
-1. En Render abre el servicio → botón **Connect** (arriba a la derecha) → pestaña **Outbound**.
-   Verás rangos como `74.220.48.0/24`.
-2. En Azure: tu servidor SQL → **Security → Networking** → **Add a firewall rule** por cada rango.
-   Un `/24` va del `.0` al `.255`: `74.220.48.0/24` → inicio `74.220.48.0`, fin `74.220.48.255`.
-3. **Save**.
-
-### 2.2 Probar
-
-- `https://fitmetrics-api-wme2.onrender.com/api/health` → `{"estado":"ok"}` (la API está encendida).
-- `https://fitmetrics-api-wme2.onrender.com/api/health/db` → `{"estado":"ok","baseDatos":"conectada"}`.
-  La primera vez puede tardar hasta un minuto porque la base estaba en pausa.
+4. **Apply**. Copia la dirección del servicio (arriba, bajo el nombre). Si `fitmetrics-api`
+   ya estaba ocupado, Render agrega letras al final: la de este proyecto es
+   `https://fitmetrics-api-wme2.onrender.com`. **Esa dirección debe ser la misma que está en
+   [`frontend/vercel.json`](../frontend/vercel.json)**; si es otra, cámbiala ahí.
+5. Prueba `https://<tu-servicio>.onrender.com/api/health` → `{"estado":"ok"}`.
 
 ---
 
-## Paso 3 · App en Vercel
+## Paso 3 · Base de datos en MonsterASP.NET
 
-1. Entra a **[vercel.com](https://vercel.com)** con tu cuenta de GitHub.
-2. **Add New… → Project** → importa **FitMetrics**.
-3. **Root Directory**: `frontend`. Vercel detecta Vite solo. **Deploy**.
-4. En **Settings → Domains** puedes cambiar la dirección, por ejemplo
-   `fitmetrics-raul.vercel.app`.
-5. Regresa a Render → **Environment** → pon en `CORS_ORIGINS` tu dirección de Vercel
-   (sin `/` al final) y guarda.
+### 3.1 Crear la base
+
+1. Crea una cuenta en **[monsterasp.net](https://www.monsterasp.net/ASP.NET-Freehosting/)**
+   (plan **Free**, no pide tarjeta).
+2. **Create new service → Database**:
+   - Tipo: **SQL Server 2025**.
+   - Collation: `SQL_Latin1_General_CP1_CI_AS` (la que viene).
+   - User language: English.
+3. En la base, pestaña **Remote access** → **Enabled**. Anota:
+   - **Server**: algo como `db81363.public.databaseasp.net`.
+   - **Login**: el nombre de la base (`db81363`).
+   - **Password**: dale **Change** y pon una contraseña tuya, sin `;` ni comillas.
+
+> MonsterASP **bloquea tu IP** si fallas el inicio de sesión varias veces seguidas.
+> Copia y pega la contraseña en lugar de escribirla.
+
+### 3.2 Copiar tu base local (estructura y datos)
+
+En **SSMS conectado a tu SQL Server local**:
+
+1. Clic derecho en **FitMetrics** → **Tareas** → **Generar scripts…**
+2. **Elegir objetos**: *Seleccionar objetos específicos de la base de datos* y marca **todo**
+   (tablas, vistas, procedimientos…). Así el script no intenta crear una base nueva.
+3. **Establecer opciones de scripting**:
+   - *Guardar como archivo de script* → *Archivo de script único* → *Texto Unicode*.
+   - **Avanzadas**:
+     - **Tipos de datos que se van a incluir en el script**: *Esquema y datos*
+       (para empezar en blanco: *Solo esquema*).
+     - **Incluir USE DATABASE**: *False*.
+4. Guárdalo, por ejemplo, como `fitmetrics_nube.sql`.
+
+Ahora **conecta SSMS a MonsterASP** (*Conectar → Motor de base de datos*):
+
+| Campo | Valor |
+|---|---|
+| Nombre del servidor | el *Server* del paso 3.1 |
+| Autenticación | Autenticación de SQL Server |
+| Inicio de sesión / contraseña | los del paso 3.1 |
+| Nombre de la base de datos | el nombre de tu base (`db81363`) |
+| Cifrar | Obligatorio, con **Certificado de servidor de confianza** marcado |
+
+Abre `fitmetrics_nube.sql`, revisa que arriba esté seleccionada tu base (no `master`) y que
+la conexión sea la de MonsterASP (no `localhost`), y ejecútalo (F5).
+
+Al principio sale un error por el usuario `fitmetrics_app`: es normal, ese usuario solo existe
+en tu PC. En la nube la API usa el usuario de MonsterASP.
+
+Para comprobar que se copió todo:
+
+```sql
+SELECT 'Usuarios' AS Tabla, COUNT(*) AS Filas FROM Usuarios
+UNION ALL SELECT 'Ejercicios', COUNT(*) FROM Ejercicios
+UNION ALL SELECT 'Sesiones', COUNT(*) FROM Sesiones
+UNION ALL SELECT 'Series', COUNT(*) FROM Series;
+```
+
+### 3.3 Conectar Render con la base
+
+En Render → **fitmetrics-api** → **Environment**:
+
+| Variable | Valor |
+|---|---|
+| `DB_SERVER` | `db81363.public.databaseasp.net` |
+| `DB_NAME` | `db81363` |
+| `DB_USER` | `db81363` |
+| `DB_PASSWORD` | la contraseña del paso 3.1 |
+| `DB_ENCRYPT` | `true` (ya viene) |
+| `DB_TRUST_SERVER_CERT` | `true` (ya viene: MonsterASP usa un certificado propio) |
+
+Guarda; Render vuelve a desplegar solo. Prueba:
+
+- `https://<tu-servicio>.onrender.com/api/health/db` → `{"estado":"ok","baseDatos":"conectada"}`
 
 ---
 
 ## Paso 4 · Instalarla en el iPhone
 
-1. Abre tu dirección de Vercel en **Safari**.
+1. Abre **[fitmetrics-rose.vercel.app](https://fitmetrics-rose.vercel.app)** en **Safari**.
 2. **Compartir** → **Agregar a pantalla de inicio**.
-3. Inicia sesión con tu cuenta de siempre (si copiaste los datos en el paso 1.3).
+3. Inicia sesión con tu cuenta de siempre.
 
-Si ya la tenías instalada desde tu PC, bórrala y agrégala de nuevo desde la dirección de Vercel.
+Si tenías instalada la versión de tu PC, bórrala primero.
 
 ---
 
 ## Actualizaciones
 
-Cada merge a `main` publica solo: Vercel y Render vuelven a construir la app. La app instalada
-mostrará el aviso **"Hay una versión nueva"**.
+Cada merge a `main` publica solo: Vercel y Render vuelven a construir la app, y la app
+instalada muestra **"Hay una versión nueva"**.
 
-Si una actualización trae una migración SQL nueva, córrela en Azure con SSMS (base
-**FitMetrics** seleccionada) **antes** de hacer el merge. Las migraciones que empiezan con
-`USE FitMetrics;` se corren igual: en Azure quita esa línea y su `GO`.
+Si una actualización trae una **migración SQL nueva**, córrela en MonsterASP con SSMS
+(tu base seleccionada) **antes** del merge. Las migraciones empiezan con `USE FitMetrics;`:
+en la nube quita esa línea y su `GO`, porque la base se llama distinto.
+
+Tu base local y la de la nube ya son independientes: lo que registres en el iPhone se guarda
+solo en la nube.
 
 ## Problemas comunes
 
 | Síntoma | Causa y solución |
 |---|---|
 | "Despertando el servidor" casi un minuto | Normal en el plan gratis tras 15 min sin uso. |
-| `/api/health/db` da error de firewall o *Cannot open server* | Falta un rango de Render en el firewall de Azure (paso 2.1). |
-| *Login failed for user 'fitmetrics_app'* | La contraseña de `DB_PASSWORD` no es la del paso 1.4, o el script se corrió en `master`. |
-| La app dice "El servidor está despertando" y no pasa | Revisa los *Logs* del servicio en Render. |
-| La base quedó en pausa hasta el próximo mes | Se acabaron los 100,000 segundos gratis. Vuelve el día 1; o desconecta SSMS cuando no lo uses para no gastarlos. |
-| Inicias sesión en una cuenta vacía | Copiaste solo la estructura. Repite el paso 1.3 con *Schema and data*. |
+| La página de carga de Render se repite sin fin | Estás abriendo otra dirección: revisa la de tu servicio (con sus letras al final). |
+| `/api/health` dice "Ruta no encontrada" | Le falta `/api` o tiene un error de escritura. |
+| `Login failed for user` (18456) | Contraseña o usuario incorrectos. No insistas: MonsterASP bloquea la IP tras varios intentos. |
+| `/api/health/db` da error | Revisa `DB_SERVER`, `DB_NAME`, `DB_USER` y `DB_PASSWORD` en Render, y que *Remote access* siga en **Enabled**. Los **Logs** de Render dicen el error exacto. |
+| Inicias sesión en una cuenta vacía | Copiaste solo la estructura. Repite el paso 3.2 con *Esquema y datos*. |
